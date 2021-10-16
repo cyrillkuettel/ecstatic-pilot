@@ -7,12 +7,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.neovisionaries.ws.client.HostnameUnverifiedException;
+import com.neovisionaries.ws.client.OpeningHandshakeException;
+import com.neovisionaries.ws.client.StatusLine;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.SocketFactory;
 
@@ -64,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             // "ws://147.88.62.66:80/ws/"
 
-            ws = factory.createSocket("ws://192.168.188.38:80/ws/");
+            ws = factory.createSocket("ws://192.168.188.38:80/test");
             ws.addListener(new WebSocketAdapter() {
                 @Override
                 public void onTextMessage(WebSocket websocket,
@@ -84,18 +89,83 @@ public class MainActivity extends AppCompatActivity {
                                            WebSocketException exception) throws Exception {
                     Log.e(TAG, "onConnectError : " + exception.getMessage());
                 }
-
             });
 
-            ws.connectAsynchronously();
+            try
+            {
+                // Connect to the server and perform an opening handshake.
+                // This method blocks until the opening handshake is finished.
+                Log.v(TAG, "starting connection now");
+                ws.connect();
+                Log.v(TAG, "connected ..?");
+            }
+            catch (OpeningHandshakeException e)
+            {
+                // A violation against the WebSocket protocol was detected
+                // during the opening handshake.
+                // Status line.
+                Log.e(TAG,"OpeningHandshakeException " +  e.getMessage());
+
+                StatusLine sl = e.getStatusLine();
+                System.out.println("=== Status Line ===");
+                System.out.format("HTTP Version  = %s\n", sl.getHttpVersion());
+                System.out.format("Status Code   = %d\n", sl.getStatusCode());
+                System.out.format("Reason Phrase = %s\n", sl.getReasonPhrase());
+
+                // HTTP headers.
+                Map<String, List<String>> headers = e.getHeaders();
+                System.out.println("=== HTTP Headers ===");
+                for (Map.Entry<String, List<String>> entry : headers.entrySet())
+                {
+                    // Header name.
+                    String name = entry.getKey();
+
+                    // Values of the header.
+                    List<String> values = entry.getValue();
+
+                    if (values == null || values.size() == 0)
+                    {
+                        // Print the name only.
+                        System.out.println(name);
+                        continue;
+                    }
+
+                    for (String value : values)
+                    {
+                        // Print the name and the value.
+
+                        String msg = String.format("%s: %s\n", name, value);
+                        Log.e(TAG, msg);
+                    }
+                }
+
+
+
+            }
+            catch (HostnameUnverifiedException e)
+            {
+                // The certificate of the peer does not match the expected hostname.
+                Log.e(TAG, "HostnameUnverifiedException : " + e.getMessage());
+            }
+            catch (WebSocketException e)
+            {
+                // Failed to establish a WebSocket connection.
+                Log.e(TAG, "WebSocketException : " + e.getMessage());
+            }
+
+            // ws.connectAsynchronously();
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException ex) {
+            Log.e(TAG, "onTextMessage threw an IllegalArgumentException!" + ex.getMessage());
+            Log.v(TAG, "Cause for this:" + ex.getCause());
         } catch (Exception ex) {
-            Log.v(TAG, "onTextMessage threw an Exception!");
+            Log.e(TAG, "onTextMessage threw an general Exception!" + ex.getMessage());
+            Log.v(TAG, "Cause for this:" + ex.getCause());
         }
 
-        Log.v(TAG, "ws connecting asynchronously");
+       // Log.v(TAG, "ws connecting asynchronously");
 
 
 
