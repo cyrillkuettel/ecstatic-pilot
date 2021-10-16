@@ -9,9 +9,12 @@ import android.view.View;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
 import java.io.IOException;
+
+import javax.net.SocketFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,8 +52,50 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        EstablishSocketConnection socketConnection = new EstablishSocketConnection();
-        ws = socketConnection.start();
+
+
+        // Create a WebSocket factory and set 5000 milliseconds as a timeout
+        // value for socket connection.
+        WebSocketFactory factory = new WebSocketFactory();
+        factory.setSocketFactory(SocketFactory.getDefault());
+        factory.setConnectionTimeout(10000);
+
+        // Create a WebSocket. The timeout value set above is used.
+        try {
+            // "ws://147.88.62.66:80/ws/"
+
+            ws = factory.createSocket("ws://192.168.188.38:80/ws/");
+            ws.addListener(new WebSocketAdapter() {
+                @Override
+                public void onTextMessage(WebSocket websocket,
+                                          String message) throws Exception {
+                    Log.e(TAG, "onTextMessage: " + message);
+                }
+
+                @Override
+                public void onError(WebSocket websocket,
+                                    WebSocketException cause) throws Exception {
+                    Log.e(TAG, "Error : " + cause.getMessage());
+                    super.onError(websocket, cause);
+                }
+
+                @Override
+                public void onConnectError(WebSocket websocket,
+                                           WebSocketException exception) throws Exception {
+                    Log.e(TAG, "onConnectError : " + exception.getMessage());
+                }
+
+            });
+
+            ws.connectAsynchronously();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception ex) {
+            Log.v(TAG, "onTextMessage threw an Exception!");
+        }
+
+        Log.v(TAG, "ws connecting asynchronously");
 
 
 
@@ -68,6 +113,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean sendMessage(View v) {
+        if (ws == null) {
+            Log.v(TAG, "ws == null");
+        }
+
         if (ws.isOpen()) {
             ws.sendText("Message from Android!");
             return true;

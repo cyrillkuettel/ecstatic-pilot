@@ -15,22 +15,24 @@ public class EstablishSocketConnection {
 
     public EstablishSocketConnection() {
         ws = null;
-
+    // TODO: check for internet connection first.
     }
 
     public WebSocket start() {
 
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
         // value for socket connection.
-        WebSocketFactory factory = new WebSocketFactory().setConnectionTimeout(5000);
+        WebSocketFactory factory = new WebSocketFactory().setConnectionTimeout(100000);
 
         // Create a WebSocket. The timeout value set above is used.
         try {
-            ws = factory.createSocket("ws://147.88.62.66:80/ws/");
+            // "ws://147.88.62.66:80/ws/"
+
+            ws = factory.createSocket("ws://192.168.188.38:80/ws/");
             ws.addListener(new WebSocketAdapter() {
                 @Override
                 public void onTextMessage(WebSocket websocket, String message) throws Exception {
-                    Log.d(TAG, "onTextMessage: " + message);
+                    Log.v(TAG, "onTextMessage: " + message);
                 }
             });
 
@@ -38,8 +40,10 @@ public class EstablishSocketConnection {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception ex) {
-            Log.d(TAG, "onTextMessage threw an Exception!");
+            Log.v(TAG, "onTextMessage threw an Exception!");
         }
+
+        Log.v(TAG, "ws connecting asynchronously");
 
         return ws;
     }
