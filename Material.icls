@@ -1,0 +1,36 @@
+<scheme name="Material" version="142" parent_scheme="Darcula">
+  <metaInfo>
+    <property name="created">2018-06-26T11:01:56</property>
+    <property name="ide">AndroidStudio</property>
+    <property name="ideVersion">3.2.0.18</property>
+    <property name="modified">2018-06-26T11:02:01</property>
+    <property name="originalScheme">Material</property>
+  </metaInfo>
+  <attributes>
+    <option name="LOGCAT_ASSERT_OUTPUT">
+      <value>
+        <option name="FOREGROUND" value="9c27b0" />
+      </value>
+    </option>
+    <option name="LOGCAT_DEBUG_OUTPUT">
+      <value>
+        <option name="FOREGROUND" value="2196f3" />
+      </value>
+    </option>
+    <option name="LOGCAT_ERROR_OUTPUT">
+      <value>
+        <option name="FOREGROUND" value="f44336" />
+      </value>
+    </option>
+    <option name="LOGCAT_INFO_OUTPUT">
+      <value>
+        <option name="FOREGROUND" value="4caf50" />
+      </value>
+    </option>
+    <option name="LOGCAT_WARNING_OUTPUT">
+      <value>
+        <option name="FOREGROUND" value="ffc107" />
+      </value>
+    </option>
+  </attributes>
+</scheme>
