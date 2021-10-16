@@ -7,10 +7,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketFactory;
+
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
+
     /*
     The REQUEST_ENABLE_BT constant passed to startActivityForResult()
      is a locally-defined integer
@@ -18,6 +25,11 @@ public class MainActivity extends AppCompatActivity {
      The system passes this constant back to you in your onActivityResult() implementation
       as the requestCode parameter.
      */
+
+
+    WebSocket ws = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,14 +43,43 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, "Device supports bluetooth");
         }
 
-        if (!bluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled, ask to enable
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
+
+        EstablishSocketConnection socketConnection = new EstablishSocketConnection();
+        ws = socketConnection.start();
+
+
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (ws != null) {
+            ws.disconnect();
+            Log.v(TAG, "Disconnected Websocket.");
+            ws = null;
+        }
+    }
+
+    public boolean sendMessage(View v) {
+        if (ws.isOpen()) {
+            ws.sendText("Message from Android!");
+            return true;
+        }
+            Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
+            return false;
     }
 
     public void startClickHandler(View target) {
-        // Do stuff
-        Log.v(TAG, "clicked on button");
+        if (sendMessage(target)) {
+            Log.v(TAG, "Sent the Message using the websocket");
+        };
+
     }
 }
