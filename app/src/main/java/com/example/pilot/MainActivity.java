@@ -1,5 +1,8 @@
 package com.example.pilot;
+
+import android.os.StrictMode;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
@@ -38,15 +41,19 @@ public class MainActivity extends AppCompatActivity {
     WebSocket ws = null;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Override the default behaviour ( Network connection on main thread. )
+        // Probably I will eventually add en Executor for this thread.
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-           Log.v(TAG, "Device does not support bluetooth");
+            Log.v(TAG, "Device does not support bluetooth");
         } else {
             Log.v(TAG, "Device supports bluetooth");
         }
@@ -57,8 +64,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
         // value for socket connection.
         WebSocketFactory factory = new WebSocketFactory();
@@ -66,10 +71,22 @@ public class MainActivity extends AppCompatActivity {
         factory.setConnectionTimeout(10000);
 
         // Create a WebSocket. The timeout value set above is used.
-        try {
-            // "ws://147.88.62.66:80/ws/"
+        // "ws://147.88.62.66:80/ws/"
 
+        try {
             ws = factory.createSocket("ws://192.168.188.38:80/test");
+            // what to add?
+
+            ws.addProtocol("chat");
+            ws.addExtension("foo");
+            ws.addHeader("X-My-Custom-Header", "23");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
             ws.addListener(new WebSocketAdapter() {
                 @Override
                 public void onTextMessage(WebSocket websocket,
@@ -91,20 +108,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            try
-            {
+            try {
                 // Connect to the server and perform an opening handshake.
                 // This method blocks until the opening handshake is finished.
                 Log.v(TAG, "starting connection now");
+
                 ws.connect();
+
                 Log.v(TAG, "connected ..?");
-            }
-            catch (OpeningHandshakeException e)
-            {
+            } catch (OpeningHandshakeException e) {
                 // A violation against the WebSocket protocol was detected
                 // during the opening handshake.
                 // Status line.
-                Log.e(TAG,"OpeningHandshakeException " +  e.getMessage());
+                Log.e(TAG, "OpeningHandshakeException " + e.getMessage());
 
                 StatusLine sl = e.getStatusLine();
                 System.out.println("=== Status Line ===");
@@ -115,23 +131,20 @@ public class MainActivity extends AppCompatActivity {
                 // HTTP headers.
                 Map<String, List<String>> headers = e.getHeaders();
                 System.out.println("=== HTTP Headers ===");
-                for (Map.Entry<String, List<String>> entry : headers.entrySet())
-                {
+                for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
                     // Header name.
                     String name = entry.getKey();
 
                     // Values of the header.
                     List<String> values = entry.getValue();
 
-                    if (values == null || values.size() == 0)
-                    {
+                    if (values == null || values.size() == 0) {
                         // Print the name only.
                         System.out.println(name);
                         continue;
                     }
 
-                    for (String value : values)
-                    {
+                    for (String value : values) {
                         // Print the name and the value.
 
                         String msg = String.format("%s: %s\n", name, value);
@@ -140,33 +153,27 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-
-            }
-            catch (HostnameUnverifiedException e)
-            {
+            } catch (HostnameUnverifiedException e) {
                 // The certificate of the peer does not match the expected hostname.
                 Log.e(TAG, "HostnameUnverifiedException : " + e.getMessage());
-            }
-            catch (WebSocketException e)
-            {
+            } catch (WebSocketException e) {
                 // Failed to establish a WebSocket connection.
                 Log.e(TAG, "WebSocketException : " + e.getMessage());
             }
 
             // ws.connectAsynchronously();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+
         } catch (IllegalArgumentException ex) {
             Log.e(TAG, "onTextMessage threw an IllegalArgumentException!" + ex.getMessage());
             Log.v(TAG, "Cause for this:" + ex.getCause());
         } catch (Exception ex) {
-            Log.e(TAG, "onTextMessage threw an general Exception!" + ex.getMessage());
-            Log.v(TAG, "Cause for this:" + ex.getCause());
+            Log.e(TAG, "onTextMessage threw an general Exception! printing Stacktrace");
+            ex.printStackTrace();
+
         }
 
-       // Log.v(TAG, "ws connecting asynchronously");
-
+        // Log.v(TAG, "ws connecting asynchronously");
 
 
     }
@@ -191,14 +198,15 @@ public class MainActivity extends AppCompatActivity {
             ws.sendText("Message from Android!");
             return true;
         }
-            Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
-            return false;
+        Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
+        return false;
     }
 
     public void startClickHandler(View target) {
         if (sendMessage(target)) {
             Log.v(TAG, "Sent the Message using the websocket");
-        };
+        }
+
 
     }
 }
