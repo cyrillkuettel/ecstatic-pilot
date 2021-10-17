@@ -74,7 +74,11 @@ public class MainActivity extends AppCompatActivity {
         // "ws://147.88.62.66:80/ws/"
 
         try {
-            ws = factory.createSocket("ws://192.168.188.38:80/test");
+            String tryThisURI = "ws://192.168.188.38:80/ws";
+            String URI = "ws://192.168.188.38:80/test";
+
+
+            ws = factory.createSocket(tryThisURI);
             // what to add?
 
             ws.addProtocol("chat");
