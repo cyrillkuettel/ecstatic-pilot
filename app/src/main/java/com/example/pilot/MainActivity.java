@@ -64,6 +64,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
+
+
+    }
+
+
+    public void handShakeClickHandler(View view) {
+
+        Log.v(TAG, "Button pressed. Starting to establlish connection to socket");
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
         // value for socket connection.
         WebSocketFactory factory = new WebSocketFactory();
@@ -176,10 +185,6 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
 
         }
-
-        // Log.v(TAG, "ws connecting asynchronously");
-
-
     }
 
     @Override
@@ -193,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean sendMessage(View v) {
+    public boolean sendMessage(View view) {
         if (ws == null) {
             Log.v(TAG, "ws == null");
         }
@@ -206,11 +211,9 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    public void startClickHandler(View target) {
-        if (sendMessage(target)) {
+    public void startClickHandler(View view) {
+        if (sendMessage(view)) {
             Log.v(TAG, "Sent the Message using the websocket");
         }
-
-
     }
 }
