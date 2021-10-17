@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onTextMessage(WebSocket websocket,
                                           String message) throws Exception {
-                    Log.e(TAG, "onTextMessage: " + message);
+                     Log.v(TAG, "onTextMessage: " + message);
                 }
 
                 @Override
@@ -201,12 +201,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean sendMessage(View view) {
         if (ws == null) {
             Log.v(TAG, "ws == null");
+            return false;
         }
 
         if (ws.isOpen()) {
             ws.sendText("Message from Android!");
             return true;
         }
+
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
