@@ -24,6 +24,8 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void handShakeClickHandler(View view) {
+        if (!isInternetAvailable()) {
+            return;
+        }
 
         Log.v(TAG, "Button pressed. Starting to establish connection to socket");
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
@@ -137,7 +142,8 @@ public class MainActivity extends AppCompatActivity {
 
                 ws.connect();
 
-                Log.v(TAG, "connected ..?");
+                Log.v(TAG, "connected!");
+
             } catch (OpeningHandshakeException e) {
                 // A violation against the WebSocket protocol was detected
                 // during the opening handshake.
@@ -168,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
 
                     for (String value : values) {
                         // Print the name and the value.
-
                         String msg = String.format("%s: %s\n", name, value);
                         Log.e(TAG, msg);
                     }
@@ -209,7 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This allows to easily select the hostname for Websocket.
-     * If device is connected to HSLU-Network, the hostname can be accessed from within.
+     * If device is connected to HSLU-Network, the hostname can (and has
+     * to I think) be accessed from within.
      */
     public void generateDropDownItems() {
         Spinner spinnerLanguages=findViewById(R.id.dropdown_menu);
@@ -217,8 +223,29 @@ public class MainActivity extends AppCompatActivity {
                 this, R.array.hostnames, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spinnerLanguages.setAdapter(adapter);
-
     }
+
+    /** This method actually checks if device is connected to internet
+     * (There is a possibility it's connected to a network but not to internet).
+     * @return False if internet is not available, true otherwise
+     */
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress address = InetAddress.getByName("www.google.com");
+            return !address.equals("");
+        } catch (UnknownHostException e) {
+            String msg = "Internet does not seem to be available";
+            LogAndMakeToast(msg);
+        }
+        return false;
+    }
+
+    public void LogAndMakeToast(String message) {
+        Log.e(TAG, message);
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+    }
+
+
 
     public boolean sendMessage(View view) {
         if (ws == null) {
