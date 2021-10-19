@@ -10,6 +10,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.neovisionaries.ws.client.HostnameUnverifiedException;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
 import com.neovisionaries.ws.client.StatusLine;
@@ -46,10 +51,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Override the default behaviour ( Network connection on main thread. )
-        // Probably I will eventually add en Executor for this thread.
+        generateDropDownItems();
+
+        // TODO: create infrastructure to have threads which handle network stuff (Executors)
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        StrictMode.setThreadPolicy(policy); // Override the default behaviour ( Network connection
+                                                                                //on main thread. )
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -63,31 +71,32 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-
-
-
-
+        Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
     }
+
 
 
     public void handShakeClickHandler(View view) {
 
-        Log.v(TAG, "Button pressed. Starting to establlish connection to socket");
+        Log.v(TAG, "Button pressed. Starting to establish connection to socket");
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
         // value for socket connection.
         WebSocketFactory factory = new WebSocketFactory();
         factory.setSocketFactory(SocketFactory.getDefault());
         factory.setConnectionTimeout(10000);
 
-        // Create a WebSocket. The timeout value set above is used.
-        // "ws://147.88.62.66:80/ws/"
+
+
+        Spinner mySpinner = (Spinner) findViewById(R.id.dropdown_menu);
+        String WEBSOCKET_URI = mySpinner.getSelectedItem().toString();
 
         try {
-            String tryThisURI = "ws://192.168.188.38:80/ws";
-            String URI = "ws://192.168.188.38:80/test";
+            String pren_DOMAIN = "ws://pren.garteroboter.li:80/ws"; // this worked
+            String tryThisURI = "ws://192.168.188.38:80/ws"; // localhost @home
+            String pren_VPM_DOMAIN = "ws://prenh21-ckuttel.enterpriselab.ch:80/ws";
 
-
-            ws = factory.createSocket(tryThisURI);
+            // The timeout value set above is used.
+            ws = factory.createSocket(WEBSOCKET_URI);
             // what to add?
 
             ws.addProtocol("chat");
@@ -196,6 +205,19 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG, "Disconnected Websocket.");
             ws = null;
         }
+    }
+
+    /**
+     * This allows to easily select the hostname for Websocket.
+     * If device is connected to HSLU-Network, the hostname can be accessed from within.
+     */
+    public void generateDropDownItems() {
+        Spinner spinnerLanguages=findViewById(R.id.dropdown_menu);
+        ArrayAdapter<CharSequence>adapter = ArrayAdapter.createFromResource(
+                this, R.array.hostnames, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        spinnerLanguages.setAdapter(adapter);
+
     }
 
     public boolean sendMessage(View view) {

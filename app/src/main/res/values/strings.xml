@@ -1,6 +1,10 @@
 <resources>
-    <string name="app_name">PIlot</string>
+    <string name="app_name">Pilot</string>
     <string name="handshake">Handshake</string>
     <string name="send_message_to_websocket">Send Message to Websocket</string>
     <string name="pilot">Pilot</string>
+    <string-array name="hostnames">
+        <item>ws://pren.garteroboter.li:80/ws</item>
+        <item>ws://prenh21-ckuttel.enterpriselab.ch:80/ws</item>
+    </string-array>
 </resources>
