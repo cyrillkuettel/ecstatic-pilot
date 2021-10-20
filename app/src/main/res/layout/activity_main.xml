@@ -43,7 +43,7 @@
             android:id="@+id/button1"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="handShakeClickHandler"
             android:text="@string/handshake" />
@@ -52,18 +52,19 @@
             android:id="@+id/button2"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="startClickHandler"
             android:text="@string/send_message_to_websocket"/>
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/btnClose"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            android:onClick="onCloseSocketHandler"
             android:layout_gravity="center_horizontal|center"
-            android:text="3" />
+            android:text="@string/Close_Connection"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         generateDropDownItems();
 
-        // TODO: create infrastructure to have threads which handle network stuff (Executors)
+        // TODO: create infrastructure to have threads which handle network stuff outside of main
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy); // Override the default behaviour ( Network connection
@@ -63,11 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            Log.v(TAG, "Device does not support bluetooth");
-        } else {
-            Log.v(TAG, "Device supports bluetooth");
+            LogAndMakeToast("Could not find bluetooth adapter. ");
+            return;
         }
-
         if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled, ask to enable
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -76,10 +74,9 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
     }
 
-
-
     public void handShakeClickHandler(View view) {
         if (!isInternetAvailable()) {
+            LogAndMakeToast("Internet is not available. Are you online? ");
             return;
         }
 
@@ -88,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         // value for socket connection.
         WebSocketFactory factory = new WebSocketFactory();
         factory.setSocketFactory(SocketFactory.getDefault());
-        factory.setConnectionTimeout(10000);
+        factory.setConnectionTimeout(5000);
 
 
 
@@ -102,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
             // The timeout value set above is used.
             ws = factory.createSocket(WEBSOCKET_URI);
-            // what to add?
 
             ws.addProtocol("chat");
             ws.addExtension("foo");
@@ -265,6 +261,14 @@ public class MainActivity extends AppCompatActivity {
     public void startClickHandler(View view) {
         if (sendMessage(view)) {
             Log.v(TAG, "Sent the Message using the websocket");
+        }
+    }
+
+    public void onCloseSocketHandler(View view) {
+        if (ws != null) {
+            ws.disconnect();
+            Log.v(TAG, "Disconnected Websocket.");
+            ws = null;
         }
     }
 }

@@ -3,8 +3,11 @@
     <string name="handshake">Handshake</string>
     <string name="send_message_to_websocket">Send Message to Websocket</string>
     <string name="pilot">Pilot</string>
+    <string name="Close_Connection">close_websocket_connection</string>
     <string-array name="hostnames">
         <item>ws://pren.garteroboter.li:80/ws</item>
         <item>ws://prenh21-ckuttel.enterpriselab.ch:80/ws</item>
+        <item>ws://192.168.188.38:80/ws</item>
+        <item>ws://192.168.188.38:80/</item>
     </string-array>
 </resources>
