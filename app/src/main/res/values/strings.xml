@@ -8,6 +8,6 @@
         <item>ws://pren.garteroboter.li:80/ws</item>
         <item>ws://prenh21-ckuttel.enterpriselab.ch:80/ws</item>
         <item>ws://192.168.188.38:80/ws</item>
-        <item>ws://192.168.188.38:80/</item>
+        <item>ws://192.168.188.38:80/ws/999</item>
     </string-array>
 </resources>

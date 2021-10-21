@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy); // Override the default behaviour ( Network connection
-                                                                                //on main thread. )
+        //on main thread. )
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         factory.setConnectionTimeout(5000);
 
 
-
         Spinner mySpinner = (Spinner) findViewById(R.id.dropdown_menu);
         String WEBSOCKET_URI = mySpinner.getSelectedItem().toString();
 
@@ -114,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onTextMessage(WebSocket websocket,
                                           String message) throws Exception {
-                     Log.v(TAG, "onTextMessage: " + message);
+                    super.onTextMessage(websocket, message);
+                    Log.v(TAG, "onTextMessage: " + message);
                 }
 
                 @Override
@@ -127,9 +127,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onConnectError(WebSocket websocket,
                                            WebSocketException exception) throws Exception {
+                    super.onConnectError(websocket, exception);
                     Log.e(TAG, "onConnectError : " + exception.getMessage());
                 }
+
+                @Override
+                public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
+                    super.onConnected(websocket, headers);
+                    Log.v(TAG, "we are connected");
+                }
             });
+
 
             try {
                 // Connect to the server and perform an opening handshake.
@@ -214,15 +222,17 @@ public class MainActivity extends AppCompatActivity {
      * to I think) be accessed from within.
      */
     public void generateDropDownItems() {
-        Spinner spinnerLanguages=findViewById(R.id.dropdown_menu);
-        ArrayAdapter<CharSequence>adapter = ArrayAdapter.createFromResource(
+        Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.hostnames, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spinnerLanguages.setAdapter(adapter);
     }
 
-    /** This method actually checks if device is connected to internet
+    /**
+     * This method actually checks if device is connected to internet
      * (There is a possibility it's connected to a network but not to internet).
+     *
      * @return False if internet is not available, true otherwise
      */
     public boolean isInternetAvailable() {
@@ -240,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, message);
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
-
 
 
     public boolean sendMessage(View view) {
