@@ -40,15 +40,6 @@
         android:orientation="vertical" >
 
         <Button
-            android:id="@+id/button1"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="300dp"
-            android:layout_height="80dp"
-            android:layout_gravity="center_horizontal|center"
-            android:onClick="handShakeClickHandler"
-            android:text="@string/handshake" android:enabled="false"/>
-
-        <Button
             android:id="@+id/button2"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"

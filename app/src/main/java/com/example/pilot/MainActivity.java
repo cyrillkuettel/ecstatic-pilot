@@ -37,22 +37,15 @@ public class MainActivity extends AppCompatActivity {
      that must be greater than or equal to 0.
      The system passes this constant back to you in your onActivityResult() implementation
       as the requestCode parameter.
+
      */
 
-
-    WebSocket ws = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         generateDropDownItems();
-
-        // redundant
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy); // Override the default behaviour ( Network connection
-        //on main thread. )
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -68,116 +61,20 @@ public class MainActivity extends AppCompatActivity {
 
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         String URI = mySpinner.getSelectedItem().toString();
-
         manager = new WebSocketManager(URI);
-        manager.openNewConnection(Sockets.Text);  // is it required so use wait() to finish for executor?
 
-
+        new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
 
     }
 
-    public void handShakeClickHandler(View view) {
-
-
-        Log.v(TAG, "Button pressed. Starting to establish connection to socket");
-        // Create a WebSocket factory and set 5000 milliseconds as a timeout
-        // value for socket connection.
-        WebSocketFactory factory = new WebSocketFactory();
-        factory.setSocketFactory(SocketFactory.getDefault());
-        factory.setConnectionTimeout(5000);
-
-
-        Spinner mySpinner = findViewById(R.id.dropdown_menu);
-        String WEBSOCKET_URI = mySpinner.getSelectedItem().toString();
-
-        try {
-            String pren_DOMAIN = "ws://pren.garteroboter.li:80/ws"; // this worked
-            String tryThisURI = "ws://192.168.188.38:80/ws"; // localhost @home
-            String pren_VPM_DOMAIN = "ws://prenh21-ckuttel.enterpriselab.ch:80/ws";
-
-            // The timeout value set above is used.
-            ws = factory.createSocket(WEBSOCKET_URI);
-
-            ws.addProtocol("chat");
-            ws.addExtension("foo");
-            ws.addHeader("X-My-Custom-Header", "23");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            ws.addListener(new WebSocketAdapter() {
-                @Override
-                public void onTextMessage(WebSocket websocket,
-                                          String message) throws Exception {
-                    super.onTextMessage(websocket, message);
-                    Log.v(TAG, "onTextMessage: " + message);
-                }
-
-                @Override
-                public void onError(WebSocket websocket,
-                                    WebSocketException cause) throws Exception {
-                    Log.e(TAG, "Error : " + cause.getMessage());
-                    super.onError(websocket, cause);
-                }
-
-                @Override
-                public void onConnectError(WebSocket websocket,
-                                           WebSocketException exception) throws Exception {
-                    super.onConnectError(websocket, exception);
-                    Log.e(TAG, "onConnectError : " + exception.getMessage());
-                }
-
-                @Override
-                public void onConnected(WebSocket websocket,
-                                        Map<String, List<String>> headers) throws Exception {
-                    super.onConnected(websocket, headers);
-                    Log.v(TAG, "we are connected");
-                }
-            });
-
-        } catch (IllegalArgumentException ex) {
-            Log.e(TAG, "onTextMessage threw an IllegalArgumentException!" + ex.getMessage());
-            Log.v(TAG, "Cause for this:" + ex.getCause());
-        } catch (Exception ex) {
-            Log.e(TAG, "onTextMessage threw an general Exception! printing Stacktrace");
-            ex.printStackTrace();
-        }
-
-        try {
-            // Connect to the server and perform an opening handshake.
-            // This method blocks until the opening handshake is finished.
-            Log.v(TAG, "starting connection now");
-
-            ws.connect();
-
-        } catch (OpeningHandshakeException e) {
-           // createDetailedExceptionLog(e);
-
-        } catch (HostnameUnverifiedException e) {
-            // The certificate of the peer does not match the expected hostname.
-            Log.e(TAG, "HostnameUnverifiedException : " + e.getMessage());
-        } catch (WebSocketException e) {
-            // Failed to establish a WebSocket connection.
-            Log.e(TAG, "WebSocketException : " + e.getMessage());
-        }
+    public void sendMessageClickHandler(View view) {
+        manager.sendText();
     }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         manager.disconnectAll();
-
-        /* remove this redundant thing: */
-        if (ws != null) {
-            ws.disconnect();
-            Log.v(TAG, "Disconnected Websocket.");
-            ws = null;
-        }
     }
 
     /**
@@ -192,36 +89,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerLanguages.setAdapter(adapter);
     }
 
-// redundant
-    public boolean sendMessage(View view) {
-        if (ws == null) {
-            Log.v(TAG, "ws == null");
-            return false;
-        }
-
-        if (ws.isOpen()) {
-            ws.sendText("Message from Pilot!");
-            return true;
-        }
-
-        Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
-        return false;
-    }
-
-    public void sendMessageClickHandler(View view) {
-        manager.sendText();
-          //  Log.v(TAG, "Sent the Message using the websocket");
-
-    }
-
     public void onCloseSocketHandler(View view) {
         manager.disconnectAll();
-
-        /* redundant*/
-        if (ws != null) {
-            ws.disconnect();
-            ws = null;
-        }
-        Log.v(TAG, "Disconnected Websocket.");
     }
 }

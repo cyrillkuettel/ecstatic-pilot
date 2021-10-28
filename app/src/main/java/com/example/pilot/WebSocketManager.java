@@ -12,9 +12,7 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -33,6 +31,7 @@ public final class WebSocketManager extends AppCompatActivity {
      */
 
     private static final int TIMEOUT = 5000;
+    private static final int NUMBER_OF_THREADS = 2;
     private final ExecutorService executorService;
 
     /**
@@ -40,15 +39,14 @@ public final class WebSocketManager extends AppCompatActivity {
      * Currently I think there surely is one for text, and one for strictly binary data
      */
     private final Map<Sockets, WebSocket> sockets;
-    private static final int numberOfThreads = 3;
-    private String URI;
+    private final String URI;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public WebSocketManager(String URI) {
         this.sockets = new HashMap<>();
         this.URI = URI;
         /* It does make sense to re-use the SingleThreadExecutor for different connections." */
-        executorService = Executors.newFixedThreadPool(numberOfThreads);
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
 
@@ -101,6 +99,8 @@ public final class WebSocketManager extends AppCompatActivity {
         }
         sockets.put(socket, ws);
         return true;
+
+        // is it recommended so use wait() to finish for executor?
     }
 
     /**
@@ -150,8 +150,9 @@ public final class WebSocketManager extends AppCompatActivity {
     public void disconnectAll() {
         for (WebSocket w : sockets.values()) {
             w.disconnect();
-            Log.v(TAG, "Disconnected Websocket.");
+            Log.v(TAG, "Disconnected Websocket and Shutdown Executor.");
         }
+        executorService.shutdown();
     }
 
 
