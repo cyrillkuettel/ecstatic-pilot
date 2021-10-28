@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            LogAndMakeToast("Could not find bluetooth adapter. ");
+            Utils.LogAndToast(MainActivity.this, TAG, "Could not find bluetooth adapter. ");
             return;
         }
         if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled, ask to enable
@@ -72,13 +72,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
+
+        EstablishSocketConnection esc = new EstablishSocketConnection("ws://192.168.188.38:80/ws/999");
+        esc.openNewConnection("Logs");
+
     }
 
     public void handShakeClickHandler(View view) {
-        if (!isInternetAvailable()) {
-            LogAndMakeToast("Internet is not available. Are you online? ");
-            return;
-        }
+
 
         Log.v(TAG, "Button pressed. Starting to establish connection to socket");
         // Create a WebSocket factory and set 5000 milliseconds as a timeout
@@ -225,27 +226,6 @@ public class MainActivity extends AppCompatActivity {
         spinnerLanguages.setAdapter(adapter);
     }
 
-    /**
-     * This method actually checks if device is connected to internet
-     * (There is a possibility it's connected to a network but not to internet).
-     *
-     * @return False if internet is not available, true otherwise
-     */
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress address = InetAddress.getByName("www.google.com");
-            return !address.equals("");
-        } catch (UnknownHostException e) {
-            String msg = "Internet does not seem to be available";
-            LogAndMakeToast(msg);
-        }
-        return false;
-    }
-
-    public void LogAndMakeToast(String message) {
-        Log.e(TAG, message);
-        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-    }
 
     public boolean sendMessage(View view) {
         if (ws == null) {

@@ -1,6 +1,9 @@
 package com.example.pilot;
 
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.neovisionaries.ws.client.OpeningHandshakeException;
 import com.neovisionaries.ws.client.StatusLine;
@@ -13,6 +16,8 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,22 +26,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class EstablishSocketConnection {
+public class EstablishSocketConnection extends AppCompatActivity {
 
 
     /**
      * The timeout value in milliseconds for socket connection.
      */
-    private static final int numberOfThreads = 3;
+
     private static final int TIMEOUT = 5000;
     private final String URI;
     private ExecutorService executorService;
     private Map<String, WebSocket> sockets;
+    private static final int numberOfThreads = 3;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public EstablishSocketConnection(String Server) {
-        this.URI = Server;
+    public EstablishSocketConnection(String URI) {
+        this.URI = URI;
         this.sockets = new HashMap<>();
 
         /* It does make sense to re-use the SingleThreadExecutor for different connections." */
@@ -44,20 +50,25 @@ public class EstablishSocketConnection {
     }
 
 
-
     public boolean openNewConnection(String typeOfSocket) {
+        if (!isInternetAvailable()) {
+            Utils.LogAndToast(EstablishSocketConnection.this, TAG, "Internet is not available. Are you online? ");
+            return false;
+        }
+
+
         Future<WebSocket> future = null;
         WebSocket ws = null;
 
         try {
-           ws  = createWebSocket();
+            ws = createWebSocket();
         } catch (WebSocketException e) {
             // Failed to establish a WebSocket connection.
             Log.e(TAG, "WebSocketException : " + e.getMessage());
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        if ( ws == null) {
+        if (ws == null) {
             return false;
         }
 
@@ -75,8 +86,7 @@ public class EstablishSocketConnection {
             }
         } catch (InterruptedException ex) {
             Log.d(TAG, String.valueOf(ex.getMessage()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         sockets.put(typeOfSocket, ws);
@@ -110,15 +120,42 @@ public class EstablishSocketConnection {
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
                         Log.v(TAG, "we are connected");
+
                     }
                 })
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
     }
 
-    private static BufferedReader getInput() throws IOException
-    {
+    private static BufferedReader getInput() throws IOException {
         return new BufferedReader(new InputStreamReader(System.in));
     }
+
+    public void disconnectAll() {
+        for (WebSocket w : sockets.values()) {
+            w.disconnect();
+            Log.v(TAG, "Disconnected Websocket.");
+        }
+    }
+
+
+    /**
+     * This method actually checks if device is connected to internet
+     * (There is a possibility it's connected to a network but not to internet).
+     *
+     * @return False if internet is not available, true otherwise
+     */
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress address = InetAddress.getByName("www.google.com");
+            return !address.equals("");
+        } catch (UnknownHostException e) {
+            String msg = "Internet does not seem to be available";
+            Utils.LogAndToast(EstablishSocketConnection.this, TAG, "Could not find bluetooth adapter. ");
+
+        }
+        return false;
+    }
+
 
     private void createDetailedExceptionLog(OpeningHandshakeException e) {
         // A violation against the WebSocket protocol was detected
