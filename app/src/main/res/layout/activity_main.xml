@@ -4,31 +4,38 @@
     android:id="@+id/db1_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginBottom="15dp"
-        android:text="Pilot"
         android:layout_weight="0"
+        android:gravity="center"
+        android:text="Pilot"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:gravity="center|top"
         android:orientation="vertical">
 
         <Spinner
             android:id="@+id/dropdown_menu"
             android:layout_width="300dp"
-            android:layout_height="50dp"
+            android:layout_height="0px"
+            android:layout_weight="1"
             android:spinnerMode="dropdown"
             tools:ignore="SpeakableTextPresentCheck" />
+
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_weight="3"
+            android:layout_height="0px"
+            android:layout_width="300dp" />
 
     </LinearLayout>
 
@@ -37,25 +44,35 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         android:gravity="center|bottom"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/button2"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="80dp"
+            android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="sendMessageClickHandler"
-            android:text="@string/send_message_to_websocket"/>
+            android:text="@string/send_message_to_websocket" />
 
         <Button
             android:id="@+id/btnClose"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="80dp"
-            android:onClick="onCloseSocketHandler"
+            android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
-            android:text="@string/Close_Connection"/>
+            android:onClick="onCloseSocketHandler"
+            android:text="@string/Close_Connection" />
+
+        <Button
+            android:id="@+id/btnCamera"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="300dp"
+            android:layout_height="65dp"
+            android:layout_gravity="center_horizontal|center"
+            android:onClick="onCameraOpenClickHandler"
+            android:text="@string/camera" />
     </LinearLayout>
+
 
 </LinearLayout>

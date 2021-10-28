@@ -1,5 +1,7 @@
 package com.example.pilot;
 
+import android.app.Activity;
+import android.graphics.Bitmap;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.neovisionaries.ws.client.HostnameUnverifiedException;
@@ -31,15 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private WebSocketManager manager;
-    /*
-    The REQUEST_ENABLE_BT constant passed to startActivityForResult()
-     is a locally-defined integer
-     that must be greater than or equal to 0.
-     The system passes this constant back to you in your onActivityResult() implementation
-      as the requestCode parameter.
-
-     */
-
+    private static final int CAMERA_REQUEST = 1888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         manager = new WebSocketManager(URI);
 
         new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
-
+        Log.v(TAG, "onCreate fired!!");
     }
 
     public void sendMessageClickHandler(View view) {
@@ -92,4 +87,22 @@ public class MainActivity extends AppCompatActivity {
     public void onCloseSocketHandler(View view) {
         manager.disconnectAll();
     }
+
+    public void onCameraOpenClickHandler(View view) {
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        startActivity(intent);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            ImageView myview = findViewById(R.id.imageView);
+            myview.setImageBitmap(photo);
+        }
+    }
+
+
 }

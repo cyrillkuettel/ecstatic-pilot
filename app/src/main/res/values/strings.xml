@@ -4,6 +4,7 @@
     <string name="send_message_to_websocket">Send Message to Websocket</string>
     <string name="pilot">Pilot</string>
     <string name="Close_Connection">close_websocket_connection</string>
+    <string name="camera">Camera</string>
     <string-array name="uri">
         <item>ws://192.168.188.38:80/ws/</item>
         <item>ws://pren.garteroboter.li:80/ws/</item>
