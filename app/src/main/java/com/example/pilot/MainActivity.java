@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         factory.setConnectionTimeout(5000);
 
 
-        Spinner mySpinner = (Spinner) findViewById(R.id.dropdown_menu);
+        Spinner mySpinner = findViewById(R.id.dropdown_menu);
         String WEBSOCKET_URI = mySpinner.getSelectedItem().toString();
 
         try {
@@ -132,68 +132,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
+                public void onConnected(WebSocket websocket,
+                                        Map<String, List<String>> headers) throws Exception {
                     super.onConnected(websocket, headers);
                     Log.v(TAG, "we are connected");
                 }
             });
-
-
-            try {
-                // Connect to the server and perform an opening handshake.
-                // This method blocks until the opening handshake is finished.
-                Log.v(TAG, "starting connection now");
-
-                ws.connect();
-
-                Log.v(TAG, "connected!");
-
-            } catch (OpeningHandshakeException e) {
-                // A violation against the WebSocket protocol was detected
-                // during the opening handshake.
-                // Status line.
-                Log.e(TAG, "OpeningHandshakeException " + e.getMessage());
-
-                StatusLine sl = e.getStatusLine();
-                System.out.println("=== Status Line ===");
-                System.out.format("HTTP Version  = %s\n", sl.getHttpVersion());
-                System.out.format("Status Code   = %d\n", sl.getStatusCode());
-                System.out.format("Reason Phrase = %s\n", sl.getReasonPhrase());
-
-                // HTTP headers.
-                Map<String, List<String>> headers = e.getHeaders();
-                System.out.println("=== HTTP Headers ===");
-                for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-                    // Header name.
-                    String name = entry.getKey();
-
-                    // Values of the header.
-                    List<String> values = entry.getValue();
-
-                    if (values == null || values.size() == 0) {
-                        // Print the name only.
-                        System.out.println(name);
-                        continue;
-                    }
-
-                    for (String value : values) {
-                        // Print the name and the value.
-                        String msg = String.format("%s: %s\n", name, value);
-                        Log.e(TAG, msg);
-                    }
-                }
-
-
-            } catch (HostnameUnverifiedException e) {
-                // The certificate of the peer does not match the expected hostname.
-                Log.e(TAG, "HostnameUnverifiedException : " + e.getMessage());
-            } catch (WebSocketException e) {
-                // Failed to establish a WebSocket connection.
-                Log.e(TAG, "WebSocketException : " + e.getMessage());
-            }
-
-            // ws.connectAsynchronously();
-
 
         } catch (IllegalArgumentException ex) {
             Log.e(TAG, "onTextMessage threw an IllegalArgumentException!" + ex.getMessage());
@@ -201,7 +145,60 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ex) {
             Log.e(TAG, "onTextMessage threw an general Exception! printing Stacktrace");
             ex.printStackTrace();
+        }
 
+        try {
+            // Connect to the server and perform an opening handshake.
+            // This method blocks until the opening handshake is finished.
+            Log.v(TAG, "starting connection now");
+
+            ws.connect();
+
+        } catch (OpeningHandshakeException e) {
+            createDetailedExceptionLog(e);
+
+        } catch (HostnameUnverifiedException e) {
+            // The certificate of the peer does not match the expected hostname.
+            Log.e(TAG, "HostnameUnverifiedException : " + e.getMessage());
+        } catch (WebSocketException e) {
+            // Failed to establish a WebSocket connection.
+            Log.e(TAG, "WebSocketException : " + e.getMessage());
+        }
+    }
+
+    public void createDetailedExceptionLog(OpeningHandshakeException e) {
+        // A violation against the WebSocket protocol was detected
+        // during the opening handshake.
+        // Status line.
+        Log.e(TAG, "OpeningHandshakeException " + e.getMessage());
+
+        StatusLine sl = e.getStatusLine();
+        System.out.println("=== Status Line ===");
+        System.out.format("HTTP Version  = %s\n", sl.getHttpVersion());
+        System.out.format("Status Code   = %d\n", sl.getStatusCode());
+        System.out.format("Reason Phrase = %s\n", sl.getReasonPhrase());
+
+        // HTTP headers.
+        Map<String, List<String>> headers = e.getHeaders();
+        System.out.println("=== HTTP Headers ===");
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            // Header name.
+            String name = entry.getKey();
+
+            // Values of the header.
+            List<String> values = entry.getValue();
+
+            if (values == null || values.size() == 0) {
+                // Print the name only.
+                System.out.println(name);
+                continue;
+            }
+
+            for (String value : values) {
+                // Print the name and the value.
+                String msg = String.format("%s: %s\n", name, value);
+                Log.e(TAG, msg);
+            }
         }
     }
 
@@ -218,8 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This allows to easily select the hostname for Websocket.
-     * If device is connected to HSLU-Network, the hostname can (and has
-     * to I think) be accessed from within.
+     * If device is connected to HSLU-Network, the hostname can be accessed from within.
      */
     public void generateDropDownItems() {
         Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
@@ -251,7 +247,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
-
     public boolean sendMessage(View view) {
         if (ws == null) {
             Log.v(TAG, "ws == null");
@@ -259,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (ws.isOpen()) {
-            ws.sendText("Message from Android!");
+            ws.sendText("Message from Pilot!");
             return true;
         }
 
