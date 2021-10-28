@@ -46,7 +46,7 @@
             android:layout_height="80dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="handShakeClickHandler"
-            android:text="@string/handshake" />
+            android:text="@string/handshake" android:enabled="false"/>
 
         <Button
             android:id="@+id/button2"
@@ -54,7 +54,7 @@
             android:layout_width="300dp"
             android:layout_height="80dp"
             android:layout_gravity="center_horizontal|center"
-            android:onClick="startClickHandler"
+            android:onClick="sendMessageClickHandler"
             android:text="@string/send_message_to_websocket"/>
 
         <Button

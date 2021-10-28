@@ -15,7 +15,6 @@ import android.widget.Spinner;
 
 import com.neovisionaries.ws.client.HostnameUnverifiedException;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
-import com.neovisionaries.ws.client.StatusLine;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -43,11 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     WebSocket ws = null;
 
-    public MainActivity(WebSocketManager manager) {
-        this.manager = manager;
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         generateDropDownItems();
 
-        // TODO: create infrastructure to have threads which handle network stuff outside of main
-
+        // redundant
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy); // Override the default behaviour ( Network connection
         //on main thread. )
@@ -73,8 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
 
-        manager = new WebSocketManager("ws://192.168.188.38:80/ws/999");
-        manager.openNewConnection(Sockets.Text);
+        Spinner mySpinner = findViewById(R.id.dropdown_menu);
+        String URI = mySpinner.getSelectedItem().toString();
+
+        manager = new WebSocketManager(URI);
+        manager.openNewConnection(Sockets.Text);  // is it required so use wait() to finish for executor?
+
+
 
     }
 
@@ -189,12 +187,12 @@ public class MainActivity extends AppCompatActivity {
     public final void generateDropDownItems() {
         Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.hostnames, android.R.layout.simple_spinner_item);
+                this, R.array.uri, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spinnerLanguages.setAdapter(adapter);
     }
 
-
+// redundant
     public boolean sendMessage(View view) {
         if (ws == null) {
             Log.v(TAG, "ws == null");
@@ -210,17 +208,20 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    public void startClickHandler(View view) {
-        if (sendMessage(view)) {
-            Log.v(TAG, "Sent the Message using the websocket");
-        }
+    public void sendMessageClickHandler(View view) {
+        manager.sendText();
+          //  Log.v(TAG, "Sent the Message using the websocket");
+
     }
 
     public void onCloseSocketHandler(View view) {
+        manager.disconnectAll();
+
+        /* redundant*/
         if (ws != null) {
             ws.disconnect();
-            Log.v(TAG, "Disconnected Websocket.");
             ws = null;
         }
+        Log.v(TAG, "Disconnected Websocket.");
     }
 }

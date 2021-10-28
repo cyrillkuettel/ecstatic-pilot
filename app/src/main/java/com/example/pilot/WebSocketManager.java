@@ -33,7 +33,6 @@ public final class WebSocketManager extends AppCompatActivity {
      */
 
     private static final int TIMEOUT = 5000;
-    private final String URI;
     private final ExecutorService executorService;
 
     /**
@@ -42,13 +41,12 @@ public final class WebSocketManager extends AppCompatActivity {
      */
     private final Map<Sockets, WebSocket> sockets;
     private static final int numberOfThreads = 3;
-
+    private String URI;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public WebSocketManager(String URI) {
-        this.URI = URI;
         this.sockets = new HashMap<>();
-
+        this.URI = URI;
         /* It does make sense to re-use the SingleThreadExecutor for different connections." */
         executorService = Executors.newFixedThreadPool(numberOfThreads);
     }
@@ -61,16 +59,23 @@ public final class WebSocketManager extends AppCompatActivity {
             return false;
         }
 
-
+        String typeOfSocketConnection = null;
+        if (socket.equals(Sockets.Text)) {
+            typeOfSocketConnection = "999";  // I define these special client ID's on the server of course
+        }
+        if (socket.equals(Sockets.Binary)) {
+            typeOfSocketConnection = "888";
+        }
+        String completeURI = this.URI + typeOfSocketConnection;
         Future<WebSocket> future = null;
         WebSocket ws = null;
 
         try {
-            ws = createWebSocket();
+            ws = createWebSocket(completeURI);
         } catch (WebSocketException e) {
             // Failed to establish a WebSocket connection.
             Log.e(TAG, "WebSocketException : " + e.getMessage());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if (ws == null) {
@@ -101,10 +106,10 @@ public final class WebSocketManager extends AppCompatActivity {
     /**
      * Connect to the server.
      */
-    private WebSocket createWebSocket() throws IOException, WebSocketException {
+    private WebSocket createWebSocket(String completeURI) throws IOException, WebSocketException {
         return new WebSocketFactory()
                 .setConnectionTimeout(TIMEOUT)
-                .createSocket(URI)
+                .createSocket(completeURI)
                 .addListener(new WebSocketAdapter() {
                     @Override
                     public void onTextMessage(WebSocket websocket,
@@ -131,9 +136,6 @@ public final class WebSocketManager extends AppCompatActivity {
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
     }
 
-    private static BufferedReader getInput() throws IOException {
-        return new BufferedReader(new InputStreamReader(System.in));
-    }
 
     public boolean sendText() {
         WebSocket ws = sockets.get(Sockets.Text);
@@ -141,7 +143,6 @@ public final class WebSocketManager extends AppCompatActivity {
             ws.sendText("Message from Android in Other thread");
             return true;
         }
-
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
@@ -172,7 +173,9 @@ public final class WebSocketManager extends AppCompatActivity {
         return false;
     }
 
-
+    /*
+     * Pretty Print the OpeningHandshakeException e
+     */
     private void createDetailedExceptionLog(OpeningHandshakeException e) {
         // A violation against the WebSocket protocol was detected
         // during the opening handshake.
