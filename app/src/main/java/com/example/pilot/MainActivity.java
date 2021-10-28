@@ -10,10 +10,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.neovisionaries.ws.client.HostnameUnverifiedException;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
@@ -24,8 +22,6 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
-
+    private WebSocketManager manager;
     /*
     The REQUEST_ENABLE_BT constant passed to startActivityForResult()
      is a locally-defined integer
@@ -46,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     WebSocket ws = null;
+
+    public MainActivity(WebSocketManager manager) {
+        this.manager = manager;
+    }
 
 
     @Override
@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
 
-        EstablishSocketConnection esc = new EstablishSocketConnection("ws://192.168.188.38:80/ws/999");
-        esc.openNewConnection("Logs");
+        manager = new WebSocketManager("ws://192.168.188.38:80/ws/999");
+        manager.openNewConnection(Sockets.Text);
 
     }
 
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             ws.connect();
 
         } catch (OpeningHandshakeException e) {
-            createDetailedExceptionLog(e);
+           // createDetailedExceptionLog(e);
 
         } catch (HostnameUnverifiedException e) {
             // The certificate of the peer does not match the expected hostname.
@@ -167,46 +167,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void createDetailedExceptionLog(OpeningHandshakeException e) {
-        // A violation against the WebSocket protocol was detected
-        // during the opening handshake.
-        // Status line.
-        Log.e(TAG, "OpeningHandshakeException " + e.getMessage());
-
-        StatusLine sl = e.getStatusLine();
-        System.out.println("=== Status Line ===");
-        System.out.format("HTTP Version  = %s\n", sl.getHttpVersion());
-        System.out.format("Status Code   = %d\n", sl.getStatusCode());
-        System.out.format("Reason Phrase = %s\n", sl.getReasonPhrase());
-
-        // HTTP headers.
-        Map<String, List<String>> headers = e.getHeaders();
-        System.out.println("=== HTTP Headers ===");
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            // Header name.
-            String name = entry.getKey();
-
-            // Values of the header.
-            List<String> values = entry.getValue();
-
-            if (values == null || values.size() == 0) {
-                // Print the name only.
-                System.out.println(name);
-                continue;
-            }
-
-            for (String value : values) {
-                // Print the name and the value.
-                String msg = String.format("%s: %s\n", name, value);
-                Log.e(TAG, msg);
-            }
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        manager.disconnectAll();
+
+        /* remove this redundant thing: */
         if (ws != null) {
             ws.disconnect();
             Log.v(TAG, "Disconnected Websocket.");
@@ -218,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
      * This allows to easily select the hostname for Websocket.
      * If device is connected to HSLU-Network, the hostname can be accessed from within.
      */
-    public void generateDropDownItems() {
+    public final void generateDropDownItems() {
         Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.hostnames, android.R.layout.simple_spinner_item);

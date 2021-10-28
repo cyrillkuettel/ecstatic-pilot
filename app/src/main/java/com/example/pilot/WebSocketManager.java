@@ -1,7 +1,6 @@
 package com.example.pilot;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,7 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class EstablishSocketConnection extends AppCompatActivity {
+public final class WebSocketManager extends AppCompatActivity {
 
 
     /**
@@ -35,13 +34,18 @@ public class EstablishSocketConnection extends AppCompatActivity {
 
     private static final int TIMEOUT = 5000;
     private final String URI;
-    private ExecutorService executorService;
-    private Map<String, WebSocket> sockets;
+    private final ExecutorService executorService;
+
+    /**
+     * The different WebSocket connections which have been established.
+     * Currently I think there surely is one for text, and one for strictly binary data
+     */
+    private final Map<Sockets, WebSocket> sockets;
     private static final int numberOfThreads = 3;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public EstablishSocketConnection(String URI) {
+    public WebSocketManager(String URI) {
         this.URI = URI;
         this.sockets = new HashMap<>();
 
@@ -50,9 +54,10 @@ public class EstablishSocketConnection extends AppCompatActivity {
     }
 
 
-    public boolean openNewConnection(String typeOfSocket) {
+    public boolean openNewConnection(Sockets socket) {
         if (!isInternetAvailable()) {
-            Utils.LogAndToast(EstablishSocketConnection.this, TAG, "Internet is not available. Are you online? ");
+            Utils.LogAndToast(WebSocketManager.this, TAG,
+                    "Internet is not available. Are you online? ");
             return false;
         }
 
@@ -89,7 +94,7 @@ public class EstablishSocketConnection extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        sockets.put(typeOfSocket, ws);
+        sockets.put(socket, ws);
         return true;
     }
 
@@ -130,6 +135,17 @@ public class EstablishSocketConnection extends AppCompatActivity {
         return new BufferedReader(new InputStreamReader(System.in));
     }
 
+    public boolean sendText() {
+        WebSocket ws = sockets.get(Sockets.Text);
+        if (ws.isOpen()) {
+            ws.sendText("Message from Android in Other thread");
+            return true;
+        }
+
+        Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
+        return false;
+    }
+
     public void disconnectAll() {
         for (WebSocket w : sockets.values()) {
             w.disconnect();
@@ -150,8 +166,8 @@ public class EstablishSocketConnection extends AppCompatActivity {
             return !address.equals("");
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
-            Utils.LogAndToast(EstablishSocketConnection.this, TAG, "Could not find bluetooth adapter. ");
-
+            Utils.LogAndToast(WebSocketManager.this, TAG,
+                    "Could not find bluetooth adapter. ");
         }
         return false;
     }
