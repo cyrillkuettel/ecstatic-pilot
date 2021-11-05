@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import android.widget.ArrayAdapter;
@@ -32,8 +35,7 @@ import javax.net.SocketFactory;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int REQUEST_ENABLE_BT = 1;
-    private WebSocketManager manager;
+    private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
 
     @Override
@@ -42,25 +44,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         generateDropDownItems();
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Utils.LogAndToast(MainActivity.this, TAG, "Could not find bluetooth adapter. ");
-            return;
-        }
-        if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled, ask to enable
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
+
 
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
 
+
+        Log.v(TAG, "onCreate fired!!");
+    }
+
+    public void reopenSocketConnection(View view) {
+        if (!(manager == null)) {
+            manager.disconnectAll();
+        }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         String URI = mySpinner.getSelectedItem().toString();
         manager = new WebSocketManager(URI);
-
         new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
-        Log.v(TAG, "onCreate fired!!");
+
     }
+
 
     public void sendMessageClickHandler(View view) {
         manager.sendText();
@@ -72,10 +74,31 @@ public class MainActivity extends AppCompatActivity {
         manager.disconnectAll();
     }
 
-    /**
-     * This allows to easily select the hostname for Websocket.
-     * If device is connected to HSLU-Network, the hostname can be accessed from within.
-     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mainpagemenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.bluetooth:
+                intent = new Intent(this, BluetoothActivity.class);
+                break;
+            case R.id.websocket:
+                intent = new Intent(this, MainActivity.class);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        startActivity(intent);
+        return true;
+    }
+
+
     public final void generateDropDownItems() {
         Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -105,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
             myview.setImageBitmap(photo);
         }
     }
+
+
 
 
 }

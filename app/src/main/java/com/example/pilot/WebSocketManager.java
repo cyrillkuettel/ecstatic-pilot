@@ -140,7 +140,7 @@ public final class WebSocketManager extends AppCompatActivity {
     public boolean sendText() {
         WebSocket ws = sockets.get(Sockets.Text);
         if (ws.isOpen()) {
-            ws.sendText("Message from Android in Other thread");
+            ws.sendText("Message from Android from external thread.");
             return true;
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
@@ -169,7 +169,7 @@ public final class WebSocketManager extends AppCompatActivity {
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
             Utils.LogAndToast(WebSocketManager.this, TAG,
-                    "Could not find bluetooth adapter. ");
+                    msg);
         }
         return false;
     }
