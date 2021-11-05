@@ -1,4 +1,4 @@
-package com.example.pilot;
+package li.garteroboter.pren;
 
 import android.content.Context;
 

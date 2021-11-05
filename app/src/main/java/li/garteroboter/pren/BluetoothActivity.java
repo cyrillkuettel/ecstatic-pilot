@@ -1,4 +1,4 @@
-package com.example.pilot;
+package li.garteroboter.pren;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,7 +28,15 @@ public class BluetoothActivity extends AppCompatActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-        Log.v(TAG, "Bluetooth activity onCreate ! ");
+
+
+
+        /*
+            The first step that needs to be done:
+            Scan devices.
+            Pair
+            Send Messages
+         */
     }
 
     @Override

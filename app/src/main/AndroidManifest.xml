@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.pilot">
+    package="li.garteroboter.pren">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -22,10 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PIlot">
         <activity
-            android:name=".BluetoothActivity"
+            android:name="li.garteroboter.pren.BluetoothActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="li.garteroboter.pren.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

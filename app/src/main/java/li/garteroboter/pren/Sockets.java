@@ -1,4 +1,4 @@
-package com.example.pilot;
+package li.garteroboter.pren;
 
 public enum Sockets {
 

@@ -1,36 +1,19 @@
-package com.example.pilot;
+package li.garteroboter.pren;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.os.StrictMode;
-import android.util.Log;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
-import com.neovisionaries.ws.client.HostnameUnverifiedException;
-import com.neovisionaries.ws.client.OpeningHandshakeException;
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketAdapter;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.net.SocketFactory;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
