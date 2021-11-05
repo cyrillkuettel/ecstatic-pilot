@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-
-
         Log.v(TAG, "onCreate fired!!");
     }
 

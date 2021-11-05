@@ -6,13 +6,15 @@
         android:icon="@drawable/hamburger"
         app:showAsAction="ifRoom|withText"
         android:title="@string/menu">
+
+        <!-- app:showAsAction="always|withText" -->
+
         <menu>
             <item
-                android:icon="@drawable/bluetooth"
                 android:id="@+id/bluetooth"
-                android:title="@string/bluetooth" />
+                android:title="bluetooth" />
+
             <item
-                android:icon="@drawable/ic_baseline_signal_cellular_alt_24"
                 android:id="@+id/websocket"
                 android:title="@string/websocket" />
 
