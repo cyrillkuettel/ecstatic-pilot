@@ -52,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        manager.disconnectAll();
+        if (!(manager == null)) {
+            manager.disconnectAll();
+        }
     }
 
     @Override
