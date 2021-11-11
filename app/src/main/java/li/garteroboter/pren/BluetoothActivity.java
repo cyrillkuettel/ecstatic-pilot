@@ -1,7 +1,9 @@
 package li.garteroboter.pren;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -11,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -155,13 +159,22 @@ public class BluetoothActivity extends AppCompatActivity {
     public void sendBluetoothMessageClickHandler(View view) {
 
         // create a thread to connect
-        /* BluetoothDevice d = devices.get()
-        ConnectThread myThread = new ConnectThread(); // get the current selected bluetooth device
-        myTread.start();
-        */
-        MyBluetoothService service = new MyBluetoothService();
 
-        Log.v(TAG, devices.toString());
+        if (selectedDevice == null) {
+            Log.e(TAG, "selected Device is Null");
+            return;
+        }
+        ConnectThread connectThread = new ConnectThread(selectedDevice); // get the current selected bluetooth device
+        connectThread.start();
+    }
+
+
+    @SuppressLint("HandlerLeak")
+    Handler mHandler=new Handler();
+    public void manageMyConnectedSocket(BluetoothSocket socket) {
+
+
+        MyBluetoothService service = new MyBluetoothService(socket, mHandler);
 
     }
 
@@ -218,11 +231,10 @@ public class BluetoothActivity extends AppCompatActivity {
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
 
-            // MyBluetoothService expects this in the constructor
-            /*
-                manageMyConnectedSocket(mmSocket);
+            // MyBluetoothService ConnectedThread needs the socket
+            manageMyConnectedSocket(mmSocket);
 
-             */
+
         }
 
         // Closes the client socket and causes the thread to finish.

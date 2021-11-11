@@ -20,6 +20,7 @@ public class MyBluetoothService {
     private static final String TAG = "MY_APP_DEBUG_TAG";
     private Handler handler; // handler that gets info from Bluetooth service
 
+
     // Defines several constants used when transmitting messages between the
     // service and the UI.
     private interface MessageConstants {
@@ -30,6 +31,15 @@ public class MyBluetoothService {
         // ... (Add other message types here as needed.)
     }
 
+    public MyBluetoothService(BluetoothSocket socket, Handler handler) {
+        this.handler = handler;
+    }
+
+
+    /**
+     * This thread runs during a connection with a remote device.
+     * It handles all incoming and outgoing transmissions.
+     */
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
