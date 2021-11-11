@@ -44,7 +44,7 @@
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="printBluetoothDevicesClickHandler"
-            android:text="Print" />
+            android:text="Send Message to Connected Bluetooth device" />
 
         <ListView
             android:layout_width="match_parent"

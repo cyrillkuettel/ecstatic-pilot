@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,26 +15,39 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class BluetoothActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String MAC_ADDRESS_ESP32 = "4C:EB:D6:75:AB:4E";
+    private static final String BLUETOOTH_DEVICE_NAME_ESP32 = "ESP32test";
 
-    private final List<li.garteroboter.pren.BluetoothDevice> devices = new ArrayList<>();
+    // generated online
+    private static final String UUID = "0fb7bb6b-3227-4776-bf9a-3356b52b0316";
+    private BluetoothAdapter bluetoothAdapter;
+
+    private final Map<String, BluetoothDevice> devices = new HashMap<>();
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utils.LogAndToast(BluetoothActivity.this, TAG, "Could not find bluetooth adapter. ");
             return;
@@ -43,23 +57,13 @@ public class BluetoothActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-
-
-        /*
-            The first step that needs to be done:
-            Scan devices. It should scan for devices as soon as activity loads.
-
-            Pair
-            Send Messages
-         */
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-
         if (pairedDevices.size() > 0) {
             // There are paired devices. Get the name and address of each paired device.
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
-                devices.add(new li.garteroboter.pren.BluetoothDevice(deviceName, deviceHardwareAddress));
+                devices.put(deviceName, device);
             }
         }
 
@@ -67,19 +71,33 @@ public class BluetoothActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(receiver, filter);
 
-
         String[] bluetoothDevicesArray = new String[devices.size()]; // this can be written with more
                                                                 // elegance using java8 streams !! Let's do it
-        for (int i = 0; i < bluetoothDevicesArray.length; i++) {
-            bluetoothDevicesArray[i] = devices.get(i).deviceName;
+        int count = 0;
+        for ( String key : devices.keySet() ) {
+            bluetoothDevicesArray[count] = key;
+            count++;
         }
+       // this block above was very ugly. I could write this much more compact.
+
+        // i could write my own ArrayAdapter. This is simply an object to store information about the item.
+
         ArrayAdapter<String> myAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, bluetoothDevicesArray );
-        ListView theListView = findViewById(R.id.myListView);
-        theListView.setAdapter(myAdapter);
+        ListView bluetoothDevicesListView = findViewById(R.id.myListView);
+        bluetoothDevicesListView.setAdapter(myAdapter);
+
+        bluetoothDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position,
+                                    long id) {
+
+                String value = (String) parent.getItemAtPosition(position);
+                Toast.makeText(BluetoothActivity.this,"You selected : " + value, Toast.LENGTH_SHORT).show();
+                Log.v(TAG, value);
+            }
+        });
 
     }
-
-
 
     // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -89,9 +107,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 // Discovery has found a device. Get the BluetoothDevice
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                devices.add(new li.garteroboter.pren.BluetoothDevice(deviceName, deviceHardwareAddress));
+                devices.put(device.getName(), device);
                 Utils.LogAndToast(BluetoothActivity.this, TAG,"Discovery has found a device.");
             }
         }
@@ -123,10 +139,14 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
 
+    public void sendBluetoothMessageClickHandler(View view) {
 
-    //button click handler
-    public void printBluetoothDevicesClickHandler(View view) {
-        // Log.v(TAG, "click!");
+        // create a thread to connect
+        /* BluetoothDevice d = devices.get()
+        ConnectThread myThread = new ConnectThread(); // get the current selected bluetooth device
+        myTread.start();
+        */
+        MyBluetoothService service = new MyBluetoothService();
 
         Log.v(TAG, devices.toString());
 
@@ -141,4 +161,66 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
 
+    private class ConnectThread extends Thread {
+
+        private final BluetoothSocket mmSocket;
+        private final BluetoothDevice mmDevice;
+        private final String TAG = ConnectThread.class.getSimpleName();
+        // generated online
+
+        public ConnectThread(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket
+            // because mmSocket is final.
+            BluetoothSocket tmp = null;
+            mmDevice = device;
+
+            try {
+                // Get a BluetoothSocket to connect with the given BluetoothDevice.
+
+                tmp = device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
+            } catch (IOException e) {
+                Log.e(TAG, "Socket's create() method failed", e);
+            }
+            mmSocket = tmp;
+        }
+
+        public void run() {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter.cancelDiscovery();
+
+            try {
+                // Connect to the remote device through the socket. This call blocks
+                // until it succeeds or throws an exception.
+                mmSocket.connect();
+            } catch (IOException connectException) {
+                // Unable to connect; close the socket and return.
+                try {
+                    mmSocket.close();
+                } catch (IOException closeException) {
+                    Log.e(TAG, "Could not close the client socket", closeException);
+                }
+                return;
+            }
+
+            // The connection attempt succeeded. Perform work associated with
+            // the connection in a separate thread.
+
+            // MyBluetoothService expects this in the constructor
+            /*
+                manageMyConnectedSocket(mmSocket);
+
+             */
+        }
+
+        // Closes the client socket and causes the thread to finish.
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Could not close the client socket", e);
+            }
+        }
+    }
+
 }
+

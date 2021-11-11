@@ -16,7 +16,7 @@
 
             <item
                 android:id="@+id/websocket"
-                android:title="@string/WebSocket" />
+                android:title="WebSocket" />
 
         </menu>
 
