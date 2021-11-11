@@ -16,9 +16,13 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,6 +53,12 @@ public final class WebSocketManager extends AppCompatActivity {
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
+    public final String GenerateRandomNumber(int charLength) {
+        return String.valueOf(charLength < 1 ? 0 : new Random()
+                .nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
+                + (int) Math.pow(10, charLength - 1));
+    }
+
 
     public boolean openNewConnection(Sockets socket) {
         if (!isInternetAvailable()) {
@@ -64,6 +74,9 @@ public final class WebSocketManager extends AppCompatActivity {
         if (socket.equals(Sockets.Binary)) {
             typeOfSocketConnection = "888";
         }
+        // teporary for testing to alllow muliple websocket clients :
+        typeOfSocketConnection = GenerateRandomNumber(9);
+
         String completeURI = this.URI + typeOfSocketConnection;
         Future<WebSocket> future = null;
         WebSocket ws = null;

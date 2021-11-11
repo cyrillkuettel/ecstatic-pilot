@@ -12,11 +12,11 @@
         <menu>
             <item
                 android:id="@+id/bluetooth"
-                android:title="bluetooth" />
+                android:title="Bluetooth" />
 
             <item
                 android:id="@+id/websocket"
-                android:title="@string/websocket" />
+                android:title="@string/WebSocket" />
 
         </menu>
 

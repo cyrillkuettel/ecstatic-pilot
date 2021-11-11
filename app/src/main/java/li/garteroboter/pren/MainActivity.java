@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 manager.sendText(String.valueOf(input.getText()));
+                Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
             }
         });
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
