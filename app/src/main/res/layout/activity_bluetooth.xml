@@ -43,7 +43,7 @@
             android:layout_width="300dp"
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
-            android:onClick="printBluetoothDevicesClickHandler"
+            android:onClick="sendBluetoothMessageClickHandler"
             android:text="Send Message to Connected Bluetooth device" />
 
         <ListView

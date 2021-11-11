@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -38,6 +39,7 @@ public class BluetoothActivity extends AppCompatActivity {
     // generated online
     private static final String UUID = "0fb7bb6b-3227-4776-bf9a-3356b52b0316";
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice selectedDevice = null;
 
     private final Map<String, BluetoothDevice> devices = new HashMap<>();
 
@@ -81,6 +83,7 @@ public class BluetoothActivity extends AppCompatActivity {
        // this block above was very ugly. I could write this much more compact.
 
         // i could write my own ArrayAdapter. This is simply an object to store information about the item.
+        // I'm not sure if it's worth it tho
 
         ArrayAdapter<String> myAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, bluetoothDevicesArray );
         ListView bluetoothDevicesListView = findViewById(R.id.myListView);
@@ -91,7 +94,17 @@ public class BluetoothActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View v, int position,
                                     long id) {
 
+                for (int i = 0; i < bluetoothDevicesListView.getChildCount(); i++) {
+                    if(position == i ){
+                        bluetoothDevicesListView.getChildAt(i).setBackgroundColor(
+                                Color.rgb(128, 128, 255));
+                    }else{
+                        bluetoothDevicesListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
+                    }
+                }
                 String value = (String) parent.getItemAtPosition(position);
+
+                selectedDevice = devices.get(value);
                 Toast.makeText(BluetoothActivity.this,"You selected : " + value, Toast.LENGTH_SHORT).show();
                 Log.v(TAG, value);
             }
