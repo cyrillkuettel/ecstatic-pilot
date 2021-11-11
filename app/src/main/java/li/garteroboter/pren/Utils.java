@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 public class Utils{
 
-    public static void LogAndToast(Context mContext , String TAG,String message) {
+    public static void LogAndToast(Context mContext , String TAG, String message) {
         Log.e(TAG, message);
         Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
     }

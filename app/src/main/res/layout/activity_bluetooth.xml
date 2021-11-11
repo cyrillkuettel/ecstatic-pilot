@@ -43,7 +43,13 @@
             android:layout_width="300dp"
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
-            android:text="Scan" />
+            android:onClick="printBluetoothDevicesClickHandler"
+            android:text="Print" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:id="@+id/myListView"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

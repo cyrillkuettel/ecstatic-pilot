@@ -29,7 +29,6 @@ public final class WebSocketManager extends AppCompatActivity {
     /**
      * The timeout value in milliseconds for socket connection.
      */
-
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
     private final ExecutorService executorService;

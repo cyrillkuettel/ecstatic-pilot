@@ -11,6 +11,8 @@
     <string name="menu">Menu</string>
     <string name="blueto" />
     <string name="test" />
+    <string name="select_hostname">Select Hostname</string>
+    <string name="scan">Scan</string>
     <string-array name="uri">
         <item>ws://192.168.188.38:80/ws/</item>
         <item>ws://pren.garteroboter.li:80/ws/</item>
