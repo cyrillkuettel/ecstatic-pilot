@@ -9,16 +9,21 @@
 
         <!-- app:showAsAction="always|withText" -->
 
-        <menu>
-            <item
-                android:id="@+id/bluetooth"
-                android:title="Bluetooth" />
+        <menu android:id="@+id/menu">
 
-            <item
-                android:id="@+id/websocket"
-                android:title="WebSocket" />
+            <!--<item android:id="@+id/bluetooth"
+            android:title="Bluetooth" />
+             -->
 
-        </menu>
+             <item
+                 android:id="@+id/websocket"
+                 android:title="WebSocket" />
 
-    </item>
-</menu>
+             <item
+                 android:id="@+id/bluetooth2"
+                 android:title="SerialBluetooth" />
+
+         </menu>
+
+     </item>
+ </menu>

@@ -46,7 +46,7 @@
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="reopenSocketConnection"
-            android:text="@string/reopen_socketconnection" />
+            android:text="ReOpen Socket Connection" />
 
         <Button
             android:id="@+id/buttonPromptUser"
@@ -64,16 +64,8 @@
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="onCloseSocketHandler"
-            android:text="@string/Close_Connection" />
+            android:text="Close Socket Connection" />
 
-        <Button
-            android:id="@+id/btnCamera"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="300dp"
-            android:layout_height="65dp"
-            android:layout_gravity="center_horizontal|center"
-            android:onClick="onCameraOpenClickHandler"
-            android:text="@string/camera" />
     </LinearLayout>
 
 

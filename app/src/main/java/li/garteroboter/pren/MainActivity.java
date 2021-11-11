@@ -21,7 +21,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import simple.bluetooth.terminal.BlueActivity;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -98,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-            case R.id.bluetooth:
-                intent = new Intent(this, BluetoothActivity.class);
-                break;
             case R.id.websocket:
                 intent = new Intent(this, MainActivity.class);
+                break;
+            case R.id.bluetooth2:
+                intent = new Intent(this, BlueActivity.class);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -143,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
             myview.setImageBitmap(photo);
         }
     }
-
-
 
 
 }

@@ -1,4 +1,4 @@
-package simple_bluetooth_terminal;
+package simple.bluetooth.terminal;
 
 public final class BuildConfig {
     public static final boolean DEBUG = Boolean.parseBoolean("true");

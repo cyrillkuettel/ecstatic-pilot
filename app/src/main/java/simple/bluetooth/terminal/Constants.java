@@ -1,4 +1,4 @@
-package simple_bluetooth_terminal;
+package simple.bluetooth.terminal;
 
 
 

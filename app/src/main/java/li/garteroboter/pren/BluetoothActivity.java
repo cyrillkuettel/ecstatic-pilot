@@ -142,9 +142,11 @@ public class BluetoothActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
+            /*
             case R.id.bluetooth:
                 intent = new Intent(this, BluetoothActivity.class);
                 break;
+             */
             case R.id.websocket:
                 intent = new Intent(this, MainActivity.class);
                 break;

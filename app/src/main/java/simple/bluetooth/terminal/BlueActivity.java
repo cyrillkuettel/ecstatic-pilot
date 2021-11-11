@@ -1,4 +1,4 @@
-package simple_bluetooth_terminal;
+package simple.bluetooth.terminal;
 
 import android.os.Bundle;
 
@@ -13,9 +13,11 @@ public class BlueActivity extends AppCompatActivity implements FragmentManager.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
+        /*
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+         */
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         if (savedInstanceState == null)
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, new DevicesFragment(), "devices").commit();

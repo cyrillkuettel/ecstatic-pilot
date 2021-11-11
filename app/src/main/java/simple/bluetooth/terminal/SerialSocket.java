@@ -1,4 +1,4 @@
-package simple_bluetooth_terminal;
+package simple.bluetooth.terminal;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;

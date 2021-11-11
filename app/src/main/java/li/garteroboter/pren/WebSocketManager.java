@@ -74,7 +74,7 @@ public final class WebSocketManager extends AppCompatActivity {
         if (socket.equals(Sockets.Binary)) {
             typeOfSocketConnection = "888";
         }
-        // teporary for testing to alllow muliple websocket clients :
+        // temporary for testing to allow multiple websocket clients ( I will change this)
         typeOfSocketConnection = GenerateRandomNumber(9);
 
         String completeURI = this.URI + typeOfSocketConnection;
@@ -111,6 +111,7 @@ public final class WebSocketManager extends AppCompatActivity {
             e.printStackTrace();
         }
         sockets.put(socket, ws);
+        Utils.LogAndToast(WebSocketManager.this, TAG, "Opened New Socket!");
         return true;
 
         // is it recommended so use wait() to finish for executor?
@@ -142,7 +143,7 @@ public final class WebSocketManager extends AppCompatActivity {
                     public void onConnected(WebSocket websocket,
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
-                        Log.v(TAG, "we are connected");
+                        Utils.LogAndToast(WebSocketManager.this, TAG, "Connected");
 
                     }
                 })
@@ -160,13 +161,14 @@ public final class WebSocketManager extends AppCompatActivity {
             return true;
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
+        Toast.makeText(WebSocketManager.this,"First Open a Connection!" ,Toast.LENGTH_LONG).show();
         return false;
     }
 
     public void disconnectAll() {
         for (WebSocket w : sockets.values()) {
             w.disconnect();
-            Log.v(TAG, "Disconnected Websocket and Shutdown Executor.");
+            Utils.LogAndToast(WebSocketManager.this, TAG, "Disconnected Websocket and Shutdown Executor.");
         }
         executorService.shutdown();
     }

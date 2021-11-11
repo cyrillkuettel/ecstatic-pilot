@@ -18,4 +18,5 @@
         <item>ws://pren.garteroboter.li:80/ws/</item>
         <item>ws://192.168.188.38:80/ws/</item>
     </string-array>
+    <string name="devices">Bluetooth Devices</string>
 </resources>
