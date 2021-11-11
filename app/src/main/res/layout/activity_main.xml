@@ -46,15 +46,15 @@
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="reopenSocketConnection"
-            android:text="reopen SocketConnection" />
+            android:text="@string/reopen_socketconnection" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/buttonPromptUser"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
-            android:onClick="sendMessageClickHandler"
+            android:onClick="sendCustomMessageClickHandler"
             android:text="@string/send_message_to_websocket" />
 
         <Button

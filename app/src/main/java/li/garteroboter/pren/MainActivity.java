@@ -1,17 +1,24 @@
 package li.garteroboter.pren;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,16 +28,16 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         generateDropDownItems();
 
-
-
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-        Log.v(TAG, "onCreate fired!!");
+        Log.v(TAG, "onCreate fired!");
+
     }
 
     public void reopenSocketConnection(View view) {
@@ -44,9 +51,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * send a custom Message to the Website
+     *
+     */
+    public void sendCustomMessageClickHandler(View view) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("WebSocket client");
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        String defaultMessage = String.format("Hello from %s", android.os.Build.MODEL);
+        input.setText(defaultMessage);
 
-    public void sendMessageClickHandler(View view) {
-        manager.sendText();
+        alert.setView(input);
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                manager.sendText(String.valueOf(input.getText()));
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                dialog.cancel();
+            }
+        });
+        alert.show();
     }
 
     @Override
@@ -89,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spinnerLanguages.setAdapter(adapter);
     }
+
 
     public void onCloseSocketHandler(View view) {
         manager.disconnectAll();

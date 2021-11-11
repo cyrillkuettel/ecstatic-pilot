@@ -1,6 +1,7 @@
 package li.garteroboter.pren;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -136,10 +137,13 @@ public final class WebSocketManager extends AppCompatActivity {
     }
 
 
-    public boolean sendText() {
+    public boolean sendText(String message) {
         WebSocket ws = sockets.get(Sockets.Text);
+        if (message == "") {
+            return false;
+        }
         if (ws.isOpen()) {
-            ws.sendText("Message from Android from external thread.");
+            ws.sendText(message);
             return true;
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
