@@ -111,11 +111,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     public final void generateDropDownItems() {
-        Spinner spinnerLanguages = findViewById(R.id.dropdown_menu);
+        Spinner spinnerHostname = findViewById(R.id.dropdown_menu);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.uri, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        spinnerLanguages.setAdapter(adapter);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerHostname.setAdapter(adapter);
     }
 
 
