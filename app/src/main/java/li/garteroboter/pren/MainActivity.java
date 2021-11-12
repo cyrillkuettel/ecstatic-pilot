@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,14 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
-
+    private Handler toastHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         generateDropDownItems();
-
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.v(TAG, "onCreate fired!");
 
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
 
     }
+
 
     /**
      * send a custom Message to the Website
@@ -125,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
 
         spinnerHostname.setAdapter(adapter);
     }
+
+    // Set this up in the UI thread.
+
+
 
 
     public void onCloseSocketHandler(View view) {

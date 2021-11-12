@@ -1,5 +1,6 @@
 package li.garteroboter.pren;
 
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -62,8 +63,8 @@ public final class WebSocketManager extends AppCompatActivity {
 
     public boolean openNewConnection(Sockets socket) {
         if (!isInternetAvailable()) {
-            Utils.LogAndToast(WebSocketManager.this, TAG,
-                    "Internet is not available. Are you online? ");
+            Log.e(TAG, "Internet is not available. Are you online? ");
+
             return false;
         }
 
@@ -111,7 +112,9 @@ public final class WebSocketManager extends AppCompatActivity {
             e.printStackTrace();
         }
         sockets.put(socket, ws);
-        Utils.LogAndToast(WebSocketManager.this, TAG, "Opened New Socket!");
+
+        // this shit crashed the whole app
+        // Utils.LogAndToast(WebSocketManager.this, TAG, "Opened New Socket!");
         return true;
 
         // is it recommended so use wait() to finish for executor?
@@ -143,7 +146,8 @@ public final class WebSocketManager extends AppCompatActivity {
                     public void onConnected(WebSocket websocket,
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
-                        Utils.LogAndToast(WebSocketManager.this, TAG, "Connected");
+                        Log.v(TAG, "connected!");
+                       // Utils.LogAndToast(WebSocketManager.this, TAG, "Connected");
 
                     }
                 })
@@ -161,14 +165,15 @@ public final class WebSocketManager extends AppCompatActivity {
             return true;
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
-        Toast.makeText(WebSocketManager.this,"First Open a Connection!" ,Toast.LENGTH_LONG).show();
+
+        // Toast.makeText(WebSocketManager.this,"First Open a Connection!" ,Toast.LENGTH_LONG).show();
         return false;
     }
 
     public void disconnectAll() {
         for (WebSocket w : sockets.values()) {
             w.disconnect();
-            Utils.LogAndToast(WebSocketManager.this, TAG, "Disconnected Websocket and Shutdown Executor.");
+            Log.v(TAG, "Disconnected Websocket and Shutdown Executor.");
         }
         executorService.shutdown();
     }
@@ -186,11 +191,12 @@ public final class WebSocketManager extends AppCompatActivity {
             return !address.equals("");
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
-            Utils.LogAndToast(WebSocketManager.this, TAG,
-                    msg);
+            Log.v(TAG, msg);
+            // Utils.LogAndToast(WebSocketManager.this, TAG,msg);
         }
         return false;
     }
+
 
     /*
      * Pretty Print the OpeningHandshakeException e
