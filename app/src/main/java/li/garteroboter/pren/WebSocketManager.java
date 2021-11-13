@@ -55,7 +55,7 @@ public final class WebSocketManager extends AppCompatActivity {
     }
 
     public final String GenerateRandomNumber(int charLength) {
-        return String.valueOf(charLength < 1 ? 0 : new Random()
+        return String.valueOf(charLength < 1 ? 0 : new Random(System.currentTimeMillis())
                 .nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
                 + (int) Math.pow(10, charLength - 1));
     }
