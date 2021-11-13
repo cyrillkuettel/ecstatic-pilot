@@ -7,26 +7,27 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import simple.bluetooth.terminal.BlueActivity;
 
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
+
+
+    private boolean START_SIGNAL_FIRED = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void sendCustomMessageClickHandler(View view) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("WebSocket client");
+        alert.setTitle("Send Status Update");
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
         String defaultMessage = String.format("Hello from %s", android.os.Build.MODEL);
@@ -87,13 +91,7 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (!(manager == null)) {
-            manager.disconnectAll();
-        }
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -157,4 +155,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    public void startStoppTimer(View view) {
+        if (!START_SIGNAL_FIRED) {
+            sendTimeStampToWebServer();
+            START_SIGNAL_FIRED = true;
+        }
+    }
+
+    /**
+     * Get the current Time. Put into Json Object. Convert to String. Finally, send timestamp to Webserver Webserver
+     */
+    public void sendTimeStampToWebServer() {
+
+        // if !STARTED
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+        String value_now = simpleDateFormat.format(cal.getTime());
+        value_now = value_now.replaceAll("\\s","");  // strip whitespace
+
+        JSONObject jsonTimeObject = new JSONObject();
+        try {
+            jsonTimeObject.put("startTime", value_now);
+        } catch (JSONException e) {
+            Log.v(TAG, "Json Exception");
+            e.printStackTrace();
+        }
+        value_now  = jsonTimeObject.toString();
+        if (value_now.equals("")) {
+            Log.e(TAG, "value_now is empty! String");
+            return;
+        }
+        try {
+            manager.sendText(value_now);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // if STARTED  THEN STOP
+    }
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (!(manager == null)) {
+            manager.disconnectAll();
+        }
+    }
 }

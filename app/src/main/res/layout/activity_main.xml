@@ -13,7 +13,7 @@
         android:layout_marginBottom="15dp"
         android:layout_weight="0"
         android:gravity="center"
-        android:text="@string/select_hostname"
+        android:text="Hostname"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
@@ -39,6 +39,18 @@
         android:layout_weight="1"
         android:gravity="center|bottom"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnStartStop"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="300dp"
+            android:layout_height="65dp"
+            android:layout_gravity="center_horizontal|center"
+            android:onClick="startStoppTimer"
+            android:text="Start / Stopp" />
+
+
+
         <Button
             android:id="@+id/btnOpenConnection"
             style="?android:attr/buttonStyleSmall"
@@ -46,7 +58,7 @@
             android:layout_height="65dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="reopenSocketConnection"
-            android:text="ReOpen Socket Connection" />
+            android:text="Open Socket Connection" />
 
         <Button
             android:id="@+id/buttonPromptUser"
