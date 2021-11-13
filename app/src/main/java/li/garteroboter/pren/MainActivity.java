@@ -157,10 +157,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void startStoppTimer(View view) {
-        if (!START_SIGNAL_FIRED) {
+        // if (!START_SIGNAL_FIRED) {
             sendTimeStampToWebServer();
             START_SIGNAL_FIRED = true;
-        }
+        // }
     }
 
     /**
