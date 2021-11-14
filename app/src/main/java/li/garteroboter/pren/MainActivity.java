@@ -27,7 +27,14 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import simple.bluetooth.terminal.BlueActivity;
 
@@ -50,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.v(TAG, "onCreate fired!");
 
+
+
+
     }
 
     public void reopenSocketConnection(View view) {
@@ -59,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         String URI = mySpinner.getSelectedItem().toString();
         manager = new WebSocketManager(URI);
+
         new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
 
     }
@@ -129,6 +140,25 @@ public class MainActivity extends AppCompatActivity {
 
     // Set this up in the UI thread.
 
+    public void getInternetTime(View view) throws ExecutionException, InterruptedException {
+        Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
+        manager.getInternetTime();
+
+ /*
+        ExecutorService pool = Executors.newFixedThreadPool(10);
+        Set<Future<String>> set = new HashSet<>();
+
+
+        Callable<String> callable = new InternetTime();
+        Future<String> future = pool.submit(callable);
+        set.add(future);
+
+
+         String result = future.get();
+         Utils.LogAndToast(MainActivity.this, TAG, result);
+*/
+
+    }
 
 
 
@@ -137,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onCameraOpenClickHandler(View view) {
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivity(intent);
+
+
 
     }
 
@@ -158,44 +188,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void startStoppTimer(View view) {
         // if (!START_SIGNAL_FIRED) {
-            sendTimeStampToWebServer();
+
+            sendCurrentTime();
             START_SIGNAL_FIRED = true;
         // }
     }
 
-    /**
-     * Get the current Time. Put into Json Object. Convert to String. Finally, send timestamp to Webserver Webserver
-     */
-    public void sendTimeStampToWebServer() {
 
-        // if !STARTED
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
-        String value_now = simpleDateFormat.format(cal.getTime());
-        value_now = value_now.replaceAll("\\s","");  // strip whitespace
-
-        JSONObject jsonTimeObject = new JSONObject();
-        try {
-            jsonTimeObject.put("startTime", value_now);
-        } catch (JSONException e) {
-            Log.v(TAG, "Json Exception");
-            e.printStackTrace();
-        }
-        value_now  = jsonTimeObject.toString();
-        if (value_now.equals("")) {
-            Log.e(TAG, "value_now is empty! String");
-            return;
-        }
-        try {
-            manager.sendText(value_now);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // if STARTED  THEN STOP
+    public void sendCurrentTime() {
+        String value_now = getTimeStampNow();
+        Utils.LogAndToast(MainActivity.this, TAG, value_now);
+        String message = String.format("command=startTime=%s", value_now);
+        manager.sendText(message);
+        Utils.LogAndToast(MainActivity.this, TAG, "Sending message " + message);
     }
 
+
+    public String getTimeStampNow() {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+
+        String value_now = simpleDateFormat.format(cal.getTime());
+        // value_now = value_now.replaceAll("\\s","");  // strip whitespace
+        return value_now;
+    }
 
 
     @Override
@@ -205,4 +222,6 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
+
+
 }

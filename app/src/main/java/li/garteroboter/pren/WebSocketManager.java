@@ -40,8 +40,11 @@ public final class WebSocketManager extends AppCompatActivity {
     private final ExecutorService executorService;
 
     /**
-     * The different WebSocket connections which have been established.
-     * Currently I think there surely is one for text, and one for strictly binary data
+     * The WebSocket connections will be established in this class
+     *
+     * Currently, I use one Websocket connection, although it's possible to create multiple.
+     * this connection handels both text and binary data. Text can be further broken down into Logs
+     * and commands. Commands differ from Logs. They change the 'state' of the website.
      */
     private final Map<Sockets, WebSocket> sockets;
     private final String URI;
@@ -54,10 +57,13 @@ public final class WebSocketManager extends AppCompatActivity {
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
+
     public final String GenerateRandomNumber(int charLength) {
-        return String.valueOf(charLength < 1 ? 0 : new Random(System.currentTimeMillis())
-                .nextInt((9 * (int) Math.pow(10, charLength - 1)) - 1)
-                + (int) Math.pow(10, charLength - 1));
+        Random r = new Random(System.currentTimeMillis());
+        int low = 1; // inclusive
+        int high = 1000000000; //exclusive
+        int result = r.nextInt(high-low) + low;
+        return String.valueOf(result);
     }
 
 
@@ -76,8 +82,8 @@ public final class WebSocketManager extends AppCompatActivity {
             typeOfSocketConnection = "888";
         }
         // temporary for testing to allow multiple websocket clients ( I will change this)
-        typeOfSocketConnection = GenerateRandomNumber(9);
-
+        typeOfSocketConnection = GenerateRandomNumber(11);
+        Log.v(TAG, "random_id = " + typeOfSocketConnection);
         String completeURI = this.URI + typeOfSocketConnection;
         Future<WebSocket> future = null;
         WebSocket ws = null;
@@ -132,6 +138,7 @@ public final class WebSocketManager extends AppCompatActivity {
                     public void onTextMessage(WebSocket websocket,
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
+                        // if message is time, use it here
                         Log.v(TAG, "onTextMessage: " + message);
                     }
 
@@ -152,6 +159,11 @@ public final class WebSocketManager extends AppCompatActivity {
                     }
                 })
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
+    }
+
+    public void getInternetTime() {
+        String command = "command=requestTime";
+        sendText(command);
     }
 
 
@@ -199,7 +211,7 @@ public final class WebSocketManager extends AppCompatActivity {
 
 
     /*
-     * Pretty Print the OpeningHandshakeException e
+     * Pretty Print the OpeningHandshakeException e (Debugging purposes)
      */
     private void createDetailedExceptionLog(OpeningHandshakeException e) {
         // A violation against the WebSocket protocol was detected
