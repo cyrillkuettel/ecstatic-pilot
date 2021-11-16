@@ -27,11 +27,46 @@
             android:layout_width="300dp"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:layout_marginBottom="20dp"
             android:spinnerMode="dropdown"
             tools:ignore="SpeakableTextPresentCheck" />
 
-
     </LinearLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+         >
+
+        <Button
+            android:id="@+id/btnStartStop"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_alignParentRight="true"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btnInternetTime"
+            android:text="Start/Stopp timer"
+            android:onClick="startStoppTimerClickHandler"  />
+
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_centerHorizontal="true" />
+        <Button
+            android:id="@+id/btnInternetTime"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/view"
+            android:text="fetch time"
+            android:onClick="getInternetTime" />
+    </RelativeLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,38 +75,34 @@
         android:gravity="center|bottom"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnInternetTime"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="300dp"
-            android:layout_height="65dp"
-            android:layout_gravity="center_horizontal|center"
-            android:onClick="getInternetTime"
-            android:text="Get Internet Time" />
 
         <Button
             android:id="@+id/btnOpenConnection"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="65dp"
+            android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
-            android:onClick="reopenSocketConnection"
-            android:text="Open Socket Connection" />
+            android:onClick="reopenSocketConnectionClickHandler"
+            android:text="Open New Socket Connection" />
 
         <Button
-            android:id="@+id/btnStartStop"
             style="?android:attr/buttonStyleSmall"
+            android:id="@+id/btnImageRead"
+            android:text="Read image to bytes"
+            tools:ignore="RtlHardcoded"
             android:layout_width="300dp"
-            android:layout_height="65dp"
-            android:layout_gravity="center_horizontal|center"
-            android:onClick="startStoppTimer"
-            android:text="Start / Stopp" />
+            android:layout_height="45dp"
+            android:layout_toRightOf="@+id/btnFiller"
+            android:onClick="readLocalImageClickHandler"/>
+
+
+
 
         <Button
             android:id="@+id/buttonPromptUser"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="65dp"
+            android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="sendCustomMessageClickHandler"
             android:text="@string/send_message_to_websocket" />
@@ -80,7 +111,7 @@
             android:id="@+id/btnClose"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
-            android:layout_height="65dp"
+            android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
             android:onClick="onCloseSocketHandler"
             android:text="Close Socket Connection" />

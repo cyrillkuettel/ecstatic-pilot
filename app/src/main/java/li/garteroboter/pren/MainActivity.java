@@ -1,10 +1,13 @@
 package li.garteroboter.pren;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,28 +16,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.hardware.camera2.CameraManager;
+
+
 
 
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import simple.bluetooth.terminal.BlueActivity;
 
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
-
+    private final Context mainContext = MainActivity.this;
 
     private boolean START_SIGNAL_FIRED = false;
 
@@ -57,12 +60,27 @@ public class MainActivity extends AppCompatActivity {
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.v(TAG, "onCreate fired!");
 
-
-
+        Log.v(TAG, "CameraIDlist = " + getCamera());
+        selectImage();
 
     }
 
-    public void reopenSocketConnection(View view) {
+    public String getCamera() {
+        CameraManager manager = (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
+        try {
+            return Arrays.toString(manager.getCameraIdList());
+        } catch (CameraAccessException e) {
+            Log.v(TAG, e.getMessage());
+            return null;
+        }
+    }
+
+    public void reopenSocketConnectionClickHandler(View view) {
+        reOpenSocket();
+
+    }
+
+    public void reOpenSocket() {
         if (!(manager == null)) {
             manager.disconnectAll();
         }
@@ -71,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         manager = new WebSocketManager(URI);
 
         new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
-
     }
 
 
@@ -102,6 +119,17 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
+    /** A safe way to get an instance of the Camera object. */
+    public static Camera getCameraInstance(){
+        Camera c = null;
+        try {
+            c = Camera.open(); // attempt to get a Camera instance
+        }
+        catch (Exception e){
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
 
 
     @Override
@@ -142,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
+
         manager.getInternetTime();
 
  /*
@@ -172,35 +201,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            Log.v(TAG, "got to setting the image");
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            ImageView myview = findViewById(R.id.imageView);
-            myview.setImageBitmap(photo);
-        }
-    }
 
 
 
-    public void startStoppTimer(View view) {
+
+    public void startStoppTimerClickHandler(View view) {
         // if (!START_SIGNAL_FIRED) {
-
-            sendCurrentTime();
+            sendStartSignalToWebServer();
             START_SIGNAL_FIRED = true;
         // }
     }
 
-
-    public void sendCurrentTime() {
+    /**
+     * tells the webserver that the parkour has begun.
+     *
+     */
+    public void sendStartSignalToWebServer() {
         String value_now = getTimeStampNow();
         Utils.LogAndToast(MainActivity.this, TAG, value_now);
         String message = String.format("command=startTime=%s", value_now);
-        manager.sendText(message);
-        Utils.LogAndToast(MainActivity.this, TAG, "Sending message " + message);
+        if (manager.sendText(message)) {
+            Utils.LogAndToast(MainActivity.this, TAG, "Sending message " + message);
+        } else {
+            Utils.LogAndToast(MainActivity.this, TAG, "Error Sending message " + message);
+        }
     }
 
 
@@ -222,6 +246,80 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
+    static final int REQUEST_IMAGE_GET = 1;
 
 
+    /**
+     * from the android documentation
+     */
+    public void selectImage() {
+
+        File file = getFilesDir();
+        String path = file.getAbsolutePath();
+        Log.v(TAG, path);
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_GET);
+        }
+    }
+
+    /**
+     * also from the android documentation
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
+           // Bitmap thumbnail = data.getParcelable("data");
+            Uri fullImageUri = data.getData();
+            InputStream iStream = null;
+            try {
+                iStream = getContentResolver().openInputStream(fullImageUri);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (iStream != null ) {
+                try {
+                    byte[] inputData = getBytes(iStream);
+
+                    Log.v(TAG, Arrays.toString(inputData));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.e(TAG, "iStream is null");
+            }
+
+
+
+        }
+    }
+
+    public byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
+
+
+    public void changeButtonColorOnpress() {
+        Button mButton = findViewById(R.id.btnImageRead);
+        mButton.setBackgroundColor(Color.RED); // not working ,why
+
+    }
+
+    public void readLocalImageClickHandler(View view) {
+        selectImage();
+    }
 }

@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public final class WebSocketManager extends AppCompatActivity {
+public class WebSocketManager extends AppCompatActivity {
 
 
     /**
@@ -139,6 +139,7 @@ public final class WebSocketManager extends AppCompatActivity {
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
                         // if message is time, use it here
+
                         Log.v(TAG, "onTextMessage: " + message);
                     }
 
@@ -158,10 +159,12 @@ public final class WebSocketManager extends AppCompatActivity {
 
                     }
                 })
+                // used in the handshake to indicate whether a connection should use compression
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
     }
 
     public void getInternetTime() {
+
         String command = "command=requestTime";
         sendText(command);
     }
@@ -169,7 +172,11 @@ public final class WebSocketManager extends AppCompatActivity {
 
     public boolean sendText(String message) {
         WebSocket ws = sockets.get(Sockets.Text);
-        if (message == "") {
+
+        if (message == "" || ws == null) {
+            if (ws == null) {
+                Log.v(TAG, "Websocket == Null in sendText");
+            }
             return false;
         }
         if (ws.isOpen()) {
@@ -177,15 +184,15 @@ public final class WebSocketManager extends AppCompatActivity {
             return true;
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
-
-        // Toast.makeText(WebSocketManager.this,"First Open a Connection!" ,Toast.LENGTH_LONG).show();
         return false;
     }
 
     public void disconnectAll() {
-        for (WebSocket w : sockets.values()) {
-            w.disconnect();
-            Log.v(TAG, "Disconnected Websocket and Shutdown Executor.");
+        if(!sockets.isEmpty()) {
+            for (WebSocket w : sockets.values()) {
+                w.disconnect();
+                Log.v(TAG, "Disconnected Websocket and Shutdown Executor.");
+            }
         }
         executorService.shutdown();
     }
