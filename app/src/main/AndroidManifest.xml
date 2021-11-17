@@ -14,6 +14,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        android:required="true" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
 
     <uses-permission
@@ -46,6 +52,9 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <service android:name="simple.bluetooth.terminal.SerialService" />
+        <service
+            android:enabled="true"
+            android:name="li.garteroboter.pren.VideoProcessingService" />
 
     </application>
 
