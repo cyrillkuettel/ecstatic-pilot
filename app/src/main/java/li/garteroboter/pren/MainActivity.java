@@ -1,9 +1,11 @@
 package li.garteroboter.pren;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -14,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +30,7 @@ import android.hardware.camera2.CameraManager;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,8 +53,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
     private final Context mainContext = MainActivity.this;
+    private static final int MY_CAMERA_REQUEST_CODE = 2;
 
     private boolean START_SIGNAL_FIRED = false;
+    SurfaceView surfaceView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +65,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         generateDropDownItems();
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-        Log.v(TAG, "onCreate fired!");
-
+        // Log.v(TAG, "onCreate fired!");
         Log.v(TAG, "CameraIDlist = " + getCamera());
-        selectImage();
+
+        surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+
+        // selectImage();
 
     }
 
@@ -252,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * from the android documentation
      */
-    public void selectImage() {
+    public void startIntentForSelectingImage() {
 
         File file = getFilesDir();
         String path = file.getAbsolutePath();
@@ -266,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Processes the Intent of selecting an image from Gallery ( only used for testing)
      * also from the android documentation
      */
     @Override
@@ -315,11 +325,36 @@ public class MainActivity extends AppCompatActivity {
 
     public void changeButtonColorOnpress() {
         Button mButton = findViewById(R.id.btnImageRead);
-        mButton.setBackgroundColor(Color.RED); // not working ,why
+        mButton.setBackgroundColor(Color.RED); // not working ,why..
 
     }
 
     public void readLocalImageClickHandler(View view) {
-        selectImage();
+        startIntentForSelectingImage();
     }
+
+    public void testvideoProcessingService(View view) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            String permission = Manifest.permission.CAMERA;
+            String[] permissions = new String[2];
+            permissions[0] = permission;
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+        } else {
+            Intent intent = new Intent(this, VideoProcessingService.class);
+            startService(intent);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
 }
