@@ -12,6 +12,8 @@ nihui/ncnn-android-yolov5
 
 https://github.com/theAIGuysCode/tensorflow-yolov4-tflite
 
+https://github.com/nihui/ncnn-android-nanodet/releases/download/v2/com.tencent.nanodetncnn-release.apk
+
 
 ### Ideas
 This is an interesting idea. Basically merge two images of two consecutive frames. 
