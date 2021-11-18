@@ -128,18 +128,6 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-    /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance(){
-        Camera c = null;
-        try {
-            c = Camera.open(); // attempt to get a Camera instance
-        }
-        catch (Exception e){
-            // Camera is not available (in use or does not exist)
-        }
-        return c; // returns null if camera is unavailable
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -198,20 +186,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
     public void onCloseSocketHandler(View view) {
         manager.disconnectAll();
     }
-
-    public void onCameraOpenClickHandler(View view) {
-
-
-
-    }
-
-
-
 
 
     public void startStoppTimerClickHandler(View view) {
@@ -275,8 +252,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Processes the Intent of selecting an image from Gallery ( only used for testing)
-     * also from the android documentation
+     * Fires, when the Intent selecting an image from Gallery has been made. ( only used for testing)
+     *
+     *
+     * straight from the official android documentation.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -287,6 +266,8 @@ public class MainActivity extends AppCompatActivity {
            // Bitmap thumbnail = data.getParcelable("data");
             Uri fullImageUri = data.getData();
             InputStream iStream = null;
+
+
             try {
                 iStream = getContentResolver().openInputStream(fullImageUri);
             } catch (FileNotFoundException e) {
@@ -294,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (iStream != null ) {
                 try {
-                    byte[] inputData = getBytes(iStream);
+                    byte[] inputData = getBytes(iStream); // what we want, the image as raw data
 
                     Log.v(TAG, Arrays.toString(inputData));
                 } catch (IOException e) {
@@ -303,9 +284,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.e(TAG, "iStream is null");
             }
-
-
-
         }
     }
 
@@ -329,22 +307,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void readLocalImageClickHandler(View view) {
+    public void selectImageFromGalleryWithIntentClickHandler(View view) {
         startIntentForSelectingImage();
     }
 
-    public void testvideoProcessingService(View view) {
+
+    public void videoProcessingServiceClickHandler(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            String permission = Manifest.permission.CAMERA;
-            String[] permissions = new String[2];
-            permissions[0] = permission;
+            /*
+                 to directly control the camera , it seems to be that case that we need to ask for
+                 permission every time
+                 It is unfortunate that this is necessary. But it seems to be necessary, if I
+                 remove this it didn't work.
+             */
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
         } else {
+            Log.v(TAG, "Manifest.permission.CAMERA has already been granted");
             Intent intent = new Intent(this, VideoProcessingService.class);
             startService(intent);
         }
     }
 
+
+    /***
+     * Fires when the user has allowed or denied camera access during runtime.
+     *
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == MY_CAMERA_REQUEST_CODE) {

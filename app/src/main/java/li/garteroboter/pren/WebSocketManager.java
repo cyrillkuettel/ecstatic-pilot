@@ -1,5 +1,6 @@
 package li.garteroboter.pren;
 
+import android.media.Image;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,6 +30,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
+/**
+ * This Class realises the Websocket connections, and sending and rceiving Data from the Server
+ * pren.garteroboter.li
+ * There are two distinct websocket connections to the same server from the same client.
+ * It is technically possible to to both text and binary in the same connection. But I assume this
+ * would add more complexity to the websocket endpoint. It would have to check each incoming
+ * message every time, which could decrease performance.
+ *
+ * I  have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
+ * with adding your own protocol layer to distinguish since WebSockets already do this.
+
+ */
+
 public class WebSocketManager extends AppCompatActivity {
 
 
@@ -40,11 +55,7 @@ public class WebSocketManager extends AppCompatActivity {
     private final ExecutorService executorService;
 
     /**
-     * The WebSocket connections will be established in this class
-     *
-     * Currently, I use one Websocket connection, although it's possible to create multiple.
-     * this connection handels both text and binary data. Text can be further broken down into Logs
-     * and commands. Commands differ from Logs. They change the 'state' of the website.
+     * Stores the current active socket connections. There are at most two. (Textual and Binary data)
      */
     private final Map<Sockets, WebSocket> sockets;
     private final String URI;
@@ -58,19 +69,10 @@ public class WebSocketManager extends AppCompatActivity {
     }
 
 
-    public final String GenerateRandomNumber(int charLength) {
-        Random r = new Random(System.currentTimeMillis());
-        int low = 1; // inclusive
-        int high = 1000000000; //exclusive
-        int result = r.nextInt(high-low) + low;
-        return String.valueOf(result);
-    }
-
 
     public boolean openNewConnection(Sockets socket) {
         if (!isInternetAvailable()) {
             Log.e(TAG, "Internet is not available. Are you online? ");
-
             return false;
         }
 
@@ -163,12 +165,19 @@ public class WebSocketManager extends AppCompatActivity {
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
     }
 
-    public void getInternetTime() {
 
+
+    public void getInternetTime() {
         String command = "command=requestTime";
         sendText(command);
     }
 
+
+    /**
+     * Sends Text data to the webserver
+     * Under the assumption that there exists an open connection
+     * (functions createWebSocket and openNewConnection have been called)
+     */
 
     public boolean sendText(String message) {
         WebSocket ws = sockets.get(Sockets.Text);
@@ -186,6 +195,7 @@ public class WebSocketManager extends AppCompatActivity {
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
+
 
     public void disconnectAll() {
         if(!sockets.isEmpty()) {
@@ -216,6 +226,13 @@ public class WebSocketManager extends AppCompatActivity {
         return false;
     }
 
+    public final String GenerateRandomNumber(int charLength) {
+        Random r = new Random(System.currentTimeMillis());
+        int low = 1; // inclusive
+        int high = 1000000000; //exclusive
+        int result = r.nextInt(high-low) + low;
+        return String.valueOf(result);
+    }
 
     /*
      * Pretty Print the OpeningHandshakeException e (Debugging purposes)

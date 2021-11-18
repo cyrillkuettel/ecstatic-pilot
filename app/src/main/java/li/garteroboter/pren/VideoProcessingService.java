@@ -164,10 +164,6 @@ public class VideoProcessingService extends Service {
      */
     private void processImage(Image image){
 
-        /**
-         * Here we are boys
-         *
-         */
         Log.v(TAG, "Welcome to wonderland");
         //Process image data
     }

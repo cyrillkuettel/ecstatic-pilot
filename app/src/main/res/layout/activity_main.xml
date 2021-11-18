@@ -96,7 +96,7 @@
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
-            android:onClick="testvideoProcessingService"
+            android:onClick="videoProcessingServiceClickHandler"
             android:text="Test VideoProcessingService" />
 
 
@@ -112,12 +112,12 @@
         <Button
             style="?android:attr/buttonStyleSmall"
             android:id="@+id/btnImageRead"
-            android:text="Read image to bytes"
+            android:text="Select Image From Gallery"
             tools:ignore="RtlHardcoded"
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_toRightOf="@+id/btnFiller"
-            android:onClick="readLocalImageClickHandler"/>
+            android:onClick="selectImageFromGalleryWithIntentClickHandler"/>
 
 
 
