@@ -52,6 +52,8 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
+
+    private static boolean allowMultiplePilots = true;
     private final ExecutorService executorService;
 
     /**
@@ -70,7 +72,7 @@ public class WebSocketManager extends AppCompatActivity {
 
 
 
-    public boolean openNewConnection(Sockets socket) {
+    public boolean createAndOpenWebSocketConection(Sockets socket) {
         if (!isInternetAvailable()) {
             Log.e(TAG, "Internet is not available. Are you online? ");
             return false;
@@ -83,9 +85,15 @@ public class WebSocketManager extends AppCompatActivity {
         if (socket.equals(Sockets.Binary)) {
             typeOfSocketConnection = "888";
         }
+
         // temporary for testing to allow multiple websocket clients ( I will change this)
+        /*
         typeOfSocketConnection = GenerateRandomNumber(11);
         Log.v(TAG, "random_id = " + typeOfSocketConnection);
+
+         */
+
+
         String completeURI = this.URI + typeOfSocketConnection;
         Future<WebSocket> future = null;
         WebSocket ws = null;
@@ -119,6 +127,8 @@ public class WebSocketManager extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
         sockets.put(socket, ws);
 
         // this shit crashed the whole app
@@ -184,7 +194,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (message == "" || ws == null) {
             if (ws == null) {
-                Log.v(TAG, "Websocket == Null in sendText");
+                Log.v(TAG, "Websocket == Null in method sendText");
             }
             return false;
         }
@@ -194,6 +204,28 @@ public class WebSocketManager extends AppCompatActivity {
         }
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
+    }
+
+
+    /**
+     * Sends a image to the webserver
+     * Under the assumption that there exists an open connection
+     * (functions createWebSocket and openNewConnection have been called)
+     */
+    public boolean sendBytes(byte[] bytes) {
+        Log.v(TAG, "sending Bytes");
+        WebSocket ws = sockets.get(Sockets.Binary);
+
+        if (ws == null) { Log.v(TAG, "Websocket == Null in method sendBytes");return false; }
+
+        if (ws.isOpen()) {
+            ws.sendBinary(bytes);
+            Log.v(TAG, "I sent the bytes to %s} !".format(URI));
+            return true;
+        }
+        Log.v(TAG, "Tried to call method 'sendBytes', but Websocket is not open!");
+        return false;
+
     }
 
 

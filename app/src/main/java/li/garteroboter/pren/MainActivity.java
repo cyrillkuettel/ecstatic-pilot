@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,14 +69,14 @@ public class MainActivity extends AppCompatActivity {
 
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
 
-        // selectImage();
+        // startIntentForSelectingImage();
 
     }
 
     public String getCamera() {
-        CameraManager manager = (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager cameraManager = (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
         try {
-            return Arrays.toString(manager.getCameraIdList());
+            return Arrays.toString(cameraManager.getCameraIdList());
         } catch (CameraAccessException e) {
             Log.v(TAG, e.getMessage());
             return null;
@@ -90,14 +89,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reOpenSocket() {
-        if (!(manager == null)) {
+        if (manager != null) {
             manager.disconnectAll();
+        } else {
+            Utils.LogAndToast(mainContext, TAG, "WebSocketManager has not been created!");
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
-        String URI = mySpinner.getSelectedItem().toString();
-        manager = new WebSocketManager(URI);
-
-        new Thread(() -> manager.openNewConnection(Sockets.Text)).start();
+        manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
+        new Thread(() -> manager.createAndOpenWebSocketConection(Sockets.Text)).start();
     }
 
 
@@ -322,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
              */
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
         } else {
-            Log.v(TAG, "Manifest.permission.CAMERA has already been granted");
+            Log.v(TAG, "Manifest.permission.CAMERA is okay");
             Intent intent = new Intent(this, VideoProcessingService.class);
             startService(intent);
         }

@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -19,6 +21,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 
 /*
@@ -33,6 +38,8 @@ public class VideoProcessingService extends Service {
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession session;
     protected ImageReader imageReader;
+
+    private static boolean SENT_IMAGE = false;
 
     protected CameraDevice.StateCallback cameraStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -76,11 +83,22 @@ public class VideoProcessingService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Log.i(TAG, "onImageAvailable");
-            Image img = reader.acquireLatestImage();
-            if (img != null) {
-                processImage(img);
-                img.close();
+            if (!SENT_IMAGE) { // only process the image once, not multiple times
+                Image img = reader.acquireLatestImage();
+                if (img != null) {
+                    try {
+                        SENT_IMAGE = true;
+                        processImage(img);
+                        img.close();
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
             }
+
+
         }
     };
 
@@ -104,6 +122,7 @@ public class VideoProcessingService extends Service {
                 return;
             }
             manager.openCamera(pickedCamera, cameraStateCallback, null);
+            // ImageFormat.YUV_420_888
             imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888, 2 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             Log.i(TAG, "imageReader created");
@@ -162,11 +181,134 @@ public class VideoProcessingService extends Service {
     /**
      *  Process image data as desired.
      */
-    private void processImage(Image image){
+    private void processImage(Image image) throws InterruptedException {
 
-        Log.v(TAG, "Welcome to wonderland");
-        //Process image data
+        Log.v(TAG, "processImage fired!");
+
+        /*
+        if (image == null) {
+            Log.v(TAG, "image is null. Exiting");
+            return;
+        }
+        Bitmap bitmap = getBitMapFromImageObject(image);
+        if (bitmap == null) {
+            Log.v(TAG, "bitmap is null. Exiting");
+            return;
+        }
+
+         */
+        byte[] imageTosend = YUV_420_888toNV21(image);
+
+        String remoteURI =   "ws://pren.garteroboter.li:80/ws/";
+        String localURI =   "ws://192.168.188.38:80/ws/";
+
+        WebSocketManager manager = new WebSocketManager(localURI);
+        Thread openWebSocketThread = new Thread() {
+            public void run() {
+                manager.createAndOpenWebSocketConection(Sockets.Binary);
+                manager.sendBytes(imageTosend);
+            }
+        };
+        openWebSocketThread.start();
+       // openWebSocketThread.join();
+
     }
+
+    private Bitmap getBitMapFromImageObject(Image input)  {
+        ByteBuffer buffer = input.getPlanes()[0].getBuffer();
+        Log.v(TAG, String.valueOf("ByteBuffer buffer capacity = " +  buffer.capacity()));
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        Bitmap myBitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length,null);
+        return myBitmap;
+    }
+
+
+    // convert from bitmap to byte array
+    private byte[] getBytesFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
+    }
+
+
+    private static byte[] YUV_420_888toNV21(Image image) {
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int ySize = width*height;
+        int uvSize = width*height/4;
+
+        byte[] nv21 = new byte[ySize + uvSize*2];
+
+        ByteBuffer yBuffer = image.getPlanes()[0].getBuffer(); // Y
+        ByteBuffer uBuffer = image.getPlanes()[1].getBuffer(); // U
+        ByteBuffer vBuffer = image.getPlanes()[2].getBuffer(); // V
+
+        int rowStride = image.getPlanes()[0].getRowStride();
+        assert(image.getPlanes()[0].getPixelStride() == 1);
+
+        int pos = 0;
+
+        if (rowStride == width) { // likely
+            yBuffer.get(nv21, 0, ySize);
+            pos += ySize;
+        }
+        else {
+            int yBufferPos = -rowStride; // not an actual position
+            for (; pos<ySize; pos+=width) {
+                yBufferPos += rowStride;
+                yBuffer.position(yBufferPos);
+                yBuffer.get(nv21, pos, width);
+            }
+        }
+
+        rowStride = image.getPlanes()[2].getRowStride();
+        int pixelStride = image.getPlanes()[2].getPixelStride();
+
+        assert(rowStride == image.getPlanes()[1].getRowStride());
+        assert(pixelStride == image.getPlanes()[1].getPixelStride());
+
+        if (pixelStride == 2 && rowStride == width && uBuffer.get(0) == vBuffer.get(1)) {
+            // maybe V an U planes overlap as per NV21, which means vBuffer[1] is alias of uBuffer[0]
+            byte savePixel = vBuffer.get(1);
+            try {
+                vBuffer.put(1, (byte)~savePixel);
+                if (uBuffer.get(0) == (byte)~savePixel) {
+                    vBuffer.put(1, savePixel);
+                    vBuffer.position(0);
+                    uBuffer.position(0);
+                    vBuffer.get(nv21, ySize, 1);
+                    uBuffer.get(nv21, ySize + 1, uBuffer.remaining());
+
+                    return nv21; // shortcut
+                }
+            }
+            catch (ReadOnlyBufferException ex) {
+                // unfortunately, we cannot check if vBuffer and uBuffer overlap
+            }
+
+            // unfortunately, the check failed. We must save U and V pixel by pixel
+            vBuffer.put(1, savePixel);
+        }
+
+        // other optimizations could check if (pixelStride == 1) or (pixelStride == 2),
+        // but performance gain would be less significant
+
+        for (int row=0; row<height/2; row++) {
+            for (int col=0; col<width/2; col++) {
+                int vuPos = col*pixelStride + row*rowStride;
+                nv21[pos++] = vBuffer.get(vuPos);
+                nv21[pos++] = uBuffer.get(vuPos);
+            }
+        }
+
+        return nv21;
+    }
+
+
+
+
 
     protected CaptureRequest createCaptureRequest() {
         try {
