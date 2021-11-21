@@ -22,6 +22,7 @@ import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -52,8 +53,9 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
-
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static boolean allowMultiplePilots = true;
+
     private final ExecutorService executorService;
 
     /**
@@ -61,18 +63,17 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private final Map<Sockets, WebSocket> sockets;
     private final String URI;
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private String receivedInternetTime = "Not initialized";
 
     public WebSocketManager(String URI) {
         this.sockets = new HashMap<>();
         this.URI = URI;
-        /* It does make sense to re-use the SingleThreadExecutor for different connections." */
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
 
 
-    public boolean createAndOpenWebSocketConection(Sockets socket) {
+    public boolean createAndOpenWebSocketConnection(Sockets socket) {
         if (!isInternetAvailable()) {
             Log.e(TAG, "Internet is not available. Are you online? ");
             return false;
@@ -86,7 +87,7 @@ public class WebSocketManager extends AppCompatActivity {
             typeOfSocketConnection = "888";
         }
 
-        // temporary for testing to allow multiple websocket clients ( I will change this)
+        // temporary for testing to allow multiple websocket clients
         /*
         typeOfSocketConnection = GenerateRandomNumber(11);
         Log.v(TAG, "random_id = " + typeOfSocketConnection);
@@ -128,11 +129,7 @@ public class WebSocketManager extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         sockets.put(socket, ws);
-
-        // this shit crashed the whole app
-        // Utils.LogAndToast(WebSocketManager.this, TAG, "Opened New Socket!");
         return true;
 
         // is it recommended so use wait() to finish for executor?
@@ -150,8 +147,11 @@ public class WebSocketManager extends AppCompatActivity {
                     public void onTextMessage(WebSocket websocket,
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
-                        // if message is time, use it here
 
+                        if (message.contains("time=")) {
+
+                            receivedInternetTime = message.replace("time=", "");
+                        }
                         Log.v(TAG, "onTextMessage: " + message);
                     }
 
@@ -182,22 +182,32 @@ public class WebSocketManager extends AppCompatActivity {
 
 
 
-    public void getInternetTime() {
+    public String getInternetTime() {
         String command = "command=requestTime";
         sendText(command);
+
+        // wait for the completion
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "sleep interrupted!");
+        }
+
+        return receivedInternetTime;
+
     }
 
 
     /**
      * Sends Text data to the webserver
      * Under the assumption that there exists an open connection
-     * (functions createWebSocket and openNewConnection have been called)
+     * Run createAndOpenWebSocketConnection before this !
      */
 
     public boolean sendText(String message) {
         WebSocket ws = sockets.get(Sockets.Text);
 
-        if (message == "" || ws == null) {
+        if (message.equals("") || ws == null) {
             if (ws == null) {
                 Log.v(TAG, "Websocket == Null in method sendText");
             }
@@ -207,6 +217,7 @@ public class WebSocketManager extends AppCompatActivity {
             ws.sendText(message);
             return true;
         }
+
         Log.v(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
@@ -215,7 +226,7 @@ public class WebSocketManager extends AppCompatActivity {
     /**
      * Sends a image to the webserver
      * Under the assumption that there exists an open connection
-     * (functions createWebSocket and openNewConnection have been called)
+     * Run createAndOpenWebSocketConnection before this !
      */
     public boolean sendBytes(byte[] bytes) {
         Log.v(TAG, "sending Bytes");

@@ -6,9 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.hardware.camera2.CameraAccessException;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,7 +16,6 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -32,8 +29,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -98,11 +93,11 @@ public class MainActivity extends AppCompatActivity {
         if (manager != null) {
             manager.disconnectAll();
         } else {
-            Utils.LogAndToast(mainContext, TAG, "WebSocketManager has not been created!");
+            Utils.LogAndToast(mainContext, TAG, "Opening new Socket connection");
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
-        new Thread(() -> manager.createAndOpenWebSocketConection(Sockets.Text)).start();
+        new Thread(() -> manager.createAndOpenWebSocketConnection(Sockets.Text)).start();
     }
 
 
@@ -163,29 +158,16 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.uri, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinnerHostname.setAdapter(adapter);
     }
 
     // Set this up in the UI thread.
 
-    public void getInternetTime(View view) throws ExecutionException, InterruptedException {
+    public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
-        manager.getInternetTime();
-    // the issue here is, how can I get the result actually back to this class?
- /*
-        ExecutorService pool = Executors.newFixedThreadPool(10);
-        Set<Future<String>> set = new HashSet<>();
+        String time = manager.getInternetTime();
+        Utils.LogAndToast(mainContext,TAG, "Internet time received =  %s".format(time) );
 
-
-        Callable<String> callable = new InternetTime();
-        Future<String> future = pool.submit(callable);
-        set.add(future);
-
-
-         String result = future.get();
-         Utils.LogAndToast(MainActivity.this, TAG, result);
-*/
 
     }
 
@@ -206,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
      *
      */
     public void sendStartSignalToWebServer() {
-        String value_now = getTimeStampNow();
+        String value_now = getDeviceTimeStamp();
         Utils.LogAndToast(MainActivity.this, TAG, value_now);
         String message = String.format("command=startTime=%s", value_now);
         if (manager.sendText(message)) {
@@ -216,15 +198,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public String getTimeStampNow() {
+    /**
+     * This methods returns the current Time on the device. It may differ slightly from the
+     * internet time, which is more precise.
+     * @return current System time
+     */
+    public String getDeviceTimeStamp() {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
-
-        String value_now = simpleDateFormat.format(cal.getTime());
-        // value_now = value_now.replaceAll("\\s","");  // strip whitespace
-        return value_now;
+        return simpleDateFormat.format(cal.getTime());
     }
 
 
@@ -236,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * converts an InputStream of Bytes to an byte[] array
+     */
     public byte[] getBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
         int bufferSize = 1024;

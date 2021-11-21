@@ -123,7 +123,7 @@ public class VideoProcessingService extends Service {
         WebSocketManager manager = new WebSocketManager(localURI);
         Thread openWebSocketThread = new Thread() {
             public void run() {
-                manager.createAndOpenWebSocketConection(Sockets.Binary);
+                manager.createAndOpenWebSocketConnection(Sockets.Binary);
                 manager.sendBytes(imageTosend);
             }
         };
