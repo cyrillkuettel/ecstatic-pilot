@@ -25,6 +25,7 @@ import li.garteroboter.pren.R;
 /**
  * create notification and queue serial data while activity is not in the foreground
  * use listener chain: SerialSocket -> SerialService -> UI fragment
+ * -Cyrill
  */
 public class SerialService extends Service implements SerialListener {
 

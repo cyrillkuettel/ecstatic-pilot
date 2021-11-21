@@ -156,6 +156,11 @@ public class WebSocketManager extends AppCompatActivity {
                     }
 
                     @Override
+                    public void onBinaryMessage(WebSocket websocket, byte[] binary) {
+                        Log.v(TAG, "received binary message");
+                    }
+
+                    @Override
                     public void onError(WebSocket websocket,
                                         WebSocketException cause) throws Exception {
                         Log.e(TAG, "Error : " + cause.getMessage());

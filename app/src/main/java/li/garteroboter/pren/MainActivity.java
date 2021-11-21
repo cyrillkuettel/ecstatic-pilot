@@ -65,15 +65,21 @@ public class MainActivity extends AppCompatActivity {
         generateDropDownItems();
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
         // Log.v(TAG, "onCreate fired!");
-        Log.v(TAG, "CameraIDlist = " + getCamera());
+        Log.v(TAG, "CameraIDlist = " + getCameraIDList());
 
-        surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+
+       // surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
 
         // startIntentForSelectingImage();
 
     }
 
-    public String getCamera() {
+
+    /**
+     * Methods to check what camera ID's are available.
+     * @return String of the Camera DI lists of device.
+     */
+    public String getCameraIDList() {
         CameraManager cameraManager = (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
         try {
             return Arrays.toString(cameraManager.getCameraIdList());
@@ -102,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * send a custom Message to the Website
-     *
      */
     public void sendCustomMessageClickHandler(View view) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -166,9 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
-
         manager.getInternetTime();
-
+    // the issue here is, how can I get the result actually back to this class?
  /*
         ExecutorService pool = Executors.newFixedThreadPool(10);
         Set<Future<String>> set = new HashSet<>();
@@ -185,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onCloseSocketHandler(View view) {
+    public void onCloseSocketClickHandler(View view) {
         manager.disconnectAll();
     }
 
@@ -231,60 +235,6 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
-    static final int REQUEST_IMAGE_GET = 1;
-
-
-    /**
-     * from the android documentation
-     */
-    public void startIntentForSelectingImage() {
-
-        File file = getFilesDir();
-        String path = file.getAbsolutePath();
-        Log.v(TAG, path);
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_IMAGE_GET);
-        }
-    }
-
-    /**
-     * Fires, when the Intent selecting an image from Gallery has been made. ( only used for testing)
-     *
-     *
-     * straight from the official android documentation.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-        if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
-           // Bitmap thumbnail = data.getParcelable("data");
-            Uri fullImageUri = data.getData();
-            InputStream iStream = null;
-
-
-            try {
-                iStream = getContentResolver().openInputStream(fullImageUri);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (iStream != null ) {
-                try {
-                    byte[] inputData = getBytes(iStream); // what we want, the image as raw data
-
-                    Log.v(TAG, Arrays.toString(inputData));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Log.e(TAG, "iStream is null");
-            }
-        }
-    }
 
     public byte[] getBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
@@ -296,18 +246,6 @@ public class MainActivity extends AppCompatActivity {
             byteBuffer.write(buffer, 0, len);
         }
         return byteBuffer.toByteArray();
-    }
-
-
-
-    public void changeButtonColorOnpress() {
-        Button mButton = findViewById(R.id.btnImageRead);
-        mButton.setBackgroundColor(Color.RED); // not working ,why..
-
-    }
-
-    public void selectImageFromGalleryWithIntentClickHandler(View view) {
-        startIntentForSelectingImage();
     }
 
 

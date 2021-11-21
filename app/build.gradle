@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 29
 
     defaultConfig {
         applicationId "li.garteroboter.pren"
-        minSdk 24
-        targetSdk 31
+        minSdk 29
+        targetSdk 29
         versionCode 1
         versionName "1.0"
 
@@ -36,5 +36,4 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.neovisionaries:nv-websocket-client:2.14'
-    implementation 'commons-net:commons-net:3.8.0'
 }

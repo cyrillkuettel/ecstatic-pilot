@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
+import java.util.Locale;
 
 /*
         Reference: http://stackoverflow.com/questions/28003186/capture-picture-without-preview-using-camera2-api
@@ -33,7 +34,7 @@ import java.util.Arrays;
         */
 public class VideoProcessingService extends Service {
     protected static final String TAG = "VideoProcessingService";
-    protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_BACK;
+    protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
     private static final int CODE_PERM_CAMERA = 3;
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession session;
@@ -85,22 +86,49 @@ public class VideoProcessingService extends Service {
             Log.i(TAG, "onImageAvailable");
             if (!SENT_IMAGE) { // only process the image once, not multiple times
                 Image img = reader.acquireLatestImage();
-                if (img != null) {
+                Log.d(TAG, String.format(Locale.getDefault(), "image w = %d; h = %d", img.getWidth(), img.getHeight()));
                     try {
                         SENT_IMAGE = true;
                         processImage(img);
                         img.close();
-
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
-                }
             }
-
-
         }
     };
+
+    /**
+     *  Process image data as desired.
+     */
+    private void processImage(Image image) throws InterruptedException {
+
+        Log.v(TAG, "processImage fired!");
+
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        // now working just quite how I want to
+        /*
+        Imageview imageView = findViewById(R.id.imageView22);
+        mImageView.setImageBitmap(bitmap);
+        */
+
+        byte[] imageTosend = YUV_420_888toNV21(image);
+
+        String remoteURI =   "ws://pren.garteroboter.li:80/ws/";
+        String localURI =   "ws://192.168.188.38:80/ws/";
+
+        WebSocketManager manager = new WebSocketManager(localURI);
+        Thread openWebSocketThread = new Thread() {
+            public void run() {
+                manager.createAndOpenWebSocketConection(Sockets.Binary);
+                manager.sendBytes(imageTosend);
+            }
+        };
+        openWebSocketThread.start();
+    }
 
 
     public void readyCamera() {
@@ -178,41 +206,7 @@ public class VideoProcessingService extends Service {
         session.close();
     }
 
-    /**
-     *  Process image data as desired.
-     */
-    private void processImage(Image image) throws InterruptedException {
 
-        Log.v(TAG, "processImage fired!");
-
-        /*
-        if (image == null) {
-            Log.v(TAG, "image is null. Exiting");
-            return;
-        }
-        Bitmap bitmap = getBitMapFromImageObject(image);
-        if (bitmap == null) {
-            Log.v(TAG, "bitmap is null. Exiting");
-            return;
-        }
-
-         */
-        byte[] imageTosend = YUV_420_888toNV21(image);
-
-        String remoteURI =   "ws://pren.garteroboter.li:80/ws/";
-        String localURI =   "ws://192.168.188.38:80/ws/";
-
-        WebSocketManager manager = new WebSocketManager(localURI);
-        Thread openWebSocketThread = new Thread() {
-            public void run() {
-                manager.createAndOpenWebSocketConection(Sockets.Binary);
-                manager.sendBytes(imageTosend);
-            }
-        };
-        openWebSocketThread.start();
-       // openWebSocketThread.join();
-
-    }
 
     private Bitmap getBitMapFromImageObject(Image input)  {
         ByteBuffer buffer = input.getPlanes()[0].getBuffer();
