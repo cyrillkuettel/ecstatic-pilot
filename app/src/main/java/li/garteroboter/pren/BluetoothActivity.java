@@ -44,7 +44,6 @@ public class BluetoothActivity extends AppCompatActivity {
     private static final String UUID = "0fb7bb6b-3227-4776-bf9a-3356b52b0316";
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice selectedDevice = null;
-
     private final Map<String, BluetoothDevice> devices = new HashMap<>();
 
 

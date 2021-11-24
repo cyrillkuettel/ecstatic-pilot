@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
 
 
 /**
- * This Class realises the Websocket connections, and sending and rceiving Data from the Server
+ * This Class realises the Websocket connections, and sending and receiving Data from the Server
  * pren.garteroboter.li
  * There are two distinct websocket connections to the same server from the same client.
  * It is technically possible to to both text and binary in the same connection. But I assume this
@@ -41,7 +41,7 @@ import java.util.concurrent.Future;
  * message every time, which could decrease performance.
  *
  * I  have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
- * with adding your own protocol layer to distinguish since WebSockets already do this.
+ * with adding my own protocol layer to distinguish, since WebSockets already do this.
 
  */
 

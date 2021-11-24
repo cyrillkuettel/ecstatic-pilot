@@ -7,9 +7,14 @@
         <entry key="app/src/main/res/layout/activity_bluetooth.xml" value="0.34646739130434784" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_simple.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_simple_uiactivity.xml" value="0.3609375" />
+        <entry key="app/src/main/res/layout/content_simple_uiactivity.xml" value="0.3609375" />
         <entry key="app/src/main/res/layout/device_list_header.xml" value="0.25" />
         <entry key="app/src/main/res/layout/device_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_prompt_user.xml" value="0.317481884057971" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.3609375" />
+        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.3609375" />
         <entry key="app/src/main/res/layout/layout.xml" value="0.3609375" />
         <entry key="app/src/main/res/menu/addnewalertstitlebar.xml" value="0.3609375" />
         <entry key="app/src/main/res/menu/mainpagemenu.xml" value="0.3609375" />

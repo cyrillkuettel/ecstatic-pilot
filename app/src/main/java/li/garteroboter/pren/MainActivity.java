@@ -145,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.bluetooth2:
                 intent = new Intent(this, BlueActivity.class);
                 break;
+            case R.id.simpleUI:
+                intent = new Intent(this, simpleUIActivity.class);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
