@@ -96,7 +96,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
             android:layout_height="45dp"
-            android:enabled="false"
+            android:enabled="true"
             android:layout_gravity="center_horizontal|center"
             android:onClick="videoProcessingServiceClickHandler"
             android:text="Test VideoProcessingService" />
@@ -133,6 +133,10 @@
             android:onClick="onCloseSocketClickHandler"
             android:text="Close Socket Connection" />
 
+        <TextureView
+            android:id="@+id/textureView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 
     </LinearLayout>

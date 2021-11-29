@@ -22,11 +22,12 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 import java.util.Locale;
-
+import android.util.Size;
 /*
         Reference: http://stackoverflow.com/questions/28003186/capture-picture-without-preview-using-camera2-api
         Problem
@@ -35,6 +36,7 @@ import java.util.Locale;
 public class VideoProcessingService extends Service {
     protected static final String TAG = "VideoProcessingService";
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
+    protected static CameraCharacteristics characteristics;
     private static final int CODE_PERM_CAMERA = 3;
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession session;
@@ -84,7 +86,9 @@ public class VideoProcessingService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Log.i(TAG, "onImageAvailable");
-            if (!SENT_IMAGE) { // only process the image once, not multiple times
+            // mTextureView.onPreviewFrame(reader.acquireNextImage().getPlanes([0].getBuffer().array());
+
+            if (!SENT_IMAGE) { // To get in working: only process the image once, not multiple times.  (at least for testing)
                 Image img = reader.acquireLatestImage();
                 Log.d(TAG, String.format(Locale.getDefault(), "image w = %d; h = %d", img.getWidth(), img.getHeight()));
                     try {
@@ -109,12 +113,16 @@ public class VideoProcessingService extends Service {
         byte[] bytes = new byte[buffer.capacity()];
         buffer.get(bytes);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+
         // now working just quite how I want to
         /*
         Imageview imageView = findViewById(R.id.imageView22);
         mImageView.setImageBitmap(bitmap);
         */
 
+        //  The following code is a whole different experiment altogether. Highly dubious....
+        /*
         byte[] imageTosend = YUV_420_888toNV21(image);
 
         String remoteURI =   "ws://pren.garteroboter.li:80/ws/";
@@ -128,6 +136,8 @@ public class VideoProcessingService extends Service {
             }
         };
         openWebSocketThread.start();
+         */
+
     }
 
 
@@ -135,7 +145,7 @@ public class VideoProcessingService extends Service {
         CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
             String pickedCamera = getCamera(manager);
-            Log.v(TAG, "picked Camera Worked" + pickedCamera);
+            Log.v(TAG, String.format("getCamera numero %s", pickedCamera));
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -150,8 +160,20 @@ public class VideoProcessingService extends Service {
                 return;
             }
             manager.openCamera(pickedCamera, cameraStateCallback, null);
-            // ImageFormat.YUV_420_888
-            imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888, 2 /* images buffered */);
+
+
+            Size[] jpegSizes = null;
+            if (characteristics != null) {
+                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
+            } else {
+                Log.v(TAG, "CameraCharacteristics is null! ");
+            }
+            int width = jpegSizes[0].getWidth();
+            int height = jpegSizes[0].getHeight();
+            Log.v(TAG, String.format("width=%d", width));
+            Log.v(TAG, String.format("height=%d", height));
+
+            imageReader = ImageReader.newInstance(width, height, ImageFormat.YUV_420_888, 2 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
             Log.i(TAG, "imageReader created");
         } catch (CameraAccessException e){
@@ -166,7 +188,8 @@ public class VideoProcessingService extends Service {
     public String getCamera(CameraManager manager){
         try {
             for (String cameraId : manager.getCameraIdList()) {
-                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                characteristics = manager.getCameraCharacteristics(cameraId);
+
                 int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (cOrientation == CAMERACHOICE) {
                     return cameraId;

@@ -14,9 +14,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.hardware.camera2.CameraManager;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler toastHandler;
     private final Context mainContext = MainActivity.this;
     private static final int MY_CAMERA_REQUEST_CODE = 2;
-
+    public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
     SurfaceView surfaceView;
 
@@ -59,14 +61,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         generateDropDownItems();
         Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-        // Log.v(TAG, "onCreate fired!");
         Log.v(TAG, "CameraIDlist = " + getCameraIDList());
 
 
-       // surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+        mTextureView = (TextureView) findViewById(R.id.textureView);
 
-        // startIntentForSelectingImage();
-
+    }
+    private void updateTextureViewSize(int viewWidth, int viewHeight) {
+        mTextureView.setLayoutParams(new FrameLayout.LayoutParams(viewWidth, viewHeight));
     }
 
 
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.cancel();
             }
         });
+
         alert.show();
     }
 
