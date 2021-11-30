@@ -2,6 +2,8 @@ package li.garteroboter.pren;
 
 import android.Manifest;
 import android.app.Service;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -49,7 +53,11 @@ public class VideoProcessingService extends Service {
         public void onOpened(@NonNull CameraDevice camera) {
             Log.i(TAG, "CameraDevice.StateCallback onOpened");
             cameraDevice = camera;
-            actOnReadyCameraDevice();
+            try {
+                cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
+            } catch (CameraAccessException e){
+                Log.e(TAG, e.getMessage());
+            }
         }
 
         @Override
@@ -85,7 +93,7 @@ public class VideoProcessingService extends Service {
     protected ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Log.i(TAG, "onImageAvailable");
+            Log.v(TAG, "onImageAvailable");
             // mTextureView.onPreviewFrame(reader.acquireNextImage().getPlanes([0].getBuffer().array());
 
             if (!SENT_IMAGE) { // To get in working: only process the image once, not multiple times.  (at least for testing)
@@ -114,6 +122,14 @@ public class VideoProcessingService extends Service {
         buffer.get(bytes);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
+        String savePath = "";
+        try {
+            savePath = saveToInternalStorage(bitmap);
+            Log.v(TAG, String.format("Saved the file to following directory: %s", savePath));
+        } catch (Exception e) {
+            Log.w(TAG, "Error saving file to directory");
+            e.printStackTrace();
+        }
 
         // now working just quite how I want to
         /*
@@ -140,12 +156,40 @@ public class VideoProcessingService extends Service {
 
     }
 
+    /**
+     * there is also a class
+     * https://stackoverflow.com/questions/17674634/saving-and-reading-bitmaps-images-from-internal-memory-in-android
+     */
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
 
     public void readyCamera() {
         CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
             String pickedCamera = getCamera(manager);
-            Log.v(TAG, String.format("getCamera numero %s", pickedCamera));
+            Log.i(TAG, String.format("getCamera numero %s", pickedCamera));
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -175,6 +219,7 @@ public class VideoProcessingService extends Service {
 
             imageReader = ImageReader.newInstance(width, height, ImageFormat.YUV_420_888, 2 /* images buffered */);
             imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
+            imageReader.getSurface();
             Log.i(TAG, "imageReader created");
         } catch (CameraAccessException e){
             Log.e(TAG, e.getMessage());
@@ -210,14 +255,6 @@ public class VideoProcessingService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public void actOnReadyCameraDevice()
-    {
-        try {
-            cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()), sessionStateCallback, null);
-        } catch (CameraAccessException e){
-            Log.e(TAG, e.getMessage());
-        }
-    }
 
     @Override
     public void onDestroy() {
