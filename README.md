@@ -14,6 +14,7 @@ https://github.com/theAIGuysCode/tensorflow-yolov4-tflite
 
 https://github.com/nihui/ncnn-android-nanodet/releases/download/v2/com.tencent.nanodetncnn-release.apk
 
+com.example.android.camera2video: This example demonstrates how to record video using camera2API
 
 ### Ideas
 This is an interesting idea. Basically merge two images of two consecutive frames. 
