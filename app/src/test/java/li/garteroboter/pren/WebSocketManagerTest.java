@@ -4,6 +4,9 @@ package li.garteroboter.pren;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.neovisionaries.ws.client.WebSocket;
 
 import org.apache.log4j.BasicConfigurator;
@@ -56,11 +59,26 @@ public class WebSocketManagerTest {
         assertTrue(OpenSocketConnectionResult);
     }
 
+    @Test
+    public void testIsInternetAvailable() {
+        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
+        assertTrue(manager.isInternetAvailable());
+        // Internet should at all times be available. If not we are fucked
+    }
+
+    @Test
+    public void testisWebserverUp() {
+        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
+        assertThat(manager.isWebserverUp()).isTrue();
+    }
+
+
     /**
      * {@link WebSocketManager#getInternetTime() get Time from Website}
      * {@link li.garteroboter.pren.MainActivity#getDeviceTimeStamp() get Time from Device }
      */
     @Test
+    @Disabled
     public void testTime() {
         WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
 
@@ -82,11 +100,15 @@ public class WebSocketManagerTest {
         }
 
         String time = manager.getInternetTime();
+        String localDeviceTime = MainActivity.getDeviceTimeStamp();
 
+        // Assertions.assertThat(time).i
         // compare with local SystemTime for good measure (you never know what will hit you)
-
-
+        // change to wintertime on webserver (how fucking inconvenient )
+        assertThat(time).isEqualTo(localDeviceTime);
     }
+
+
 
      @Test
      public void testCurrentTime() {

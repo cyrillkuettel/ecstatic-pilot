@@ -16,6 +16,7 @@ public interface Constants {
 
     String WEBSOCKET_URI =   "ws://pren.garteroboter.li:80/ws/";
     String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
+    String GARTEROBOTERLI = "pren.garteroboter.li";
 
 
 

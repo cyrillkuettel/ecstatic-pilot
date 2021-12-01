@@ -278,6 +278,22 @@ public class WebSocketManager extends AppCompatActivity {
         return false;
     }
 
+    /**
+     *
+     * @return False if internet is not available, true otherwise
+     */
+    public boolean isWebserverUp() {
+        try {
+            InetAddress address = InetAddress.getByName("pren.garteroboter.li");
+            return !address.equals("");
+        } catch (UnknownHostException e) {
+            String msg = String.format("The website %s is not reachable with InetAddress" ,
+                    Constants.GARTEROBOTERLI);
+            Log.info( msg);
+        }
+        return false;
+    }
+
     public final String GenerateRandomNumber(int charLength) {
         Random r = new Random(System.currentTimeMillis());
         int low = 1; // inclusive
