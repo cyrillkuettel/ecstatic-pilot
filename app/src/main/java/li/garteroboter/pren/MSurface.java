@@ -9,7 +9,11 @@ import android.graphics.Paint;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 public class MSurface extends SurfaceView implements SurfaceHolder.Callback {
+    private static final Logger Log = LogManager.getLogger(MSurface.class);
 
     public MSurface(Context context) {
         super(context);

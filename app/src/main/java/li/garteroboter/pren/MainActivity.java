@@ -24,11 +24,12 @@ import android.widget.Toast;
 import android.hardware.camera2.CameraManager;
 
 
-
-
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +45,6 @@ import simple.bluetooth.terminal.BlueActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
@@ -54,19 +54,22 @@ public class MainActivity extends AppCompatActivity {
     private boolean START_SIGNAL_FIRED = false;
     SurfaceView surfaceView;
 
+    private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        BasicConfigurator.configure();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         generateDropDownItems();
-        Log.v(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-        Log.v(TAG, "CameraIDlist = " + getCameraIDList());
+        Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
+        Log.info("CameraIDlist = " + getCameraIDList());
 
-
+        Log.info("logging works :)");
         mTextureView = (TextureView) findViewById(R.id.textureView);
 
     }
+
     private void updateTextureViewSize(int viewWidth, int viewHeight) {
         mTextureView.setLayoutParams(new FrameLayout.LayoutParams(viewWidth, viewHeight));
     }
@@ -74,14 +77,16 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Methods to check what camera ID's are available.
+     *
      * @return String of the Camera DI lists of device.
      */
     public String getCameraIDList() {
-        CameraManager cameraManager = (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager cameraManager =
+                (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
         try {
             return Arrays.toString(cameraManager.getCameraIdList());
         } catch (CameraAccessException e) {
-            Log.v(TAG, e.getMessage());
+            Log.info(e.getMessage());
             return null;
         }
     }
@@ -95,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         if (manager != null) {
             manager.disconnectAll();
         } else {
-            Utils.LogAndToast(mainContext, TAG, "Opening new Socket connection");
+            Utils.LogAndToast(mainContext, "Opening new Socket connection");
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
@@ -172,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
         String time = manager.getInternetTime();
-        Utils.LogAndToast(mainContext,TAG, "Internet time received =  %s".format(time) );
+        Utils.LogAndToast(mainContext, "Internet time received =  %s".format(time));
 
 
     }
@@ -184,29 +189,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void startStoppTimerClickHandler(View view) {
         // if (!START_SIGNAL_FIRED) {
-            sendStartSignalToWebServer();
-            START_SIGNAL_FIRED = true;
+        sendStartSignalToWebServer();
+        START_SIGNAL_FIRED = true;
         // }
     }
 
     /**
      * tells the webserver that the parkour has begun.
-     *
      */
     public void sendStartSignalToWebServer() {
         String value_now = getDeviceTimeStamp();
-        Utils.LogAndToast(MainActivity.this, TAG, value_now);
+        Utils.LogAndToast(MainActivity.this, value_now);
         String message = String.format("command=startTime=%s", value_now);
         if (manager.sendText(message)) {
-            Utils.LogAndToast(MainActivity.this, TAG, "Sending message " + message);
+            Utils.LogAndToast(MainActivity.this, "Sending message " + message);
         } else {
-            Utils.LogAndToast(MainActivity.this, TAG, "Error Sending message " + message);
+            Utils.LogAndToast(MainActivity.this, "Error Sending message " + message);
         }
     }
 
     /**
      * This methods returns the current Time on the device. It may differ slightly from the
      * internet time, which is more precise.
+     *
      * @return current System time
      */
     public String getDeviceTimeStamp() {
@@ -250,9 +255,10 @@ public class MainActivity extends AppCompatActivity {
                  It is unfortunate that this is necessary. But it seems to be necessary, if I
                  remove this it didn't work.
              */
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                    MY_CAMERA_REQUEST_CODE);
         } else {
-            Log.v(TAG, "Manifest.permission.CAMERA is okay");
+            Log.info("Manifest.permission.CAMERA is okay");
             Intent intent = new Intent(this, VideoProcessingService.class);
             startService(intent);
         }
@@ -264,7 +270,8 @@ public class MainActivity extends AppCompatActivity {
      *
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();

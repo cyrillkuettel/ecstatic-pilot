@@ -26,6 +26,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +37,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+
+/**
+ * This is my own implementation of the  Bluetooth functionality in android.
+ */
 public class BluetoothActivity extends AppCompatActivity {
+    private static final Logger Log = LogManager.getLogger(BluetoothActivity.class);
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String MAC_ADDRESS_ESP32 = "4C:EB:D6:75:AB:4E";
@@ -47,14 +56,13 @@ public class BluetoothActivity extends AppCompatActivity {
     private final Map<String, BluetoothDevice> devices = new HashMap<>();
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            Utils.LogAndToast(BluetoothActivity.this, TAG, "Could not find bluetooth adapter. ");
+            Utils.LogAndToast(BluetoothActivity.this, "Could not find bluetooth adapter. ");
             return;
         }
         if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled, ask to enable
@@ -76,19 +84,22 @@ public class BluetoothActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(receiver, filter);
 
-        String[] bluetoothDevicesArray = new String[devices.size()]; // this can be written with more
-                                                                // elegance using java8 streams !! Let's do it
+        String[] bluetoothDevicesArray = new String[devices.size()]; // this can be written with
+        // more
+        // elegance using java8 streams !! Let's do it
         int count = 0;
-        for ( String key : devices.keySet() ) {
+        for (String key : devices.keySet()) {
             bluetoothDevicesArray[count] = key;
             count++;
         }
-       // this block above was very ugly. I could write this much more compact.
+        // this block above was very ugly. I could write this much more compact.
 
-        // i could write my own ArrayAdapter. This is simply an object to store information about the item.
+        // i could write my own ArrayAdapter. This is simply an object to store information about
+        // the item.
         // I'm not sure if it's worth it tho
 
-        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, bluetoothDevicesArray );
+        ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, bluetoothDevicesArray);
         ListView bluetoothDevicesListView = findViewById(R.id.myListView);
         bluetoothDevicesListView.setAdapter(myAdapter);
 
@@ -98,18 +109,19 @@ public class BluetoothActivity extends AppCompatActivity {
                                     long id) {
 
                 for (int i = 0; i < bluetoothDevicesListView.getChildCount(); i++) {
-                    if(position == i ){
+                    if (position == i) {
                         bluetoothDevicesListView.getChildAt(i).setBackgroundColor(
                                 Color.rgb(128, 128, 255));
-                    }else{
+                    } else {
                         bluetoothDevicesListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
                     }
                 }
                 String value = (String) parent.getItemAtPosition(position);
 
                 selectedDevice = devices.get(value);
-                Toast.makeText(BluetoothActivity.this,"You selected : " + value, Toast.LENGTH_SHORT).show();
-                Log.v(TAG, value);
+                Toast.makeText(BluetoothActivity.this, "You selected : " + value,
+                        Toast.LENGTH_SHORT).show();
+                Log.info(value);
             }
         });
 
@@ -124,7 +136,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 devices.put(device.getName(), device);
-                Utils.LogAndToast(BluetoothActivity.this, TAG,"Discovery has found a device.");
+                Utils.LogAndToast(BluetoothActivity.this, "Discovery has found a device.");
             }
         }
     };
@@ -162,16 +174,18 @@ public class BluetoothActivity extends AppCompatActivity {
         // create a thread to connect
 
         if (selectedDevice == null) {
-            Log.e(TAG, "selected Device is Null");
+            Log.error("selected Device is Null");
             return;
         }
-        ConnectThread connectThread = new ConnectThread(selectedDevice); // get the current selected bluetooth device
+        ConnectThread connectThread = new ConnectThread(selectedDevice); // get the current
+        // selected bluetooth device
         connectThread.start();
     }
 
 
     @SuppressLint("HandlerLeak")
-    Handler mHandler=new Handler();
+    Handler mHandler = new Handler();
+
     public void manageMyConnectedSocket(BluetoothSocket socket) {
 
 
@@ -192,7 +206,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
-        private final String TAG = ConnectThread.class.getSimpleName();
         // generated online
 
         public ConnectThread(BluetoothDevice device) {
@@ -206,7 +219,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
                 tmp = device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID));
             } catch (IOException e) {
-                Log.e(TAG, "Socket's create() method failed", e);
+                Log.error("Socket's create() method failed", e);
             }
             mmSocket = tmp;
         }
@@ -224,7 +237,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 try {
                     mmSocket.close();
                 } catch (IOException closeException) {
-                    Log.e(TAG, "Could not close the client socket", closeException);
+                    Log.error("Could not close the client socket", closeException);
                 }
                 return;
             }
@@ -243,7 +256,7 @@ public class BluetoothActivity extends AppCompatActivity {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "Could not close the client socket", e);
+                Log.error("Could not close the client socket", e);
             }
         }
     }

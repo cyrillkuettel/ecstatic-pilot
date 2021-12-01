@@ -6,6 +6,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,7 +20,8 @@ import java.io.OutputStream;
  * https://developer.android.com/guide/topics/connectivity/bluetooth/transfer-data
  */
 public class MyBluetoothService {
-    private static final String TAG = "MY_APP_DEBUG_TAG";
+    private static final Logger Log = LogManager.getLogger(MyBluetoothService.class);
+
     private Handler handler; // handler that gets info from Bluetooth service
 
 
@@ -56,12 +60,12 @@ public class MyBluetoothService {
             try {
                 tmpIn = socket.getInputStream();
             } catch (IOException e) {
-                Log.e(TAG, "Error occurred when creating input stream", e);
+                Log.error("Error occurred when creating input stream", e);
             }
             try {
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                Log.e(TAG, "Error occurred when creating output stream", e);
+                Log.error("Error occurred when creating output stream", e);
             }
 
             mmInStream = tmpIn;
@@ -83,7 +87,7 @@ public class MyBluetoothService {
                             mmBuffer);
                     readMsg.sendToTarget();
                 } catch (IOException e) {
-                    Log.d(TAG, "Input stream was disconnected", e);
+                    Log.debug("Input stream was disconnected", e);
                     break;
                 }
             }
@@ -99,7 +103,7 @@ public class MyBluetoothService {
                         MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
                 writtenMsg.sendToTarget();
             } catch (IOException e) {
-                Log.e(TAG, "Error occurred when sending data", e);
+                Log.error("Error occurred when sending data", e);
 
                 // Send a failure message back to the activity.
                 Message writeErrorMsg =
@@ -117,7 +121,7 @@ public class MyBluetoothService {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "Could not close the connect socket", e);
+                Log.error("Could not close the connect socket", e);
             }
         }
     }
