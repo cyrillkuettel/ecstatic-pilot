@@ -213,7 +213,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (message.equals("") || ws == null) {
             if (ws == null) {
-                Log.info( "Websocket == Null in method sendText");
+                Log.error( "Websocket == Null in method sendText");
             }
             return false;
         }
@@ -222,7 +222,7 @@ public class WebSocketManager extends AppCompatActivity {
             return true;
         }
 
-        Log.info( "Tried to call method 'sendText', but Websocket is not open!");
+        Log.error( "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
 

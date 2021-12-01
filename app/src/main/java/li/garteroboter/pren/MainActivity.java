@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
     SurfaceView surfaceView;
+    // LogFactory
 
     private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reOpenSocket() {
+
+
         if (manager != null) {
             manager.disconnectAll();
         } else {
@@ -109,9 +111,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * send a custom Message to the Website
+     * send a custom Message to the Website. Currently not active.
      */
     public void sendCustomMessageClickHandler(View view) {
+
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Send Status Update");
         // Set an EditText view to get user input
@@ -131,8 +134,17 @@ public class MainActivity extends AppCompatActivity {
                 dialog.cancel();
             }
         });
-
         alert.show();
+
+    }
+
+    public void sendCustomMessageNoAlert(View view) {
+        sendWebSocketMessage("It works ¯\\_(ツ)_/¯");
+    }
+
+    public void sendWebSocketMessage(String message) {
+        manager.sendText(message);
+        Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
     }
 
 
@@ -214,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return current System time
      */
-    public String getDeviceTimeStamp() {
+    public static String getDeviceTimeStamp() {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
