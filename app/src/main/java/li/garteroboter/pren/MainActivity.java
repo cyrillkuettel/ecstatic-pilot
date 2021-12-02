@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnSendText.setEnabled(false);
         myButton.setEnabled(false);
+
     }
 
     private void updateTextureViewSize(int viewWidth, int viewHeight) {

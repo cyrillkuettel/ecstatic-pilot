@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -32,6 +34,7 @@ import org.apache.log4j.Logger;
 import java.util.concurrent.ExecutionException;
 
 import li.garteroboter.pren.databinding.ActivitySimpleUiactivityBinding;
+import android.util.Size;
 
 public class simpleUIActivity extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(simpleUIActivity.class);
@@ -41,7 +44,8 @@ public class simpleUIActivity extends AppCompatActivity {
     private PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
-
+    private Button qrCodeFoundButton;
+    private String qrCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,14 @@ public class simpleUIActivity extends AppCompatActivity {
         setContentView(R.layout.activity_simple_uiactivity);
 
         previewView = findViewById(R.id.activity_main_previewView);
+
+        qrCodeFoundButton = findViewById(R.id.activity_main_qrCodeFoundButton);
+        qrCodeFoundButton.setVisibility(View.INVISIBLE);
+        qrCodeFoundButton.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), qrCode, Toast.LENGTH_SHORT).show();
+            Log.info(MainActivity.class.getSimpleName() + " QR Code Found: " + qrCode);
+        });
+
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         requestCamera();
@@ -62,7 +74,7 @@ public class simpleUIActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 ActivityCompat.requestPermissions(simpleUIActivity.this,
                         new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
-            } else {
+            } else { /* kind of dubious */
                 ActivityCompat.requestPermissions(simpleUIActivity.this, new String[]{Manifest.permission.CAMERA},
                         PERMISSION_REQUEST_CAMERA);
             }
@@ -105,6 +117,30 @@ public class simpleUIActivity extends AppCompatActivity {
 
         preview.setSurfaceProvider(previewView.createSurfaceProvider());
 
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
+        ImageAnalysis imageAnalysis =
+                new ImageAnalysis.Builder()
+                        .setTargetResolution(new Size(1280, 720))
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build();
+
+        /**
+        I use the setAnaylzer() method on the ImageAnalysis object
+         provide an object of the custom image analyzer class {@link QRCodeImageAnalyzer}
+         Then implement the onQRCodeFound(…) and qrCodeNotFound() methods from the {@link QRCodeFoundListener}
+         */
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), new QRCodeImageAnalyzer(new QRCodeFoundListener() {
+            @Override
+            public void onQRCodeFound(String _qrCode) {
+                qrCode = _qrCode;
+                qrCodeFoundButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void qrCodeNotFound() {
+                qrCodeFoundButton.setVisibility(View.INVISIBLE);
+            }
+        }));
+
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, imageAnalysis, preview);
     }
 }

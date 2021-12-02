@@ -35,20 +35,23 @@
         android:theme="@style/Theme.PIlot" >
         <activity
             android:name=".simpleUIActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_simple_uiactivity"
-            android:theme="@style/Theme.PIlot.NoActionBar" />
+            android:theme="@style/Theme.PIlot.NoActionBar" >
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
         <activity
             android:name=".BluetoothActivity"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="simple.bluetooth.terminal.BlueActivity"
