@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
-        new Thread(() -> manager.createAndOpenWebSocketConnection(Sockets.Text)).start();
+        new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
     }
 
 
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public static String getDeviceTimeStamp() {
         Calendar cal = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
         return simpleDateFormat.format(cal.getTime());
     }

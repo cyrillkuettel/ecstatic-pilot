@@ -1,10 +1,5 @@
 package li.garteroboter.pren;
 
-import android.media.Image;
-import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.neovisionaries.ws.client.OpeningHandshakeException;
@@ -20,12 +15,9 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -65,7 +57,7 @@ public class WebSocketManager extends AppCompatActivity {
     /**
      * Stores the current active socket connections. There are at most two. (Textual and Binary data)
      */
-    private final Map<Sockets, WebSocket> sockets;
+    private final Map<SocketType, WebSocket> sockets;
     private final String URI;
     private String receivedInternetTime = "Not initialized";
 
@@ -78,17 +70,17 @@ public class WebSocketManager extends AppCompatActivity {
 
 
 
-    public boolean createAndOpenWebSocketConnection(Sockets socket) {
+    public boolean createAndOpenWebSocketConnection(SocketType socket) {
         if (!isInternetAvailable()) {
             Log.error("Internet is not available. Are you online? ");
             return false;
         }
 
         String typeOfSocketConnection = null;
-        if (socket.equals(Sockets.Text)) {
+        if (socket.equals(SocketType.Text)) {
             typeOfSocketConnection = "999";  // I define these special client ID's on the server of course
         }
-        if (socket.equals(Sockets.Binary)) {
+        if (socket.equals(SocketType.Binary)) {
             typeOfSocketConnection = "888";
         }
 
@@ -209,7 +201,7 @@ public class WebSocketManager extends AppCompatActivity {
      * Run createAndOpenWebSocketConnection before this !
      */
     public boolean sendText(String message) {
-        WebSocket ws = sockets.get(Sockets.Text);
+        WebSocket ws = sockets.get(SocketType.Text);
 
         if (message.equals("") || ws == null) {
             if (ws == null) {
@@ -234,7 +226,7 @@ public class WebSocketManager extends AppCompatActivity {
      */
     public boolean sendBytes(byte[] bytes) {
         Log.info( "sending Bytes");
-        WebSocket ws = sockets.get(Sockets.Binary);
+        WebSocket ws = sockets.get(SocketType.Binary);
 
         if (ws == null) { Log.info( "Websocket == Null in method sendBytes");return false; }
 
@@ -253,6 +245,7 @@ public class WebSocketManager extends AppCompatActivity {
         if(!sockets.isEmpty()) {
             for (WebSocket w : sockets.values()) {
                 w.disconnect();
+
                 Log.info( "Disconnected Websocket and Shutdown Executor.");
             }
         }
@@ -300,6 +293,10 @@ public class WebSocketManager extends AppCompatActivity {
         int high = 1000000000; //exclusive
         int result = r.nextInt(high-low) + low;
         return String.valueOf(result);
+    }
+
+    public WebSocket getSocketFromMap(SocketType socketType) {
+        return sockets.get(socketType);
     }
 
     /*
