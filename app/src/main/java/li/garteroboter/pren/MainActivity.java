@@ -49,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
-    private final Context mainContext = MainActivity.this;
+    final Context mainContext = MainActivity.this;
     private static final int MY_CAMERA_REQUEST_CODE = 2;
     public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
+
     SurfaceView surfaceView;
     // LogFactory
 
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         BasicConfigurator.configure();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         generateDropDownItems();
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.info("CameraIDlist = " + getCameraIDList());
@@ -112,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
             Utils.LogAndToast(mainContext, "Opening new Socket connection");
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
-        manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
+        manager = new WebSocketManager(this, mySpinner.getSelectedItem().toString());
+
         // TODO: change this so be more optimal
         new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
     }
@@ -197,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
     public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
         String time = manager.getInternetTime();
-        Utils.LogAndToast(mainContext, "Internet time received =  %s".format(time));
+
+        // Utils.LogAndToast(mainContext, "Internet time received =  %s".format(time));
 
 
     }

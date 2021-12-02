@@ -1,5 +1,11 @@
 package li.garteroboter.pren;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.neovisionaries.ws.client.OpeningHandshakeException;
@@ -43,7 +49,8 @@ import java.util.concurrent.Future;
 public class WebSocketManager extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(WebSocketManager.class);
 
-
+    Context context = this;
+    Activity activity;
     /**
      * The timeout value in milliseconds for socket connection.
      */
@@ -61,14 +68,22 @@ public class WebSocketManager extends AppCompatActivity {
     private final String URI;
     private String receivedInternetTime = "Not initialized";
 
+    public WebSocketManager(Context context, String URI) {
+        this.context = context;
+        this.activity = activity;
+        this.URI = URI;
+        this.sockets = new HashMap<>();
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    }
 
+    /*
     public WebSocketManager(String URI) {
         this.sockets = new HashMap<>();
         this.URI = URI;
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
-
+*/
 
     public boolean createAndOpenWebSocketConnection(SocketType socket) {
         if (!isInternetAvailable()) {
@@ -132,10 +147,31 @@ public class WebSocketManager extends AppCompatActivity {
         // is it recommended so use wait() to finish for executor?
     }
 
+    public static Runnable createToast(String message, Context context) {
+        return new Runnable() {
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        };
+    }
+
+
     /**
      * Connect to the server.
      */
     private WebSocket createWebSocket(String completeURI) throws IOException, WebSocketException {
+
+        new Handler(Looper.getMainLooper()).post(createToast("TOASTING FROM WEBSOCKETMANAGER", context));
+
+        /*
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(context, "Hello", Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+         */
         return new WebSocketFactory()
                 .setConnectionTimeout(TIMEOUT)
                 .createSocket(completeURI)

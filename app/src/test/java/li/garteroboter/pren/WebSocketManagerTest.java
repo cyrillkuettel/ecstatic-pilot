@@ -8,6 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 // import static org.assertj.core.api.Assertions.Closet;
 
+import android.app.Activity;
+import android.content.Context;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 
@@ -37,7 +43,12 @@ import java.util.concurrent.Future;
 public class WebSocketManagerTest {
 
     private static final Logger Log = Logger.getLogger(WebSocketManagerTest.class);
+    // Context context = ApplicationProvider.getApplicationContext();
+    // Context context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext();
+    // Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+    MainActivity main = new MainActivity();
 
+    Context context = main.mainContext;
 
     @BeforeAll
     public static void setup() {
@@ -56,8 +67,9 @@ public class WebSocketManagerTest {
     /**
      * Utility Method to create WebSocket. Currently only used for testing.
      */
-    public static WebSocketManager  createWebSocket() {
-        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
+    public WebSocketManager  createWebSocket() {
+        WebSocketManager manager = new WebSocketManager(context, Constants.WEBSOCKET_URI);
+
         Callable<Boolean> callableObj = () -> {
             boolean managerResult =
                     manager.createAndOpenWebSocketConnection(SocketType.Text);
@@ -134,14 +146,14 @@ public class WebSocketManagerTest {
 
     @Test
     public void testIsInternetAvailable() {
-        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
+        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI);
         assertTrue(manager.isInternetAvailable());
         // Internet should at all times be available. If not we are fucked
     }
 
     @Test
     public void testisWebserverUp() {
-        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
+        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI);
         assertThat(manager.isWebserverUp()).isTrue();
     }
 
