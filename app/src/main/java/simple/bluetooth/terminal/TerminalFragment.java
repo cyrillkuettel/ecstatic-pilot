@@ -137,11 +137,14 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         sendText.setHint(hexEnabled ? "HEX mode" : "");
 
         View sendBtn = view.findViewById(R.id.send_btn);
-        View sendStartSignalButton = view.findViewById(R.id.send_btn_start);
-
-        // Hardcoded Start Signal to ESP32
-        sendStartSignalButton.setOnClickListener(v -> send(Constants.START_COMMAND_ESP32));
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
+
+        // Hardcoded Start/Stop Signal Buttons. Sends "start" / "stop to ESP32
+        View sendStartSignalButton = view.findViewById(R.id.send_btn_start);
+        sendStartSignalButton.setOnClickListener(v -> send(Constants.START_COMMAND_ESP32));
+        View sendStopSignalButton = view.findViewById(R.id.send_btn_stop);
+        sendStopSignalButton.setOnClickListener(v -> send(Constants.STOP_COMMAND_ESP32));
+
 
         return view;
     }

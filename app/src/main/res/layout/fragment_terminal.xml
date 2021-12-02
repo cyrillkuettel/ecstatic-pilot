@@ -39,11 +39,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_send_white_24dp" />
-        <ImageButton
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/send_btn_stop"
+            android:text="Start"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:layout_width="100dp"
+            android:layout_height="37dp"
+            android:background="@drawable/start_buttonshape"
+            android:shadowColor="#A8A8A8"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            />
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/send_btn_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_send_start_24dp"/>
+            android:text="Stop"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:layout_width="100dp"
+            android:layout_height="37dp"
+            android:background="@drawable/stop_buttonshape"
+            android:shadowColor="#A8A8A8"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            />
+
+
     </LinearLayout>
 
 </LinearLayout>

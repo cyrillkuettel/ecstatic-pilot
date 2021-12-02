@@ -20,5 +20,5 @@ public interface Constants {
     String START_COMMAND_ESP32 = "start";
 
 
-
+    String STOP_COMMAND_ESP32 = "stop";
 }
