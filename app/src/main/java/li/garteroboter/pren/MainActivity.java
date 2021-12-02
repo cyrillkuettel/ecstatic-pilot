@@ -44,6 +44,7 @@ import simple.bluetooth.terminal.BlueActivity;
 
 
 public class MainActivity extends AppCompatActivity {
+    private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     SurfaceView surfaceView;
     // LogFactory
 
-    private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
