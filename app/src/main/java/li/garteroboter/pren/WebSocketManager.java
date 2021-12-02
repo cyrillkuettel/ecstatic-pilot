@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
@@ -48,15 +47,13 @@ import java.util.concurrent.Future;
 
 public class WebSocketManager extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(WebSocketManager.class);
-
-    Context context = this;
-    Activity activity;
+    private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you online? ";
+    Context context;
     /**
      * The timeout value in milliseconds for socket connection.
      */
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
-    private static final String  TAG = MainActivity.class.getSimpleName();
     private static boolean allowMultiplePilots = true;
 
     private final ExecutorService executorService;
@@ -70,7 +67,6 @@ public class WebSocketManager extends AppCompatActivity {
 
     public WebSocketManager(Context context, String URI) {
         this.context = context;
-        this.activity = activity;
         this.URI = URI;
         this.sockets = new HashMap<>();
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -87,7 +83,8 @@ public class WebSocketManager extends AppCompatActivity {
 
     public boolean createAndOpenWebSocketConnection(SocketType socket) {
         if (!isInternetAvailable()) {
-            Log.error("Internet is not available. Are you online? ");
+            new Handler(Looper.getMainLooper()).post(createToast(INTERNET_NOT_AVAILABLE, context));
+            Log.error(INTERNET_NOT_AVAILABLE);
             return false;
         }
 
@@ -144,13 +141,12 @@ public class WebSocketManager extends AppCompatActivity {
         sockets.put(socket, ws);
         return true;
 
-        // is it recommended so use wait() to finish for executor?
     }
 
     public static Runnable createToast(String message, Context context) {
         return new Runnable() {
             public void run() {
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -161,17 +157,6 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private WebSocket createWebSocket(String completeURI) throws IOException, WebSocketException {
 
-        new Handler(Looper.getMainLooper()).post(createToast("TOASTING FROM WEBSOCKETMANAGER", context));
-
-        /*
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                Toast.makeText(context, "Hello", Toast.LENGTH_LONG).show();
-            }
-        });
-
-
-         */
         return new WebSocketFactory()
                 .setConnectionTimeout(TIMEOUT)
                 .createSocket(completeURI)
@@ -205,7 +190,9 @@ public class WebSocketManager extends AppCompatActivity {
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
                         Log.info( "connected!");
-                       // Utils.LogAndToast(WebSocketManager.this, , "Connected");
+                        new Handler(Looper.getMainLooper()).post(createToast("Websocket Connected", context));
+
+                        // Utils.LogAndToast(WebSocketManager.this, , "Connected");
 
                     }
                 })

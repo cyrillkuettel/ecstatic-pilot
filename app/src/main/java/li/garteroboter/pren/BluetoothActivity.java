@@ -44,7 +44,6 @@ import java.util.Set;
 public class BluetoothActivity extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(BluetoothActivity.class);
 
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1;
     private static final String MAC_ADDRESS_ESP32 = "4C:EB:D6:75:AB:4E";
     private static final String BLUETOOTH_DEVICE_NAME_ESP32 = "ESP32test";

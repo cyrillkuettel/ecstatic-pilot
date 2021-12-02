@@ -1,5 +1,7 @@
 package li.garteroboter.pren;
 
+import static li.garteroboter.pren.Utils.LogAndToast;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         if (manager != null) {
             manager.disconnectAll();
         } else {
-            Utils.LogAndToast(mainContext, "Opening new Socket connection");
+            LogAndToast(mainContext, "Opening new Socket connection");
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         manager = new WebSocketManager(this, mySpinner.getSelectedItem().toString());
@@ -195,14 +197,10 @@ public class MainActivity extends AppCompatActivity {
         spinnerHostname.setAdapter(adapter);
     }
 
-    // Set this up in the UI thread.
-
     public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
         String time = manager.getInternetTime();
-
-        // Utils.LogAndToast(mainContext, "Internet time received =  %s".format(time));
-
+        LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
 
     }
 
@@ -223,12 +221,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public void sendStartSignalToWebServer() {
         String value_now = getDeviceTimeStamp();
-        Utils.LogAndToast(MainActivity.this, value_now);
+        LogAndToast(MainActivity.this, value_now);
         String message = String.format("command=startTime=%s", value_now);
         if (manager.sendText(message)) {
-            Utils.LogAndToast(MainActivity.this, "Sending message " + message);
+            LogAndToast(MainActivity.this, "sendStartSignalToWebServer - successful");
         } else {
-            Utils.LogAndToast(MainActivity.this, "Error Sending message " + message);
+            LogAndToast(MainActivity.this, "Error sendStartSignalToWebServer " + message);
         }
     }
 

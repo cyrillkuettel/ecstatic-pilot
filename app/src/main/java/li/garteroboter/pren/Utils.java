@@ -10,7 +10,7 @@ public class Utils {
 
     public static void LogAndToast(Context mContext, String message) {
         // TODO: Make it possible to run this from everywhere. Runnable?
-        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
 }

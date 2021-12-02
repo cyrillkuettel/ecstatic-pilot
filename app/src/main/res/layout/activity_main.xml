@@ -92,17 +92,6 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/btnVideoProcessing"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="300dp"
-            android:layout_height="45dp"
-            android:enabled="true"
-            android:layout_gravity="center_horizontal|center"
-            android:onClick="videoProcessingServiceClickHandler"
-            android:text="Test VideoProcessingService" />
-
-
-        <Button
             android:id="@+id/btnOpenConnection"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
@@ -111,8 +100,15 @@
             android:onClick="reopenSocketConnectionClickHandler"
             android:text="Open New Socket Connection" />
 
-
-
+        <Button
+            android:id="@+id/btnVideoProcessing"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="300dp"
+            android:layout_height="45dp"
+            android:enabled="true"
+            android:layout_gravity="center_horizontal|center"
+            android:onClick="videoProcessingServiceClickHandler"
+            android:text="Test VideoProcessingService" />
 
 
         <Button

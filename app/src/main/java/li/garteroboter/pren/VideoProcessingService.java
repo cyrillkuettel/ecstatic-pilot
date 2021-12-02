@@ -18,7 +18,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ReadOnlyBufferException;
 import java.util.Arrays;
 import java.util.Locale;
 import android.util.Size;
@@ -45,7 +43,6 @@ public class VideoProcessingService extends Service {
 
     private static final Logger Log = LogManager.getLogger(VideoProcessingService.class);
 
-    protected static final String TAG = "VideoProcessingService";
     protected static final int CAMERACHOICE = CameraCharacteristics.LENS_FACING_FRONT;
     protected static CameraCharacteristics characteristics;
     private static final int CODE_PERM_CAMERA = 3;
