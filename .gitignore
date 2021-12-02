@@ -8,8 +8,8 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build/*
 !app/build/outputs/apk/debug/app-debug.apk
+app/build/*
 /captures
 .externalNativeBuild
 .cxx
