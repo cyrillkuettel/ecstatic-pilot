@@ -16,6 +16,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
@@ -64,10 +65,14 @@ public class MainActivity extends AppCompatActivity {
         generateDropDownItems();
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.info("CameraIDlist = " + getCameraIDList());
-
-        Log.info("logging works :)");
         mTextureView = (TextureView) findViewById(R.id.textureView);
 
+        Button myButton = (Button) findViewById(R.id.btnVideoProcessing);
+        myButton.setEnabled(false);
+        Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
+
+        btnSendText.setEnabled(false);
+        myButton.setEnabled(false);
     }
 
     private void updateTextureViewSize(int viewWidth, int viewHeight) {
@@ -93,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void reopenSocketConnectionClickHandler(View view) {
         reOpenSocket();
-
+        Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
+        btnSendText.setEnabled(true);
     }
 
     public void reOpenSocket() {
@@ -106,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Spinner mySpinner = findViewById(R.id.dropdown_menu);
         manager = new WebSocketManager(mySpinner.getSelectedItem().toString());
+        // TODO: change this so be more optimal
         new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
     }
 
