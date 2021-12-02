@@ -88,7 +88,6 @@ public class WebSocketManagerTest {
     public void localTimeAndInternetTime_ShouldBeWithinOneSecond() {
         WebSocketManager manager = createWebSocket();
         WebSocket socket = manager.getSocketFromMap(SocketType.Text);
-
         assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
 
 
@@ -112,6 +111,7 @@ public class WebSocketManagerTest {
         assertEquals(DateUtils.round(date[0],Calendar.SECOND),
                 DateUtils.round(date[1],Calendar.SECOND));
     }
+
     public static Date parseDate(String date) {
         try {
             return new SimpleDateFormat("mm:ss.SSS").parse(date);
@@ -122,12 +122,12 @@ public class WebSocketManagerTest {
     }
 
 
-
-
     @Test
     public void sendTextData_ListenerOnMessageShouldFire() {
-        WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
-
+        WebSocketManager manager = createWebSocket();
+        WebSocket socket = manager.getSocketFromMap(SocketType.Text);
+        assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
+        manager.sendText("Test");
 
 
     }
@@ -144,10 +144,6 @@ public class WebSocketManagerTest {
         WebSocketManager manager = new WebSocketManager(Constants.WEBSOCKET_URI);
         assertThat(manager.isWebserverUp()).isTrue();
     }
-
-
-
-
 
 
 

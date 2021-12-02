@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.R;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
@@ -136,7 +137,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         sendText.setHint(hexEnabled ? "HEX mode" : "");
 
         View sendBtn = view.findViewById(R.id.send_btn);
+        View sendStartSignalButton = view.findViewById(R.id.send_btn_start);
+
+        // Hardcoded Start Signal to ESP32
+        sendStartSignalButton.setOnClickListener(v -> send(Constants.START_COMMAND_ESP32));
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
+
         return view;
     }
 
