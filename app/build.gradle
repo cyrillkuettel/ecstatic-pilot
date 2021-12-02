@@ -57,6 +57,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.0.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.0.0'
     // https://mvnrepository.com/artifact/com.squareup.assertj/assertj-android
+
     implementation group: 'com.squareup.assertj', name: 'assertj-android', version: '1.2.0'
 
     implementation fileTree(dir:'libs', include: ['*.jar', 'log4.j.properties'])
@@ -66,7 +67,7 @@ dependencies {
 
     androidTestImplementation 'org.junit.jupiter:junit-jupiter'
     androidTestImplementation 'org.junit.jupiter:junit-jupiter'
-
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 }
 
