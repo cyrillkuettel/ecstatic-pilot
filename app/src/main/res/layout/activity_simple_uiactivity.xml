@@ -31,36 +31,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        >
-
-        <Button
-            android:id="@+id/btnStartStop"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/btnStartMessageToESP"
-            android:text="do Stuff" />
-
-
-        <View
-            android:id="@+id/view"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_centerHorizontal="true" />
-        <Button
-            android:id="@+id/btnStartMessageToESP"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/view"
-            android:text="Start Message TO ESP32 "
-            android:onClick="onStartMessageESP32" />
-    </RelativeLayout>
 </LinearLayout>
