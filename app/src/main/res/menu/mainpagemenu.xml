@@ -16,7 +16,7 @@
              -->
             <item
                 android:id="@+id/simpleUI"
-                android:title="Test" />
+                android:title="Camera" />
 
              <item
                  android:id="@+id/websocket"
