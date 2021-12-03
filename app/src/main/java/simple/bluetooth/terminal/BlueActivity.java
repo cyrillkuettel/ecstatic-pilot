@@ -20,14 +20,16 @@ public class BlueActivity extends AppCompatActivity implements FragmentManager.O
         setSupportActionBar(toolbar);
          */
 
-
-        BlueActivity.this.runOnUiThread(new Runnable() {
+        /*
+            BlueActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(BlueActivity.this, "This is Toast!!!", Toast.LENGTH_SHORT).show();
 
             }
         });
+         */
+
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         if (savedInstanceState == null)
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, new DevicesFragment(), "devices").commit();

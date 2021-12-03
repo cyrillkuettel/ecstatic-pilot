@@ -123,6 +123,7 @@ public class simpleUIActivity extends AppCompatActivity {
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 
+
         /**
         I use the setAnaylzer() method on the ImageAnalysis object
          provide an object of the custom image analyzer class {@link QRCodeImageAnalyzer}
