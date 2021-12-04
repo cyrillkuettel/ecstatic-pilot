@@ -20,12 +20,11 @@ public class BlueActivity extends AppCompatActivity implements FragmentManager.O
         setSupportActionBar(toolbar);
          */
 
-        /*
+        /*  Like this you can Toast from other Activity
             BlueActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(BlueActivity.this, "This is Toast!!!", Toast.LENGTH_SHORT).show();
-
             }
         });
          */

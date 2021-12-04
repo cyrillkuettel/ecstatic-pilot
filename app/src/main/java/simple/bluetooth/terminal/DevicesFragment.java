@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 
 public class DevicesFragment extends ListFragment {
 
@@ -115,6 +116,11 @@ public class DevicesFragment extends ListFragment {
         args.putString("device", device.getAddress());
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
+
+        Fragment qrFragment = new CameraPreviewFragment();
+        qrFragment.setArguments(args);
+
+        getFragmentManager().beginTransaction().add(R.id.qrfragment, qrFragment).commit();
         getFragmentManager().beginTransaction().replace(R.id.fragment, fragment, "terminal").addToBackStack(null).commit();
     }
 
