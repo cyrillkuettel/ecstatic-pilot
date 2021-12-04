@@ -42,6 +42,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
+import li.garteroboter.pren.qrcode.simpleUIActivity;
 import simple.bluetooth.terminal.BlueActivity;
 
 

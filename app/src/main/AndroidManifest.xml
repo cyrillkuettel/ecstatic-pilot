@@ -34,7 +34,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PIlot" >
         <activity
-            android:name=".simpleUIActivity"
+            android:name=".qrcode.simpleUIActivity"
             android:exported="true"
             android:label="@string/title_activity_simple_uiactivity"
             android:theme="@style/Theme.PIlot.NoActionBar" >
