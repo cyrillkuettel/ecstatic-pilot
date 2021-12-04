@@ -11,20 +11,13 @@
 
         <menu android:id="@+id/menu">
 
-            <!--<item android:id="@+id/bluetooth"
-            android:title="Bluetooth" />
-             -->
-            <item
-                android:id="@+id/simpleUI"
-                android:title="Camera" />
-
              <item
                  android:id="@+id/websocket"
                  android:title="WebSocket" />
 
              <item
                  android:id="@+id/bluetooth2"
-                 android:title="SerialBluetooth" />
+                 android:title="QR Code and Camera" />
 
          </menu>
 
