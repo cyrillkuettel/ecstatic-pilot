@@ -1,6 +1,7 @@
 package li.garteroboter.pren.qrcode;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -15,8 +16,11 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+//import androidx.fragment.app.
 import androidx.lifecycle.LifecycleOwner;
 
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +36,11 @@ import org.apache.log4j.Logger;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 import simple.bluetooth.terminal.BlueActivity;
+import simple.bluetooth.terminal.TerminalFragment;
 
 
 public class CameraPreviewFragment extends Fragment {
@@ -44,12 +50,16 @@ public class CameraPreviewFragment extends Fragment {
     private PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
+    // final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+
+
     private Button qrCodeFoundButton;
     private String qrCode;
 
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) { // @Nullable  means that the return value of onCreateView method can be null
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
@@ -59,17 +69,7 @@ public class CameraPreviewFragment extends Fragment {
         requestCamera();
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        previewView = (PreviewView)  getView().findViewById(R.id.activity_main_previewView);
-        qrCodeFoundButton = (Button) getView().findViewById(R.id.activity_main_qrCodeFoundButton);
 
-        qrCodeFoundButton.setVisibility(View.INVISIBLE);
-        qrCodeFoundButton.setOnClickListener(v -> {
-            // Toast.makeText(getApplicationContext(), qrCode, Toast.LENGTH_SHORT).show();
-            Log.info(MainActivity.class.getSimpleName() + " QR Code Found: " + qrCode);
-        });
-    }
 
 
     @Override
@@ -157,17 +157,61 @@ public class CameraPreviewFragment extends Fragment {
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(getActivity()), new QRCodeImageAnalyzer(new QRCodeFoundListener() {
             @Override
             public void onQRCodeFound(String _qrCode) {
+                /*
+                Vibration can only work if it is being called in an activity.
+
+                 final VibrationEffect vibrationEffect1;
+                // this is the only type of the vibration which requires system version Oreo (API 26)
+                // this effect creates the vibration of default amplitude for 1000ms(1 sec)
+                vibrationEffect1 = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE);
+                // it is safe to cancel other vibrations currently taking place
+                vibrator.cancel();
+                vibrator.vibrate(vibrationEffect1);
+                 */
+
+
+                Log.info("Detection");
                 qrCode = _qrCode;
                 qrCodeFoundButton.setVisibility(View.VISIBLE);
-            }
 
+
+
+                 
+            }
             @Override
             public void qrCodeNotFound() {
                 qrCodeFoundButton.setVisibility(View.INVISIBLE);
             }
         }));
-
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, imageAnalysis, preview);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        previewView = (PreviewView)  getView().findViewById(R.id.activity_main_previewView);
+        qrCodeFoundButton = (Button) getView().findViewById(R.id.activity_main_qrCodeFoundButton);
+        qrCodeFoundButton.setText("Send Stop Command");
+        qrCodeFoundButton.setVisibility(View.INVISIBLE);
+        qrCodeFoundButton.setOnClickListener(v -> {
+            // Toast.makeText(getApplicationContext(), qrCode, Toast.LENGTH_SHORT).show();
+            Log.info(MainActivity.class.getSimpleName() + " QR Code Found: " + qrCode);
+            
+            try {
+                /*  This is the quick and dirty solution for now.
+                    Use Interface which TerminalFragment Implements.
+
+                     this is the better, and safer, approach from a design perspective
+                     https://stackoverflow.com/questions/12659747/call-an-activity-method-from-a-fragment
+                 */
+
+
+                TerminalFragment tf = (TerminalFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment);
+                tf.send(Constants.STOP_COMMAND_ESP32);
+            } catch (Exception e) {
+                Log.info("Accessing TerminalFragment Object failed. ");
+                e.printStackTrace();
+            }
+        });
     }
 
 

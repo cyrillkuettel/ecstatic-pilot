@@ -144,10 +144,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         sendStartSignalButton.setOnClickListener(v -> send(Constants.START_COMMAND_ESP32));
         View sendStopSignalButton = view.findViewById(R.id.send_btn_stop);
         sendStopSignalButton.setOnClickListener(v -> send(Constants.STOP_COMMAND_ESP32));
-
-
         return view;
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
@@ -206,7 +206,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         service.disconnect();
     }
 
-    private void send(String str) {
+
+    // this method should be private, it would be a better design.
+    // However, this would require me to figure out a workaround to call send() from other places.
+    public void send(String str) {
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;

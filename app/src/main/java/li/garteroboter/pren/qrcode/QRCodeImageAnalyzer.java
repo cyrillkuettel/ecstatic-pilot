@@ -33,7 +33,7 @@ public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
 
     @Override
     public void analyze(@NonNull ImageProxy image) {
-        Log.info("Camera Log : Analyze");
+        // Log.info("Camera Log : Analyze");
 
         if (image.getFormat() == YUV_420_888 || image.getFormat() == YUV_422_888 || image.getFormat() == YUV_444_888) {
             ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
