@@ -141,10 +141,14 @@ public class CameraPreviewFragment extends Fragment {
                 .build();
 
         preview.setSurfaceProvider(previewView.createSurfaceProvider());
+        // 720 480
+        // before was 1280 720
 
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder()
-                        .setTargetResolution(new Size(1280, 720))
+                        // enable the following line if RGBA output is needed.
+                        //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                        .setTargetResolution(new Size(720, 480))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 

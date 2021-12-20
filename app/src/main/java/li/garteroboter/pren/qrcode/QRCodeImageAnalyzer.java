@@ -48,7 +48,11 @@ public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
                     false
             );
 
+            // could maybe optimize, reduce size and grayscale
+            Log.info(String.format("PlanarYUVLuminanceSource width = %d height =  %d " , source.getWidth(), source.getHeight()));
+
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+
 
             try {
                 Result result = new QRCodeMultiReader().decode(binaryBitmap);

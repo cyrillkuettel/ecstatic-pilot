@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean START_SIGNAL_FIRED = false;
 
     SurfaceView surfaceView;
-    // LogFactory
 
 
     @Override
@@ -71,12 +70,17 @@ public class MainActivity extends AppCompatActivity {
         Log.info("CameraIDlist = " + getCameraIDList());
         mTextureView = (TextureView) findViewById(R.id.textureView);
 
-        Button myButton = (Button) findViewById(R.id.btnVideoProcessing);
-        myButton.setEnabled(false);
+        Button getInternetTime = (Button) findViewById(R.id.btnInternetTime);
+        getInternetTime.setEnabled(false);
+
+        Button videoProcessing = (Button) findViewById(R.id.btnVideoProcessing);
+        videoProcessing.setEnabled(false);
         Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
 
         btnSendText.setEnabled(false);
-        myButton.setEnabled(false);
+        videoProcessing.setEnabled(false);
+
+
 
     }
 
@@ -195,7 +199,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
+        reOpenSocket();
         Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
+
         String time = manager.getInternetTime();
         LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
 

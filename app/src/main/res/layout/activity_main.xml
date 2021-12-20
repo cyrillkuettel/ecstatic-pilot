@@ -55,6 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_centerHorizontal="true" />
+
         <Button
             android:id="@+id/btnInternetTime"
             style="?android:attr/buttonStyleSmall"
@@ -62,8 +63,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@+id/view"
-            android:text="get Internet Time"
-            android:onClick="getInternetTime" />
+            android:onClick="getInternetTime"
+            android:text="get Internet Time" />
     </RelativeLayout>
 
     <LinearLayout

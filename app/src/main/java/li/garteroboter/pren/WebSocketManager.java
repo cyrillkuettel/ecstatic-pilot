@@ -39,15 +39,15 @@ import java.util.concurrent.Future;
  * It is technically possible to to both text and binary in the same connection. But I assume this
  * would add more complexity to the websocket endpoint. It would have to check each incoming
  * message every time, which could decrease performance.
- *
+ * <p>
  * I  have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
  * with adding my own protocol layer to distinguish, since WebSockets already do this.
-
  */
 
 public class WebSocketManager extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(WebSocketManager.class);
-    private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you online? ";
+    private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you " +
+            "online? ";
     Context context;
     /**
      * The timeout value in milliseconds for socket connection.
@@ -59,7 +59,8 @@ public class WebSocketManager extends AppCompatActivity {
     private final ExecutorService executorService;
 
     /**
-     * Stores the current active socket connections. There are at most two. (Textual and Binary data)
+     * Stores the current active socket connections. There are at most two. (Textual and Binary
+     * data)
      */
     private final Map<SocketType, WebSocket> sockets;
     private final String URI;
@@ -69,6 +70,7 @@ public class WebSocketManager extends AppCompatActivity {
         this.context = context;
         this.URI = URI;
         this.sockets = new HashMap<>();
+        Log.info("Creating new fixed Threadpool!");
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
@@ -90,7 +92,8 @@ public class WebSocketManager extends AppCompatActivity {
 
         String typeOfSocketConnection = null;
         if (socket.equals(SocketType.Text)) {
-            typeOfSocketConnection = "999";  // I define these special client ID's on the server of course
+            typeOfSocketConnection = "999";  // I define these special client ID's on the server
+            // of course
         }
         if (socket.equals(SocketType.Binary)) {
             typeOfSocketConnection = "888";
@@ -112,7 +115,7 @@ public class WebSocketManager extends AppCompatActivity {
             ws = createWebSocket(completeURI);
         } catch (WebSocketException e) {
             // Failed to establish a WebSocket connection.
-            Log.error( "WebSocketException : " + e.getMessage());
+            Log.error("WebSocketException : " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -170,18 +173,18 @@ public class WebSocketManager extends AppCompatActivity {
 
                             receivedInternetTime = message.replace("time=", "");
                         }
-                        Log.info( "onTextMessage: " + message);
+                        Log.info("onTextMessage: " + message);
                     }
 
                     @Override
                     public void onBinaryMessage(WebSocket websocket, byte[] binary) {
-                        Log.info( "received binary message");
+                        Log.info("received binary message");
                     }
 
                     @Override
                     public void onError(WebSocket websocket,
                                         WebSocketException cause) throws Exception {
-                        Log.error( "Error : " + cause.getMessage());
+                        Log.error("Error : " + cause.getMessage());
                         super.onError(websocket, cause);
                     }
 
@@ -189,8 +192,9 @@ public class WebSocketManager extends AppCompatActivity {
                     public void onConnected(WebSocket websocket,
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
-                        Log.info( "connected!");
-                        new Handler(Looper.getMainLooper()).post(createToast("Websocket Connected", context));
+                        Log.info("connected!");
+                        new Handler(Looper.getMainLooper()).post(createToast("Websocket " +
+                                "Connected", context));
 
                         // Utils.LogAndToast(WebSocketManager.this, , "Connected");
 
@@ -201,7 +205,6 @@ public class WebSocketManager extends AppCompatActivity {
     }
 
 
-
     public String getInternetTime() {
         String command = "command=requestTime";
         sendText(command);
@@ -210,7 +213,7 @@ public class WebSocketManager extends AppCompatActivity {
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
-            Log.error( "sleep interrupted!");
+            Log.error("sleep interrupted!");
         }
 
         return receivedInternetTime;
@@ -228,7 +231,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (message.equals("") || ws == null) {
             if (ws == null) {
-                Log.error( "Websocket == Null in method sendText");
+                Log.error("Websocket == Null in method sendText");
             }
             return false;
         }
@@ -237,7 +240,7 @@ public class WebSocketManager extends AppCompatActivity {
             return true;
         }
 
-        Log.error( "Tried to call method 'sendText', but Websocket is not open!");
+        Log.error("Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
 
@@ -248,28 +251,31 @@ public class WebSocketManager extends AppCompatActivity {
      * Run createAndOpenWebSocketConnection before this !
      */
     public boolean sendBytes(byte[] bytes) {
-        Log.info( "sending Bytes");
+        Log.info("sending Bytes");
         WebSocket ws = sockets.get(SocketType.Binary);
 
-        if (ws == null) { Log.info( "Websocket == Null in method sendBytes");return false; }
+        if (ws == null) {
+            Log.info("Websocket == Null in method sendBytes");
+            return false;
+        }
 
         if (ws.isOpen()) {
             ws.sendBinary(bytes);
-            Log.info( "I sent the bytes to %s} !".format(URI));
+            Log.info("I sent the bytes to %s} !".format(URI));
             return true;
         }
-        Log.info( "Tried to call method 'sendBytes', but Websocket is not open!");
+        Log.info("Tried to call method 'sendBytes', but Websocket is not open!");
         return false;
 
     }
 
 
     public void disconnectAll() {
-        if(!sockets.isEmpty()) {
+        if (!sockets.isEmpty()) {
             for (WebSocket w : sockets.values()) {
                 w.disconnect();
 
-                Log.info( "Disconnected Websocket and Shutdown Executor.");
+                Log.info("Disconnected Websocket and Shutdown Executor.");
             }
         }
         executorService.shutdown();
@@ -288,14 +294,13 @@ public class WebSocketManager extends AppCompatActivity {
             return !address.equals("");
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
-            Log.info( msg);
+            Log.info(msg);
             // Utils.LogAndToast(WebSocketManager.this, ,msg);
         }
         return false;
     }
 
     /**
-     *
      * @return False if internet is not available, true otherwise
      */
     public boolean isWebserverUp() {
@@ -303,9 +308,9 @@ public class WebSocketManager extends AppCompatActivity {
             InetAddress address = InetAddress.getByName("pren.garteroboter.li");
             return !address.equals("");
         } catch (UnknownHostException e) {
-            String msg = String.format("The website %s is not reachable with InetAddress" ,
+            String msg = String.format("The website %s is not reachable with InetAddress",
                     Constants.GARTEROBOTERLI);
-            Log.info( msg);
+            Log.info(msg);
         }
         return false;
     }
@@ -314,7 +319,7 @@ public class WebSocketManager extends AppCompatActivity {
         Random r = new Random(System.currentTimeMillis());
         int low = 1; // inclusive
         int high = 1000000000; //exclusive
-        int result = r.nextInt(high-low) + low;
+        int result = r.nextInt(high - low) + low;
         return String.valueOf(result);
     }
 
@@ -329,7 +334,7 @@ public class WebSocketManager extends AppCompatActivity {
         // A violation against the WebSocket protocol was detected
         // during the opening handshake.
         // Status line.
-        Log.error( "OpeningHandshakeException " + e.getMessage());
+        Log.error("OpeningHandshakeException " + e.getMessage());
 
         StatusLine sl = e.getStatusLine();
         System.out.println("=== Status Line ===");
@@ -356,7 +361,7 @@ public class WebSocketManager extends AppCompatActivity {
             for (String value : values) {
                 // Print the name and the value.
                 String msg = String.format("%s: %s\n", name, value);
-                Log.error( msg);
+                Log.error(msg);
             }
         }
     }

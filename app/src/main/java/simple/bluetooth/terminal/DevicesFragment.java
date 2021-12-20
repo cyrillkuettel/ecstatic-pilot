@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,13 +22,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.ListFragment;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
+import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 
 public class DevicesFragment extends ListFragment {
+
+    private static final Logger Log = LogManager.getLogger(DevicesFragment.class);
 
     private BluetoothAdapter bluetoothAdapter;
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
@@ -44,12 +51,18 @@ public class DevicesFragment extends ListFragment {
             @Override
             public View getView(int position, View view, @NonNull ViewGroup parent) {
                 BluetoothDevice device = listItems.get(position);
-                if (view == null)
-                    view = getActivity().getLayoutInflater().inflate(R.layout.device_list_item, parent, false);
-                TextView text1 = view.findViewById(R.id.text1);
-                TextView text2 = view.findViewById(R.id.text2);
-                text1.setText(device.getName());
-                text2.setText(device.getAddress());
+
+                    Log.info(String.format("BluetoothDevice.getName() %s", device.getName()));
+                    if (view == null)
+                        view = getActivity().getLayoutInflater().inflate(R.layout.device_list_item, parent, false);
+                    TextView text1 = view.findViewById(R.id.text1);
+                    TextView text2 = view.findViewById(R.id.text2);
+                    text1.setText(device.getName());
+                    text2.setText(device.getAddress());
+
+
+                if (device.getName().contains("ESP32")) {
+                }
                 return view;
             }
         };

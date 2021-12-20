@@ -18,7 +18,8 @@ public interface Constants {
     String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
     String GARTEROBOTERLI = "pren.garteroboter.li";
     String START_COMMAND_ESP32 = "start";
-
+    String ESP32_NAME = "ESP32";
+    String ESP32_MAC_ADDRESS = "4C:EB:D6:75:AB:4E";
 
     String STOP_COMMAND_ESP32 = "stop";
 }

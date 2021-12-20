@@ -41,7 +41,7 @@
             app:srcCompat="@drawable/ic_send_white_24dp" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/send_btn_stop"
+            android:id="@+id/send_btn_sart"
             android:text="Start"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
@@ -55,7 +55,7 @@
             />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/send_btn_start"
+            android:id="@+id/send_btn_stop"
             android:text="Stop"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
