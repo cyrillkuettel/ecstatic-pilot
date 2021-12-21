@@ -140,9 +140,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
 
         // Hardcoded Start/Stop Signal Buttons. Sends "start" / "stop to ESP32
-        View sendStartSignalButton = view.findViewById(R.id.send_btn_start);
+        View sendStartSignalButton = view.findViewById(R.id.bluetooth_send_start);
         sendStartSignalButton.setOnClickListener(v -> send(Constants.START_COMMAND_ESP32));
-        View sendStopSignalButton = view.findViewById(R.id.send_btn_stop);
+        View sendStopSignalButton = view.findViewById(R.id.bluetooth_send_stop);
         sendStopSignalButton.setOnClickListener(v -> send(Constants.STOP_COMMAND_ESP32));
         return view;
     }

@@ -41,13 +41,13 @@
         <Button
             android:id="@+id/btnStartStop"
             style="?android:attr/buttonStyleSmall"
-            android:layout_alignParentRight="true"
-
             android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/btnInternetTime"
-            android:text="Start/Stopp timer"
-            android:onClick="startStoppTimerClickHandler"  />
+            android:onClick="startStoppTimerClickHandler"
+            android:text="Start/Stopp timer" />
 
 
         <View
