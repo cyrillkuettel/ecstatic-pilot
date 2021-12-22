@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -48,6 +49,9 @@ import simple.bluetooth.terminal.BlueActivity;
 public class MainActivity extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
+    private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic-pilot/" +
+                                                           "blob/master/app/build/outputs/apk/debug/" +
+                                                           "app-debug.apk?raw=true";
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         generateDropDownItems();
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.info("CameraIDlist = " + getCameraIDList());
-        mTextureView = (TextureView) findViewById(R.id.textureView);
+
 
         Button getInternetTime = (Button) findViewById(R.id.btnInternetTime);
         getInternetTime.setEnabled(false);
@@ -83,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
         videoProcessing.setEnabled(false);
 
+        Button angryButton = (Button) findViewById(R.id.update);
+        angryButton.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
+            startActivity(browserIntent);
+        });
 
 
     }
@@ -260,6 +269,8 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
+
+
 
 
     /**
