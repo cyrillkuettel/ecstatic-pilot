@@ -22,4 +22,10 @@ public interface Constants {
     String ESP32_MAC_ADDRESS = "4C:EB:D6:75:AB:4E";
 
     String STOP_COMMAND_ESP32 = "stop";
+
+
+    String ANSI_YELLOW = "\033[33m";
+    String ANSI_GREEN = "\033[32m";
+    String ANSI_CYAN = "\033[36m";
+    String ANSI_RESET = "\033[0m";
 }

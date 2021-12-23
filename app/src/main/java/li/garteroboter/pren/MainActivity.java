@@ -1,5 +1,6 @@
 package li.garteroboter.pren;
 
+import static li.garteroboter.pren.Constants.ANSI_GREEN;
 import static li.garteroboter.pren.Utils.LogAndToast;
 
 import android.Manifest;
@@ -33,6 +34,7 @@ import android.hardware.camera2.CameraManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
@@ -120,9 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.error("Image data from Intent is null");
                 return;
             }
+            byte[] bytes;
             try {
                 InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
-                byte[] bytes = IOUtils.toByteArray(inputStream);
+                bytes = IOUtils.toByteArray(inputStream);
+                Log.info(bytes.length);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -301,20 +305,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * converts an InputStream of Bytes to an byte[] array
-     */
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-        return byteBuffer.toByteArray();
-    }
 
 
     public void videoProcessingServiceClickHandler(View view) {
