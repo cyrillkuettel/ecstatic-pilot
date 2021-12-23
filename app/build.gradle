@@ -74,6 +74,11 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    // for converting InputStream to Array
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+
+
     def camerax_version = "1.0.0-beta07"
     implementation "androidx.camera:camera-camera2:$camerax_version"
     implementation "androidx.camera:camera-lifecycle:$camerax_version"

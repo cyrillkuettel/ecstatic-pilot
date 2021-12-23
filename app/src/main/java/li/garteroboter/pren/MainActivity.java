@@ -3,15 +3,18 @@ package li.garteroboter.pren;
 import static li.garteroboter.pren.Utils.LogAndToast;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,13 +33,17 @@ import android.hardware.camera2.CameraManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -49,14 +56,15 @@ import simple.bluetooth.terminal.BlueActivity;
 public class MainActivity extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
-    private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic-pilot/" +
-                                                           "blob/master/app/build/outputs/apk/debug/" +
-                                                           "app-debug.apk?raw=true";
+    private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
+            "-pilot/lob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
     private WebSocketManager manager = null;
     private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
     final Context mainContext = MainActivity.this;
     private static final int MY_CAMERA_REQUEST_CODE = 2;
+    public static final int PICK_IMAGE = 1; // so you can recognize when the user comes back from
+    // the image gallery
     public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
 
@@ -82,22 +90,45 @@ public class MainActivity extends AppCompatActivity {
         Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         btnSendText.setEnabled(false);
 
-        Button btnStartStop  = (Button) findViewById(R.id.btnStartStop);
+        Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
 
         videoProcessing.setEnabled(false);
 
-        Button angryButton = (Button) findViewById(R.id.update);
-        angryButton.setOnClickListener(v -> {
+        Button updateApp = (Button) findViewById(R.id.updateApp);
+        updateApp.setOnClickListener(v -> {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
             startActivity(browserIntent);
+        });
+
+        Button btnSelectImageAndSend = (Button) findViewById(R.id.btnSelectImageAndSend);
+        btnSelectImageAndSend.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
         });
 
 
     }
 
-    private void updateTextureViewSize(int viewWidth, int viewHeight) {
-        mTextureView.setLayoutParams(new FrameLayout.LayoutParams(viewWidth, viewHeight));
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+            if (data == null) {
+                //Display an error
+                Log.error("Image data from Intent is null");
+                return;
+            }
+            try {
+                InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
+                byte[] bytes = IOUtils.toByteArray(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
     }
 
 
@@ -127,7 +158,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reOpenSocket() {
-
 
         if (manager != null) {
             manager.disconnectAll();
@@ -269,8 +299,6 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
-
-
 
 
     /**

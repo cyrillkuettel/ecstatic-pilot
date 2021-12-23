@@ -67,6 +67,39 @@
             android:text="get Internet Time" />
     </RelativeLayout>
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <Button
+            android:id="@+id/btnSelectImageAndSend"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/test2"
+            android:onClick="startStoppTimerClickHandler"
+            android:text="Select image to send" />
+
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/test2"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/view2"
+            android:onClick="getInternetTime"
+            android:text="test" />
+    </RelativeLayout>
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -93,8 +126,7 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/update"
-
+            android:id="@+id/updateApp"
             android:text="Update App"
             android:textColor="#FFFFFF"
             android:textSize="30sp"
