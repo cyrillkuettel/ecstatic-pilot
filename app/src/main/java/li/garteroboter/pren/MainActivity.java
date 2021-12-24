@@ -60,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
     // the image gallery
     public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
-    private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking picture with google camera.
+    private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
+                                                        // with google camera.
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
     SurfaceView surfaceView;
@@ -73,22 +74,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         generateDropDownItems();
+
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.info("CameraIDlist = " + getCameraIDList());
 
 
-        Button getInternetTime = (Button) findViewById(R.id.btnInternetTime);
-        getInternetTime.setEnabled(false);
 
-        Button videoProcessing = (Button) findViewById(R.id.btnVideoProcessing);
-        videoProcessing.setEnabled(false);
-        Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
-        btnSendText.setEnabled(false);
+
 
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
+        btnStartStop.setOnClickListener(v -> {
+            // if (!START_SIGNAL_FIRED) {
+            sendStartSignalToWebServer();
+            START_SIGNAL_FIRED = true;
+            // }
+        });
 
-        videoProcessing.setEnabled(false);
 
         Button updateApp = (Button) findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
@@ -110,11 +112,60 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 LogAndToast(mainContext, "Opening new Socket connection");
             }
-            Spinner mySpinner = findViewById(R.id.dropdown_menu);
-            manager = new WebSocketManager(this, mySpinner.getSelectedItem().toString());
+            Spinner hostDropdown = findViewById(R.id.dropdown_menu);
+            manager = new WebSocketManager(this, hostDropdown.getSelectedItem().toString());
 
             // TODO: change this so be more optimal
             new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Bytes)).start();
+        });
+
+        Button btnInternetTime = (Button) findViewById(R.id.btnInternetTime);
+        btnInternetTime.setEnabled(false);
+        btnInternetTime.setOnClickListener(v -> {
+            reOpenSocket();
+            Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
+            String time = manager.getInternetTime();
+            LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
+        });
+
+
+        Button btnSendMessageToWebSocket  = (Button) findViewById(R.id.btnSendMessageToWebSocket);
+        btnSendMessageToWebSocket.setEnabled(false);
+        btnSendMessageToWebSocket.setOnClickListener(v -> {
+            sendWebSocketMessage("Hello");
+        });
+
+        Button btnOpenConnection = (Button) findViewById(R.id.btnOpenConnection);
+        btnOpenConnection.setOnClickListener(v -> {
+            reOpenSocket();
+            btnSendMessageToWebSocket.setEnabled(true);
+            btnStartStop.setEnabled((true));
+        });
+
+        Button btnVideoProcessing = (Button) findViewById(R.id.btnVideoProcessing);
+        btnVideoProcessing.setEnabled(false);
+        btnVideoProcessing.setOnClickListener(v -> {
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            /*
+                 to directly control the camera , it seems to be that case that we need to ask for
+                 permission every time
+                 It is unfortunate that this is necessary. But it seems to be necessary, if I
+                 remove this it didn't work.
+             */
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                        MY_CAMERA_REQUEST_CODE);
+            } else {
+                Log.info("Manifest.permission.CAMERA is okay");
+                Intent intent = new Intent(this, VideoProcessingService.class);
+                startService(intent);
+            }
+        });
+
+
+        Button btnClose  = (Button) findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(v -> {
+            manager.disconnectAll();
         });
 
 
@@ -164,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
         reOpenSocket();
         Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
-
         btnSendText.setEnabled(true);
         btnStartStop.setEnabled((true));
     }
@@ -212,9 +262,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void sendCustomMessageNoAlert(View view) {
-        sendWebSocketMessage("It works ¯\\_(ツ)_/¯");
-    }
 
     public void sendWebSocketMessage(String message) {
         manager.sendText(message);
@@ -255,26 +302,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerHostname.setAdapter(adapter);
     }
 
-    public final void getInternetTime(View view) throws ExecutionException, InterruptedException {
-        reOpenSocket();
-        Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
 
-        String time = manager.getInternetTime();
-        LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
-
-    }
-
-    public void onCloseSocketClickHandler(View view) {
-        manager.disconnectAll();
-    }
-
-
-    public void startStoppTimerClickHandler(View view) {
-        // if (!START_SIGNAL_FIRED) {
-        sendStartSignalToWebServer();
-        START_SIGNAL_FIRED = true;
-        // }
-    }
 
     /**
      * tells the webserver that the parkour has begun.
@@ -312,25 +340,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-    public void videoProcessingServiceClickHandler(View view) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            /*
-                 to directly control the camera , it seems to be that case that we need to ask for
-                 permission every time
-                 It is unfortunate that this is necessary. But it seems to be necessary, if I
-                 remove this it didn't work.
-             */
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
-                    MY_CAMERA_REQUEST_CODE);
-        } else {
-            Log.info("Manifest.permission.CAMERA is okay");
-            Intent intent = new Intent(this, VideoProcessingService.class);
-            startService(intent);
-        }
-    }
 
 
     /***
