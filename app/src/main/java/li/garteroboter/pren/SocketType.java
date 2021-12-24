@@ -4,7 +4,7 @@ public enum SocketType {
 
 
     /* There are two different use-Cases for Websocket */
-    Text, Binary;
+    Text, Bytes;
 
 
 }

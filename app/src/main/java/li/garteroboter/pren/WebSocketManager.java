@@ -1,6 +1,5 @@
 package li.garteroboter.pren;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -95,7 +94,7 @@ public class WebSocketManager extends AppCompatActivity {
             typeOfSocketConnection = "999";  // I define these special client ID's on the server
             // of course
         }
-        if (socket.equals(SocketType.Binary)) {
+        if (socket.equals(SocketType.Bytes)) {
             typeOfSocketConnection = "888";
         }
 
@@ -252,7 +251,7 @@ public class WebSocketManager extends AppCompatActivity {
      */
     public boolean sendBytes(byte[] bytes) {
         Log.info("sending Bytes");
-        WebSocket ws = sockets.get(SocketType.Binary);
+        WebSocket ws = sockets.get(SocketType.Bytes);
 
         if (ws == null) {
             Log.info("Websocket == Null in method sendBytes");

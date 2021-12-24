@@ -1,6 +1,5 @@
 package li.garteroboter.pren;
 
-import static li.garteroboter.pren.Constants.ANSI_GREEN;
 import static li.garteroboter.pren.Utils.LogAndToast;
 
 import android.Manifest;
@@ -10,13 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,7 +22,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.hardware.camera2.CameraManager;
@@ -35,18 +30,13 @@ import android.hardware.camera2.CameraManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -70,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     // the image gallery
     public TextureView mTextureView;
     private boolean START_SIGNAL_FIRED = false;
+    private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking picture with google camera.
+    private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
     SurfaceView surfaceView;
 
@@ -111,6 +103,20 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
         });
 
+        Button btnOpenByteSocketConnection = (Button) findViewById(R.id.btnOpenByteSocketConnection);
+        btnOpenByteSocketConnection.setOnClickListener(v -> {
+            if (manager != null) {
+                manager.disconnectAll();
+            } else {
+                LogAndToast(mainContext, "Opening new Socket connection");
+            }
+            Spinner mySpinner = findViewById(R.id.dropdown_menu);
+            manager = new WebSocketManager(this, mySpinner.getSelectedItem().toString());
+
+            // TODO: change this so be more optimal
+            new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Bytes)).start();
+        });
+
 
     }
 
@@ -127,11 +133,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
                 bytes = IOUtils.toByteArray(inputStream);
-                Log.info(bytes.length);
+                Log.info(String.format("Sending %s bytes", bytes.length));
+                manager.sendBytes(bytes);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
+
         }
     }
 
