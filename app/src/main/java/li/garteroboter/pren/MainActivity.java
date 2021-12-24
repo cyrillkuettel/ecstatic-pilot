@@ -180,19 +180,27 @@ public class MainActivity extends AppCompatActivity {
                 Log.error("Image data from Intent is null");
                 return;
             }
-            byte[] bytes;
-            try {
-                InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
-                bytes = IOUtils.toByteArray(inputStream);
-                Log.info(String.format("Sending %s bytes", bytes.length));
-                manager.sendBytes(bytes);
+            byte[] bytes = selectImageWithIntent(data);
+            Log.info(String.format("Sending %s bytes", bytes.length));
 
-            } catch (IOException e) {
+            try {
+                manager.sendBytes(bytes);
+            } catch (Exception e) {
+                Log.info("Error when sending bytes");
                 e.printStackTrace();
             }
-
-
         }
+    }
+
+    public byte[] selectImageWithIntent(Intent data) {
+        byte[] bytes = new byte[0];
+        try {
+            InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
+            bytes = IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bytes;
     }
 
 
