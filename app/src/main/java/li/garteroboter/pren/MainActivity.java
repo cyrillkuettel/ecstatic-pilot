@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.Menu;
@@ -130,15 +131,13 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
+            
         }
     }
 
 
     /**
      * Methods to check what camera ID's are available.
-     *
      * @return String of the Camera DI lists of device.
      */
     public String getCameraIDList() {
