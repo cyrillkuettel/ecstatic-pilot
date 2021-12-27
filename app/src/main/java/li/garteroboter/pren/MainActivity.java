@@ -47,24 +47,23 @@ import simple.bluetooth.terminal.BlueActivity;
 
 
 public class MainActivity extends AppCompatActivity {
+
     private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
             "-pilot/lob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
     private WebSocketManager manager = null;
-    private static final int CAMERA_REQUEST = 1888;
     private Handler toastHandler;
     final Context mainContext = MainActivity.this;
     private static final int MY_CAMERA_REQUEST_CODE = 2;
     public static final int PICK_IMAGE = 1; // so you can recognize when the user comes back from
     // the image gallery
-    public TextureView mTextureView;
+
     private boolean START_SIGNAL_FIRED = false;
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
                                                         // with google camera.
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
-    SurfaceView surfaceView;
 
 
     @Override
@@ -132,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnSendMessageToWebSocket  = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         btnSendMessageToWebSocket.setEnabled(false);
         btnSendMessageToWebSocket.setOnClickListener(v -> {
-            sendWebSocketMessage("Hello");
+            manager.sendText("Hello");
+            Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
         });
 
         Button btnOpenConnection = (Button) findViewById(R.id.btnOpenConnection);
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 manager.sendBytes(bytes);
             } catch (Exception e) {
-                Log.info("Error when sending bytes");
+                Log.error("Error while sending bytes");
                 e.printStackTrace();
             }
         }
@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
             InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
             bytes = IOUtils.toByteArray(inputStream);
         } catch (IOException e) {
+            Log.error("Something went wrong when reading InputStream to bytes. Maybe context?");
             e.printStackTrace();
         }
         return bytes;
@@ -219,13 +220,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void reopenSocketConnectionClickHandler(View view) {
-        reOpenSocket();
-        Button btnSendText = (Button) findViewById(R.id.btnSendMessageToWebSocket);
-        Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
-        btnSendText.setEnabled(true);
-        btnStartStop.setEnabled((true));
-    }
 
     public void reOpenSocket() {
 
@@ -268,12 +262,6 @@ public class MainActivity extends AppCompatActivity {
         });
         alert.show();
 
-    }
-
-
-    public void sendWebSocketMessage(String message) {
-        manager.sendText(message);
-        Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
     }
 
 
