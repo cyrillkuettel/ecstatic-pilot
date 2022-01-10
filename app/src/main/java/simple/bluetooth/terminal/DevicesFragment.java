@@ -130,7 +130,8 @@ public class DevicesFragment extends ListFragment {
         args.putString("device", device.getAddress());
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
-/*  This does not seem to be necessary
+
+/*  This does not seem to be necessary. The reason for this is that it is already hardcoded in the xml
         Fragment qrFragment = new CameraPreviewFragment();
         qrFragment.setArguments(args);
         getFragmentManager().beginTransaction().add(R.id.qrfragment, qrFragment).commit();
