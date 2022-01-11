@@ -13,3 +13,9 @@ change the cmake version (I think this finally solved it. For old projects, you 
 path to cmake is in local.properties. Note however, you shall not add the ndk.dir to the local.properties -> depercated
 
 Another tip, I'm not quite sure if this is it, but when you have trouble with ndk versin: File -> project structure -> SDK Location -> click on download Android NDK
+
+List of the Excetions I have encountered:
+- Invalid revision number
+- no signature of method: build.android is applicable for arguments types ...
+- ndk not configured 
+
