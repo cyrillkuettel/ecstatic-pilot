@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             /*
                  to directly control the camera , it seems to be that case that we need to ask for
-                 permission every time
+                 permission at runtime.
                  It is unfortunate that this is necessary. But it seems to be necessary, if I
                  remove this it didn't work.
              */
@@ -236,35 +236,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * send a custom Message to the Website. Currently not active.
-     */
-    public void sendCustomMessageClickHandler(View view) {
-
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Send Status Update");
-        // Set an EditText view to get user input
-        final EditText input = new EditText(this);
-        String defaultMessage = String.format("Hello from %s", android.os.Build.MODEL);
-        input.setText(defaultMessage);
-
-        alert.setView(input);
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                manager.sendText(String.valueOf(input.getText()));
-                Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
-            }
-        });
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                dialog.cancel();
-            }
-        });
-        alert.show();
-
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -338,7 +309,6 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         }
     }
-
 
 
     /***

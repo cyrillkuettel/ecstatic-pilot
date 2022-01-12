@@ -1,5 +1,6 @@
 package li.garteroboter.pren.nanodet;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -132,8 +133,6 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     }
 
 
-
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -152,17 +151,13 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
 
     // this method is actually used, IDE can't see it at compile time
     // is is used to demonstrate I can call methods in native code
+    // It is static for now. I did not find a quick workaround to call non static method as well.
+    // This is going to be important, sometime down the line.
     public static void durchstich() {
         Log.d("FragmentNanodet", "Durchstich VERDAMMT NOCH MAL ");
-/*
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(), "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        });
 
- */
+
+
     }
 
 

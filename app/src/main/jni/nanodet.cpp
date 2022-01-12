@@ -441,9 +441,9 @@ void NanoDet::invoke_class() {
     }
 
 
-     methodToBeCalled = env2->GetStaticMethodID(BeanObject, "durchstich", "()V");     // () means a function with no parameter, V means the return type is void
-
+    methodToBeCalled = env2->GetStaticMethodID(BeanObject, "durchstich", "()V");     // () means a function with no parameter, V means the return type is void
     env2->CallStaticVoidMethod(BeanObject, methodToBeCalled);
+
 
 
 }
