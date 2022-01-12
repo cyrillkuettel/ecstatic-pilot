@@ -28,6 +28,21 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+
+    <string-array name="model_array">
+        <item>m</item>
+        <item>m-416</item>
+        <item>g</item>
+        <item>ELite0_320</item>
+        <item>ELite1_416</item>
+        <item>ELite2_512</item>
+        <item>RepVGG-A0_416</item>
+    </string-array>
+    <string-array name="cpugpu_array">
+        <item>CPU</item>
+        <item>GPU</item>
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

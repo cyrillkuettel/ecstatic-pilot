@@ -282,6 +282,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.bluetooth2:
                 intent = new Intent(this, BlueActivity.class);
                 break;
+            case R.id.nanodet:
+                intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivity2.class);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
