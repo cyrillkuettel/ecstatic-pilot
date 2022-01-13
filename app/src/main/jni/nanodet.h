@@ -53,7 +53,7 @@ private:
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
 
-    void invoke_class();
+    void invoke_class(char *objectLabel);
 };
 
 #endif // NANODET_H

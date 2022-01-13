@@ -415,7 +415,7 @@ int NanoDet::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob
 
 
 // variables to cache
-// my intuition say that I should use the same env variable as in nanodetncnn. But does it really matter? Never change a running system /s
+// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter? Never change a running system /s
 JNIEnv *env2;
 jclass FragmentNanodetClass; // to access the class. (for calling static methods. Probably I won't
 // even need this, but it's nice to know it exists)
@@ -423,12 +423,12 @@ jobject FragmentNanodetObject; // to access the object.
 
 jmethodID staticMethod_CallInJava;
 jmethodID instanceMethod_CallInJava;
-
+jstring jstrBuf;
 JavaVM* javaVM_global;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
 
-void NanoDet::invoke_class() {
+void NanoDet::invoke_class(char *objectLabel) {
 
 
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
@@ -439,7 +439,7 @@ void NanoDet::invoke_class() {
         return;
     }
 
-
+/* We don't need static calls right now.
     staticMethod_CallInJava = env2->GetStaticMethodID(FragmentNanodetClass, "durchstich", "()V");
     // () means a function with no parameter, V means the return type is void
     if (staticMethod_CallInJava == nullptr) {
@@ -447,16 +447,27 @@ void NanoDet::invoke_class() {
     } else {
         env2->CallStaticVoidMethod(FragmentNanodetClass, staticMethod_CallInJava);
     }
+    */
 
 
-    instanceMethod_CallInJava = env2->GetMethodID(FragmentNanodetClass, "nonStaticDurchstich", "()V");
+    instanceMethod_CallInJava = env2->GetMethodID(FragmentNanodetClass, "nonStaticDurchstich",
+                                                  "(Ljava/lang/String;)V"); // JNI type signature
     if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+        return;
     } else {
-        env2->CallVoidMethod(FragmentNanodetObject, instanceMethod_CallInJava);
+         jstrBuf = env2->NewStringUTF(objectLabel);
+        if( !jstrBuf ) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+            return;
+        }
+
+        env2->CallVoidMethod(FragmentNanodetObject, instanceMethod_CallInJava, jstrBuf);
+
     }
 
 }
+
 
 
 int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
@@ -519,19 +530,28 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 
         const char *plant = "potted plant";
         const char *vase = "vase";
+        char *buf;
+
         int isPlantIfZero = strcmp( class_names[obj.label], plant ); // built-in function to compare char
         int isVaseIfZero =  strcmp( class_names[obj.label], vase );
 
-
-
-        if (isPlantIfZero == 0 || isVaseIfZero == 0) { // We have found an object of interest
+        if (isPlantIfZero == 0 && isVaseIfZero == 0) {
             __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "It's a foking plant");
-            invoke_class();
+            buf = (char*)malloc(13);
+            strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
+            invoke_class(buf);
         }
 
-
-
-
+        if (isPlantIfZero == 0) {
+            buf = (char*)malloc(13);
+            strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
+            invoke_class(buf);
+        }
+        if (isVaseIfZero == 0) {
+            buf = (char*)malloc(5);
+            strcpy(buf, plant);
+            invoke_class(buf);
+        }
 
        // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);
 

@@ -166,8 +166,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     }
 
     // this method is in fact used, IDE can't see it at compile time
-    public void nonStaticDurchstich() {
-        Log.info("nonStaticDurchstich :)");
+    public void nonStaticDurchstich(String objectLabel) {
+        Log.info(String.format("detected %s", objectLabel));
     }
 
     public void setPlantDetectedText(){
