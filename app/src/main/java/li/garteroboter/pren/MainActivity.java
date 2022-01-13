@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final Logger Log = LogManager.getLogger(MainActivity.class);
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
-            "-pilot/lob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
+            "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
     private WebSocketManager manager = null;
     private Handler toastHandler;
     final Context mainContext = MainActivity.this;
