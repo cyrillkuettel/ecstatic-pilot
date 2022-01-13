@@ -49,7 +49,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
-
+    private TextView textView;
 
 
     @Override
@@ -70,7 +70,12 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_nanodet, container, false);
+        View view = inflater.inflate(R.layout.fragment_nanodet, container, false);
+        textView = (TextView) view.findViewById(R.id.buttonPlantDetection);
+        textView.setVisibility(View.INVISIBLE);
+
+
+        return view;
     }
 
     private void reload()
@@ -85,10 +90,11 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+        // this should probably be in oncreateView right? And use the view parameter instead of getView()
+
         cameraView = (SurfaceView) getView().findViewById(R.id.cameraview2);
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
-
 
         Button buttonSwitchCamera = (Button) getView().findViewById(R.id.buttonSwitchCamera2);
         buttonSwitchCamera.setOnClickListener(arg0 -> {
@@ -138,6 +144,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
             }
         });
 
+
+
     }
 
 
@@ -165,21 +173,31 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
 
     }
 
+    long lastTime = 0;
     // this method is in fact used, IDE can't see it at compile time
     public void nonStaticDurchstich(String objectLabel) {
-        Log.info(String.format("detected %s", objectLabel));
+        if ( System.currentTimeMillis() - lastTime > 1000) {
+            // do nothing if last call was less than 1000 ms ago
+            // Log.info(String.format("detected %s", objectLabel));
+
+            setPlantDetectedText(objectLabel);
+            lastTime = System.currentTimeMillis();
+        }
     }
 
-    public void setPlantDetectedText(){
+    public void setPlantDetectedText(final String objectLabel){
         Log.info("setPlantDetectedText");
-        TextView textView = null;
+
+        /*
         try {
-            textView = (TextView) getView().findViewById(R.id.buttonPlantDetection);
-            textView.setText("Plant detected!");
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(String.format("%s detected", objectLabel));
         } catch (Exception e) {
-            Log.error("NullPointer for button id = buttonPlantDetection insetPlantDetectedText ");
+            Log.error("NullPointer for button id = buttonPlantDetection in the method you created: setPlantDetectedText ");
             e.printStackTrace();
         }
+
+         */
 
     }
 
