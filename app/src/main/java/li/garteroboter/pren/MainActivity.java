@@ -77,10 +77,6 @@ public class MainActivity extends AppCompatActivity {
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
         Log.info("CameraIDlist = " + getCameraIDList());
 
-
-
-
-
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
         btnStartStop.setOnClickListener(v -> {

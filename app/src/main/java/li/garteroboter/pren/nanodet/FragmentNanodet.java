@@ -154,6 +154,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     // It is static for now. I did not find a quick workaround to call non static method as well.
     // This is going to be important, sometime down the line.
     public static void durchstich() {
+
+        // TODO: do nothing if last move was less than 40 ms ago
         Log.d("FragmentNanodet", "Durchstich VERDAMMT NOCH MAL ");
 
 

@@ -32,7 +32,8 @@ public class MainActivity2 extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             Log.v("MainActivity2", "Starting Fragment transaction");
-            li.garteroboter.pren.nanodet.FragmentNanodet fragmentNanodet = li.garteroboter.pren.nanodet.FragmentNanodet.newInstance(nanodetncnn, facing);
+            li.garteroboter.pren.nanodet.FragmentNanodet fragmentNanodet =
+                    li.garteroboter.pren.nanodet.FragmentNanodet.newInstance(nanodetncnn, facing);
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, fragmentNanodet, "nanodet").commit();
         }
     }
