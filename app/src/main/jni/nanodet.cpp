@@ -482,7 +482,7 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
         "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
         "hair drier", "toothbrush"
-    };
+    }; // 80 objects
 
     static const unsigned char colors[19][3] = {
         { 54,  67, 244},
