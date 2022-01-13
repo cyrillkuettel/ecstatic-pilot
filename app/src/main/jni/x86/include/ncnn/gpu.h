@@ -244,7 +244,7 @@ public:
     // pipeline cache on this device
     const PipelineCache* get_pipeline_cache() const;
 
-    // test.cpp image allocation
+    // test image allocation
     bool shape_support_image_storage(const Mat& shape) const;
 
     // current gpu heap memory budget in MB

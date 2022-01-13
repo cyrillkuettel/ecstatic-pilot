@@ -44,7 +44,7 @@ public:
 #endif
 };
 
-// test.cpp optional cpu features
+// test optional cpu features
 // neon = armv7 neon or aarch64 asimd
 NCNN_EXPORT int cpu_support_arm_neon();
 // vfpv4 = armv7 fp16 + fma
