@@ -21,8 +21,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 
 /**
@@ -33,6 +38,7 @@ import li.garteroboter.pren.R;
  */
 public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback {
 
+    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
 
     li.garteroboter.pren.nanodet.NanoDetNcnn nanodetncnn;
     int facing;
@@ -53,6 +59,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
         if (getArguments() != null) {
             facing = getArguments().getInt("facing");
             nanodetncnn = getArguments().getParcelable("nanodetncnn");
+
+
         }
 
 
@@ -70,7 +78,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
         boolean ret_init = nanodetncnn.loadModel(getContext().getAssets(), current_model, current_cpugpu);
         if (!ret_init)
         {
-            Log.e("MainActivity2", "nanodetncnn loadModel failed");
+            Log.error("nanodetncnn loadModel failed");
         }
     }
 
@@ -149,16 +157,29 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
         return fragment;
     }
 
-    // this method is actually used, IDE can't see it at compile time
-    // is is used to demonstrate I can call methods in native code
-    // It is static for now. I did not find a quick workaround to call non static method as well.
-    // This is going to be important, sometime down the line.
+    // this method is in fact used, IDE can't see it at compile time
     public static void durchstich() {
 
         // TODO: do nothing if last move was less than 40 ms ago
-        Log.d("FragmentNanodet", "Durchstich VERDAMMT NOCH MAL ");
+      //  Log.d("FragmentNanodet", "Durchstich VERDAMMT NOCH MAL ");
 
+    }
 
+    // this method is in fact used, IDE can't see it at compile time
+    public void nonStaticDurchstich() {
+        Log.info("nonStaticDurchstich :)");
+    }
+
+    public void setPlantDetectedText(){
+        Log.info("setPlantDetectedText");
+        TextView textView = null;
+        try {
+            textView = (TextView) getView().findViewById(R.id.buttonPlantDetection);
+            textView.setText("Plant detected!");
+        } catch (Exception e) {
+            Log.error("NullPointer for button id = buttonPlantDetection insetPlantDetectedText ");
+            e.printStackTrace();
+        }
 
     }
 

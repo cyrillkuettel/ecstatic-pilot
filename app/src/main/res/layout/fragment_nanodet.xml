@@ -13,7 +13,13 @@
             android:id="@+id/buttonSwitchCamera2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
             android:text="switch camera" />
+
+        <Button
+            android:id="@+id/buttonPlantDetection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

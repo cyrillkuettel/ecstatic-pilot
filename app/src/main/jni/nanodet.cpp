@@ -413,19 +413,17 @@ int NanoDet::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob
     return 0;
 }
 
-std::string get_working_path()
-{
-    char temp[500]; // magic number
-    return ( getcwd(temp, sizeof(temp)) ? std::string( temp ) : std::string("") );
-}
 
 // variables to cache
-// my intuition say that I should use the same env variable.
-// still it would be nice to have some debug information...
-// use different env is an idea
+// my intuition say that I should use the same env variable as in nanodetncnn. But does it really matter? Never change a running system /s
 JNIEnv *env2;
-jclass BeanObject; // to access the class.
-jmethodID methodToBeCalled;
+jclass FragmentNanodetClass; // to access the class. (for calling static methods. Probably I won't
+// even need this, but it's nice to know it exists)
+jobject FragmentNanodetObject; // to access the object.
+
+jmethodID staticMethod_CallInJava;
+jmethodID instanceMethod_CallInJava;
+
 JavaVM* javaVM_global;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
@@ -435,16 +433,28 @@ void NanoDet::invoke_class() {
 
     __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
 
-    if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) { // I'm not 100% sure if this is necessary. Does it impact performance?
+    if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
+        // I'm not 100% sure if this is necessary. Does it impact performance?
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
         return;
     }
 
 
-    methodToBeCalled = env2->GetStaticMethodID(BeanObject, "durchstich", "()V");     // () means a function with no parameter, V means the return type is void
-    env2->CallStaticVoidMethod(BeanObject, methodToBeCalled);
+    staticMethod_CallInJava = env2->GetStaticMethodID(FragmentNanodetClass, "durchstich", "()V");
+    // () means a function with no parameter, V means the return type is void
+    if (staticMethod_CallInJava == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "staticMethod_CallInJava is NUll");
+    } else {
+        env2->CallStaticVoidMethod(FragmentNanodetClass, staticMethod_CallInJava);
+    }
 
 
+    instanceMethod_CallInJava = env2->GetMethodID(FragmentNanodetClass, "nonStaticDurchstich", "()V");
+    if (instanceMethod_CallInJava == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+    } else {
+        env2->CallVoidMethod(FragmentNanodetObject, instanceMethod_CallInJava);
+    }
 
 }
 
@@ -509,16 +519,17 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 
         const char *plant = "potted plant";
         const char *vase = "vase";
-        int isPlantIfZero = strcmp( class_names[obj.label], plant ); // built-in functino to compare char
+        int isPlantIfZero = strcmp( class_names[obj.label], plant ); // built-in function to compare char
         int isVaseIfZero =  strcmp( class_names[obj.label], vase );
 
 
 
         if (isPlantIfZero == 0 || isVaseIfZero == 0) { // We have found an object of interest
             __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "It's a foking plant");
+            invoke_class();
         }
 
-        invoke_class();
+
 
 
 

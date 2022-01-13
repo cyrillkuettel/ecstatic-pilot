@@ -25,8 +25,10 @@ struct Object
     int label;
     float prob;
 };
-extern JavaVM* javaVM_global; // this
-extern jclass BeanObject;
+extern JavaVM* javaVM_global;
+extern jclass FragmentNanodetClass;
+extern jobject FragmentNanodetObject;
+
 
 class NanoDet{
 

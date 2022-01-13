@@ -178,6 +178,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     jclass tempLocalClassRef;
 
     tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/FragmentNanodet");
+
+
     // STEP 1/3 : Load the class id
     if (tempLocalClassRef == nullptr || env->ExceptionOccurred()) {
         env->ExceptionClear();
@@ -185,7 +187,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     }
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Assign the ClassId as a Global Reference");
     // STEP 2/3 : Assign the ClassId as a Global Reference
-    BeanObject = (jclass) env->NewGlobalRef(tempLocalClassRef);
+    FragmentNanodetClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
 
     // STEP 3/3 : Delete the no longer needed local reference
     env->DeleteLocalRef(tempLocalClassRef);
@@ -211,8 +213,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
 
     vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
 
-    // Destroy the global references
-   //  env->DeleteGlobalRef(BeanObject);
+    // TODO: Destroy the global references
+    //  env->DeleteGlobalRef(FragmentNanodetClass);
 
     // ... repeat for any other global references
 
@@ -303,9 +305,10 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadMod
 }
 
 // public native boolean openCamera(int facing);
-
 JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCamera(JNIEnv* env, jobject thiz, jint facing)
 {
+
+
     if (facing < 0 || facing > 1)
         return JNI_FALSE;
 
@@ -339,4 +342,16 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutp
     return JNI_TRUE;
 }
 
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
+                                                                                                    jobject fragment_nanodet_object) {
+
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
+
+     FragmentNanodetObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
+
+    return JNI_TRUE;
 }
+
+}
+
+
