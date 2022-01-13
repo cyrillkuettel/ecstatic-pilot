@@ -30,17 +30,15 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.PIlot" >
 
         <activity android:name="li.garteroboter.pren.nanodet.MainActivity2"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
-
-
-
 
 
         </activity>
@@ -65,5 +63,7 @@
             android:name=".VideoProcessingService"
             android:enabled="true" />
     </application>
+
+
 
 </manifest>
