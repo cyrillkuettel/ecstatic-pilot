@@ -206,9 +206,9 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
 
     vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
 
-    // TODO: Destroy the global references
-    //  env->DeleteGlobalRef(FragmentNanodetClass);
 
+      env->DeleteGlobalRef(FragmentNanodetClass);
+      env->DeleteGlobalRef(FragmentNanodetObject);
     // ... repeat for any other global references
 
     delete g_camera;

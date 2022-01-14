@@ -1,9 +1,13 @@
 package li.garteroboter.pren.nanodet;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -16,7 +20,7 @@ import org.apache.log4j.Logger;
 
 import li.garteroboter.pren.R;
 
-public class MainActivity2 extends AppCompatActivity {
+public class MainActivity2 extends AppCompatActivity implements VibrationListener {
 
     public static final int REQUEST_CAMERA = 100;
     private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
@@ -78,4 +82,15 @@ public class MainActivity2 extends AppCompatActivity {
         Log.info("on Destory fired!");
     }
 
+    @Override
+    public void startVibrating(final int millis) {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for N milliseconds
+        try {
+            v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
+        } catch (Exception e) {
+            Log.debug("Failed to vibrate");
+            e.printStackTrace();
+        }
+    }
 }

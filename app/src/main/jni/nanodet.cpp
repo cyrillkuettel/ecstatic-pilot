@@ -530,8 +530,8 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 
         char text[256];
 
-//      Here we are boys. Check for class_names[obj.label], if it equals "potted plant"
-
+//      check for class_names[obj.label], if it equals "potted plant" or "vase"
+//      The following block of code (written by me) is an absolute abstrusity. It's so bad. I don't know any better.
 
         const char *plant = "potted plant";
         const char *vase = "vase";
@@ -541,22 +541,24 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         int isVaseIfZero =  strcmp( class_names[obj.label], vase );
 
         if (isPlantIfZero == 0 && isVaseIfZero == 0) {
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "It's a foking plant");
+            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "plant + vase detected");
             buf = (char*)malloc(13);
             strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
             invoke_class(buf);
+        } else {
+            if (isPlantIfZero == 0) {
+                buf = (char*)malloc(13);
+                strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
+                invoke_class(buf);
+            }
+            if (isVaseIfZero == 0) {
+                buf = (char*)malloc(5);
+                strcpy(buf, plant);
+                invoke_class(buf);
+            }
         }
 
-        if (isPlantIfZero == 0) {
-            buf = (char*)malloc(13);
-            strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
-            invoke_class(buf);
-        }
-        if (isVaseIfZero == 0) {
-            buf = (char*)malloc(5);
-            strcpy(buf, plant);
-            invoke_class(buf);
-        }
+
 
        // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);
 

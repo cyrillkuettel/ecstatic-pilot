@@ -41,6 +41,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
 
     private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
 
+    private VibrationListener vibrationListener;
+
     li.garteroboter.pren.nanodet.NanoDetNcnn nanodetncnn;
     int facing;
 
@@ -50,7 +52,6 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
-    private TextView textView;
 
 
     @Override
@@ -71,12 +72,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_nanodet, container, false);
-        textView = (TextView) view.findViewById(R.id.buttonPlantDetection);
-        textView.setVisibility(View.INVISIBLE);
-
-
-        return view;
+        return inflater.inflate(R.layout.fragment_nanodet, container, false);
     }
 
     private void reload()
@@ -144,9 +140,17 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
             {
             }
         });
+    }
 
-
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            vibrationListener = (VibrationListener) context;
+        } catch (ClassCastException castException) {
+            /** The activity does not implement the listener. */
+            Log.error("Failed to implement VibrationListener");
+        }
     }
 
 
@@ -168,10 +172,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
 
     // this method is in fact used, IDE can't see it at compile time
     public static void durchstich() {
-
-        // TODO: do nothing if last move was less than 40 ms ago
       //  Log.d("FragmentNanodet", "Durchstich VERDAMMT NOCH MAL ");
-
     }
 
     long lastTime = 0;
@@ -179,30 +180,13 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     public void nonStaticDurchstich(String objectLabel) {
         if ( System.currentTimeMillis() - lastTime > 1000) {
             // do nothing if last call was less than 1000 ms ago
-            // Log.info(String.format("detected %s", objectLabel));
+            Log.info(String.format("detected %s", objectLabel));
 
-            setPlantDetectedText(objectLabel);
+            vibrationListener.startVibrating(100);
+
             lastTime = System.currentTimeMillis();
         }
     }
-
-    public void setPlantDetectedText(final String objectLabel){
-        Log.info("setPlantDetectedText");
-
-        /*
-        try {
-            textView.setVisibility(View.VISIBLE);
-            textView.setText(String.format("%s detected", objectLabel));
-        } catch (Exception e) {
-            Log.error("NullPointer for button id = buttonPlantDetection in the method you created: setPlantDetectedText ");
-            e.printStackTrace();
-        }
-
-         */
-
-    }
-
-
 
 
     public FragmentNanodet() {
