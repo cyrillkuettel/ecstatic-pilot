@@ -162,14 +162,6 @@
             android:layout_gravity="center_horizontal|center"
             android:text="Close Socket Connection" />
 
-        <Button
-            android:id="@+id/btnVibrate"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="300dp"
-            android:layout_height="45dp"
-            android:enabled="true"
-            android:layout_gravity="center_horizontal|center"
-            android:text="test Vibrate" />
 
 
     </LinearLayout>

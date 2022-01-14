@@ -84,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
 
         Button updateApp = (Button) findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
+            Utils.LogAndToast(mainContext, "You have to delete this app before installing from apk!");
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
             startActivity(browserIntent);
         });
 
         Button btnSelectImageAndSend = (Button) findViewById(R.id.btnSelectImageAndSend);
+        btnSelectImageAndSend.setEnabled(false);
         btnSelectImageAndSend.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
@@ -107,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
             // TODO: change this so be more optimal
             new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Bytes)).start();
+            btnSelectImageAndSend.setEnabled(true);
         });
 
         Button btnInternetTime = (Button) findViewById(R.id.btnInternetTime);
@@ -133,15 +136,6 @@ public class MainActivity extends AppCompatActivity {
             btnStartStop.setEnabled((true));
         });
 
-        Button btnVibrate = (Button) findViewById(R.id.btnVibrate);
-        btnVibrate.setOnClickListener(v -> {
-            try {
-                vibrate();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
 
         Button btnClose  = (Button) findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
@@ -154,12 +148,7 @@ public class MainActivity extends AppCompatActivity {
     public void vibrate() {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 // Vibrate for 500 milliseconds
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            //deprecated in API 26
-            v.vibrate(500);
-        }
+        v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
     }
 
     @Override
