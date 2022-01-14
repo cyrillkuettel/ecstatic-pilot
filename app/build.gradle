@@ -17,8 +17,8 @@ android {
 
     defaultConfig {
         applicationId "li.garteroboter.pren"
-        minSdk 29
-        targetSdk 29
+        minSdk 24
+        targetSdk 24
         versionCode 1
         versionName "1.0"
 
