@@ -28,7 +28,7 @@ public class NanoDetNcnn implements Parcelable
     public native boolean setOutputWindow(Surface surface);
     public native boolean setObjectReferenceAsGlobal(FragmentNanodet fragmentNanodet_object);
 
-    public native boolean getCPUCount();
+    public native int getCPUCount();
 
 
 

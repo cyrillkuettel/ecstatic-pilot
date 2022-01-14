@@ -82,6 +82,8 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
         {
             Log.error("nanodetncnn loadModel failed");
         }
+        String cpuCount = Integer.toString(nanodetncnn.getCPUCount());
+        Log.info(String.format("CpuCount = %s", cpuCount));
     }
 
     @Override

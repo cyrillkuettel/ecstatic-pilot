@@ -344,10 +344,11 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObje
     return JNI_TRUE;
 }
 
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_getCPUCount(JNIEnv *env, jobject thiz) {
-    int cpu_count = ncnn::get_gpu_count(); // move to different method
+JNIEXPORT jint JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_getCPUCount(JNIEnv *env, jobject thiz) {
+     int cpu_count = ncnn::get_gpu_count(); // seems to always be 1
     __android_log_print(ANDROID_LOG_INFO, "ncnn", "CPU_COUNT: %d", cpu_count);
-    return JNI_TRUE;
+
+    return cpu_count;
 }
 
 }

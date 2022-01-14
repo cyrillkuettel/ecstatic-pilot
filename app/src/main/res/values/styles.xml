@@ -2,7 +2,7 @@
     <style name="AppTheme" parent="Theme.PIlot">
 
     </style>
-    <style name="splashScreenTheme" parent="@android:style/Theme.DeviceDefault.Light" >
+    <style name="splashScreenTheme" parent="Theme.PIlot" >
         <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 </resources>

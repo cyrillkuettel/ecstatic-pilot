@@ -180,6 +180,12 @@ NdkCamera::NdkCamera()
 
     // setup imagereader and its surface
     {
+        // try out other options:
+        // Could add this as Parameter in the UI.
+        // https://www.wikiwand.com/en/Graphics_display_resolution#/Overview_by_vertical_resolution_and_aspect_ratio
+        // width: 640 height: 480
+        // width: 320 height: 240
+
         AImageReader_new(640, 480, AIMAGE_FORMAT_YUV_420_888, /*maxImages*/2, &image_reader);
 
         AImageReader_ImageListener listener;
