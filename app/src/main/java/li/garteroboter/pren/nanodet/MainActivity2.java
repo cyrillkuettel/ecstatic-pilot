@@ -48,7 +48,7 @@ public class MainActivity2 extends AppCompatActivity implements VibrationListene
 
             nanodetncnn.setObjectReferenceAsGlobal(fragmentNanodet);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain, fragmentNanodet, "nanodet").commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment, fragmentNanodet, "nanodet").commit();
         }
     }
 
