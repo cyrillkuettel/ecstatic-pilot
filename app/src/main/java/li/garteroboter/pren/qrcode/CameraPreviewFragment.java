@@ -1,6 +1,7 @@
 package li.garteroboter.pren.qrcode;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -35,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.nanodet.VibrationListener;
 import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
@@ -51,7 +53,7 @@ public class CameraPreviewFragment extends Fragment {
 
     private Button qrCodeFoundButton;
     private String qrCode;
-
+    private VibrationListener vibrationListener;
 
 
     @Override
@@ -156,34 +158,26 @@ public class CameraPreviewFragment extends Fragment {
                         .build();
 
 
+
         /**
          I use the setAnaylzer() method on the ImageAnalysis object
          provide an object of the custom image analyzer class {@link QRCodeImageAnalyzer}
          Then implement the onQRCodeFound(…) and qrCodeNotFound() methods from the {@link QRCodeFoundListener}
          */
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(getActivity()), new QRCodeImageAnalyzer(new QRCodeFoundListener() {
+
+            long lastTime = 0;
             @Override
             public void onQRCodeFound(String _qrCode) {
-                /*
-                Vibration can only work if it is being called in an activity.
+                if ( System.currentTimeMillis() - lastTime > 400) {
+                    // do nothing if last call was less than 1000 ms ago
+                    vibrationListener.startVibrating(100);
+                    lastTime = System.currentTimeMillis();
+                    qrCode = _qrCode;
+                    qrCodeFoundButton.setVisibility(View.VISIBLE);
 
-                 final VibrationEffect vibrationEffect1;
-                // this is the only type of the vibration which requires system version Oreo (API 26)
-                // this effect creates the vibration of default amplitude for 1000ms(1 sec)
-                vibrationEffect1 = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE);
-                // it is safe to cancel other vibrations currently taking place
-                vibrator.cancel();
-                vibrator.vibrate(vibrationEffect1);
-                 */
+                }
 
-
-                Log.info("Detection");
-                qrCode = _qrCode;
-                qrCodeFoundButton.setVisibility(View.VISIBLE);
-
-
-
-                 
             }
             @Override
             public void qrCodeNotFound() {
@@ -199,6 +193,7 @@ public class CameraPreviewFragment extends Fragment {
         qrCodeFoundButton = (Button) getView().findViewById(R.id.activity_main_qrCodeFoundButton);
         qrCodeFoundButton.setText("Send Stop Command");
         qrCodeFoundButton.setVisibility(View.INVISIBLE);
+        // TODO : remove this useless buttton, add a Listener to Terminal Fragment
         qrCodeFoundButton.setOnClickListener(v -> {
             // Toast.makeText(getApplicationContext(), qrCode, Toast.LENGTH_SHORT).show();
             Log.info(MainActivity.class.getSimpleName() + " QR Code Found: " + qrCode);
@@ -221,10 +216,21 @@ public class CameraPreviewFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            vibrationListener = (VibrationListener) context;
+        } catch (ClassCastException castException) {
+            /** The activity does not implement the listener. */
+            Log.error("Failed to implement VibrationListener");
+        }
+    }
 
 
 
     public CameraPreviewFragment() {
         // Required empty public constructor
     }
+
 }

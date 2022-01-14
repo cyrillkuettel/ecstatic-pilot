@@ -1,7 +1,10 @@
 package simple.bluetooth.terminal;
 
+import android.content.Context;
 import android.graphics.Camera;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,11 +17,18 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.nanodet.FragmentNanodet;
+import li.garteroboter.pren.nanodet.VibrationListener;
 import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
-public class BlueActivity extends FragmentActivity  {
+public class BlueActivity extends FragmentActivity implements VibrationListener {
+    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
+
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
@@ -60,7 +70,7 @@ public class BlueActivity extends FragmentActivity  {
                     }
             ).attach();
         } else {
-            Log.v(TAG, "tabLayout  or viewPager == null");
+            Log.info( "tabLayout  or viewPager == null");
         }
 
 
@@ -94,6 +104,18 @@ public class BlueActivity extends FragmentActivity  {
         } else {
             // Otherwise, select the previous step.
             viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
+        }
+    }
+
+    @Override
+    public void startVibrating(final int millis) {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for N milliseconds
+        try {
+            v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
+        } catch (Exception e) {
+            Log.debug("Failed to vibrate");
+            e.printStackTrace();
         }
     }
 

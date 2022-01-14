@@ -7,8 +7,6 @@
     android:layout_height="match_parent"
     tools:context="li.garteroboter.pren.nanodet.MainActivity2">
 
-
-
     <LinearLayout
         android:divider="?android:attr/dividerVertical"
         android:orientation="vertical"
