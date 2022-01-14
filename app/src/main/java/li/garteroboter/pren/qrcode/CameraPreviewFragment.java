@@ -1,7 +1,6 @@
 package li.garteroboter.pren.qrcode;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -19,14 +18,11 @@ import androidx.fragment.app.Fragment;
 //import androidx.fragment.app.
 import androidx.lifecycle.LifecycleOwner;
 
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -34,14 +30,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
-import simple.bluetooth.terminal.BlueActivity;
 import simple.bluetooth.terminal.TerminalFragment;
+import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
 public class CameraPreviewFragment extends Fragment {
@@ -68,6 +63,13 @@ public class CameraPreviewFragment extends Fragment {
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(getActivity());
         requestCamera();
+    }
+
+    public static CameraPreviewFragment newInstance() {
+        CameraPreviewFragment fragment = new CameraPreviewFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
     }
 
 
@@ -210,7 +212,7 @@ public class CameraPreviewFragment extends Fragment {
                  */
 
 
-                TerminalFragment tf = (TerminalFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment);
+                TerminalFragment tf = (TerminalFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentBluetoothChain);
                 tf.send(Constants.STOP_COMMAND_ESP32);
             } catch (Exception e) {
                 Log.info("Accessing TerminalFragment Object failed. ");

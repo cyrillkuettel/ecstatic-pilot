@@ -13,7 +13,7 @@ android {
             useJUnitPlatform() // <--- this is the important part
         }
     }
-    compileSdk 29
+    compileSdk 31
 
     defaultConfig {
         applicationId "li.garteroboter.pren"
@@ -52,9 +52,10 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation 'androidx.navigation:navigation-fragment:2.3.5'
     implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation 'com.neovisionaries:nv-websocket-client:2.14'

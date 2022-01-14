@@ -4,11 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,7 +48,7 @@ public class MainActivity2 extends AppCompatActivity implements VibrationListene
 
             nanodetncnn.setObjectReferenceAsGlobal(fragmentNanodet);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment, fragmentNanodet, "nanodet").commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain, fragmentNanodet, "nanodet").commit();
         }
     }
 

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,9 +27,7 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 
 public class DevicesFragment extends ListFragment {
 
@@ -134,13 +131,9 @@ public class DevicesFragment extends ListFragment {
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
 
-/*  This does not seem to be necessary. The reason for this is that it is already hardcoded in the xml
-        Fragment qrFragment = new CameraPreviewFragment();
-        qrFragment.setArguments(args);
-        getFragmentManager().beginTransaction().add(R.id.qrfragment, qrFragment).commit();
- */
+
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment, fragment, "terminal").addToBackStack(null).commit();
+        fragmentManager.beginTransaction().replace(R.id.fragmentBluetoothChain, fragment, "terminal").addToBackStack(null).commit();
     }
 
     /**
