@@ -2,33 +2,28 @@ package li.garteroboter.pren;
 
 import static li.garteroboter.pren.Utils.LogAndToast;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SurfaceView;
-import android.view.TextureView;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.hardware.camera2.CameraManager;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
@@ -41,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
 
 import simple.bluetooth.terminal.BlueActivity;
 
@@ -138,23 +132,12 @@ public class MainActivity extends AppCompatActivity {
             btnStartStop.setEnabled((true));
         });
 
-        Button btnVideoProcessing = (Button) findViewById(R.id.btnVideoProcessing);
-        btnVideoProcessing.setEnabled(false);
-        btnVideoProcessing.setOnClickListener(v -> {
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            /*
-                 to directly control the camera , it seems to be that case that we need to ask for
-                 permission at runtime.
-                 It is unfortunate that this is necessary. But it seems to be necessary, if I
-                 remove this it didn't work.
-             */
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
-                        MY_CAMERA_REQUEST_CODE);
-            } else {
-                Log.info("Manifest.permission.CAMERA is okay");
-                Intent intent = new Intent(this, VideoProcessingService.class);
-                startService(intent);
+        Button btnVibrate = (Button) findViewById(R.id.btnVibrate);
+        btnVibrate.setOnClickListener(v -> {
+            try {
+                vibrate();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
@@ -165,6 +148,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for 500 milliseconds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            v.vibrate(500);
+        }
     }
 
     @Override

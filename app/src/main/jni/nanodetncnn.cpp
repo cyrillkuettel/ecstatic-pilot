@@ -141,13 +141,6 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
     draw_fps(rgb);
 }
 
-// using namespace std; // the orginal answer included this. I had to disable it because it
-// caused issues with other variablespu
-
-/**************************************************************
- * Global Variables to cache Java Class and Method IDs
- **************************************************************/
-
 JNIEnv *env;
 
 /**************************************************************

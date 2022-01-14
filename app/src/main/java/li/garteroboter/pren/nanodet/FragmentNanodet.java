@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 
@@ -200,6 +201,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
          */
 
     }
+
 
 
 

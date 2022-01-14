@@ -59,9 +59,7 @@
         </activity>
 
         <service android:name="simple.bluetooth.terminal.SerialService" />
-        <service
-            android:name=".VideoProcessingService"
-            android:enabled="true" />
+
     </application>
 
 

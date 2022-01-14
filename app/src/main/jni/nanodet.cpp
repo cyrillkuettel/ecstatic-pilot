@@ -472,6 +472,7 @@ void NanoDet::invoke_class(char *objectLabel) {
 
 int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 {
+
     static const char* class_names[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
         "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
@@ -483,6 +484,10 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
         "hair drier", "toothbrush"
     }; // 80 objects
+
+
+
+
 
     static const unsigned char colors[19][3] = {
         { 54,  67, 244},
