@@ -11,11 +11,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import li.garteroboter.pren.R;
 
 public class MainActivity2 extends AppCompatActivity {
 
     public static final int REQUEST_CAMERA = 100;
+    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
 
 
     private li.garteroboter.pren.nanodet.NanoDetNcnn nanodetncnn =  new li.garteroboter.pren.nanodet.NanoDetNcnn();
@@ -35,7 +39,7 @@ public class MainActivity2 extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (savedInstanceState == null) {
-            Log.v("MainActivity2", "Starting Fragment transaction");
+            Log.info("Starting Fragment transaction");
 
             li.garteroboter.pren.nanodet.FragmentNanodet fragmentNanodet =
                     li.garteroboter.pren.nanodet.FragmentNanodet.newInstance(nanodetncnn, facing);
@@ -66,6 +70,12 @@ public class MainActivity2 extends AppCompatActivity {
     {
         super.onPause();
         nanodetncnn.closeCamera();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.info("on Destory fired!");
     }
 
 }

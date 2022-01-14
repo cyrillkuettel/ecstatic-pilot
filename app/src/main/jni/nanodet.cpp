@@ -431,7 +431,7 @@ static jint JNI_VERSION = JNI_VERSION_1_4;
 void NanoDet::invoke_class(char *objectLabel) {
 
 
-    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
+   // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
 
     if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
         // I'm not 100% sure if this is necessary. Does it impact performance?

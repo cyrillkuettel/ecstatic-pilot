@@ -17,8 +17,9 @@ android {
 
     defaultConfig {
         applicationId "li.garteroboter.pren"
-        minSdk 24
-        targetSdk 24
+        // at minSdk Level 24 and , nanodet seems to be unstable.
+        minSdk 29
+        targetSdk 29
         versionCode 1
         versionName "1.0"
 
