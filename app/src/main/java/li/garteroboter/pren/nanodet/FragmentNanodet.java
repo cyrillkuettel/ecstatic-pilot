@@ -178,9 +178,11 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     }
 
     long lastTime = 0;
+    public static final boolean VIBRATE = false;
+
     // this method is in fact used, IDE can't see it at compile time
     public void nonStaticDurchstich(String objectLabel) {
-        if ( System.currentTimeMillis() - lastTime > 1000) {
+        if (VIBRATE && System.currentTimeMillis() - lastTime > 1000) {
             // do nothing if last call was less than 1000 ms ago
             Log.info(String.format("detected %s", objectLabel));
 

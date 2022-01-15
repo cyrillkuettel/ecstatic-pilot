@@ -37,6 +37,7 @@ import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.nanodet.VibrationListener;
+import simple.bluetooth.terminal.EngineControlListener;
 import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
@@ -54,6 +55,8 @@ public class CameraPreviewFragment extends Fragment {
     private Button qrCodeFoundButton;
     private String qrCode;
     private VibrationListener vibrationListener;
+    private EngineControlListener engineControlListener;
+
 
 
     @Override
@@ -135,6 +138,7 @@ public class CameraPreviewFragment extends Fragment {
         }, ContextCompat.getMainExecutor(getActivity()));
     }
 
+    long lastTime = 0; // to limit frequency of vibrating
     private void bindCameraPreview(@NonNull ProcessCameraProvider cameraProvider) {
         previewView.setPreferredImplementationMode(PreviewView.ImplementationMode.SURFACE_VIEW);
 
@@ -166,19 +170,19 @@ public class CameraPreviewFragment extends Fragment {
          */
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(getActivity()), new QRCodeImageAnalyzer(new QRCodeFoundListener() {
 
-            long lastTime = 0;
+
             @Override
             public void onQRCodeFound(String _qrCode) {
-                if ( System.currentTimeMillis() - lastTime > 400) {
-                    // do nothing if last call was less than 1000 ms ago
+                if (System.currentTimeMillis() - lastTime > 1000) {
+
                     vibrationListener.startVibrating(100);
-                    lastTime = System.currentTimeMillis();
                     qrCode = _qrCode;
                     qrCodeFoundButton.setVisibility(View.VISIBLE);
 
+                    lastTime = System.currentTimeMillis();
                 }
-
             }
+
             @Override
             public void qrCodeNotFound() {
                 qrCodeFoundButton.setVisibility(View.INVISIBLE);
@@ -193,27 +197,7 @@ public class CameraPreviewFragment extends Fragment {
         qrCodeFoundButton = (Button) getView().findViewById(R.id.activity_main_qrCodeFoundButton);
         qrCodeFoundButton.setText("Send Stop Command");
         qrCodeFoundButton.setVisibility(View.INVISIBLE);
-        // TODO : remove this useless buttton, add a Listener to Terminal Fragment
-        qrCodeFoundButton.setOnClickListener(v -> {
-            // Toast.makeText(getApplicationContext(), qrCode, Toast.LENGTH_SHORT).show();
-            Log.info(MainActivity.class.getSimpleName() + " QR Code Found: " + qrCode);
-            
-            try {
-                /*  This is the quick and dirty solution for now.
-                    Use Interface which TerminalFragment Implements.
 
-                     this is the better, and safer, approach from a design perspective
-                     https://stackoverflow.com/questions/12659747/call-an-activity-method-from-a-fragment
-                 */
-
-
-                TerminalFragment tf = (TerminalFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentBluetoothChain);
-                tf.send(Constants.STOP_COMMAND_ESP32);
-            } catch (Exception e) {
-                Log.info("Accessing TerminalFragment Object failed. ");
-                e.printStackTrace();
-            }
-        });
     }
 
     @Override
@@ -221,6 +205,7 @@ public class CameraPreviewFragment extends Fragment {
         super.onAttach(context);
         try {
             vibrationListener = (VibrationListener) context;
+
         } catch (ClassCastException castException) {
             /** The activity does not implement the listener. */
             Log.error("Failed to implement VibrationListener");

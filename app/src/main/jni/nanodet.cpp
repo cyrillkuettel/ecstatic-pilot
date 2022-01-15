@@ -430,7 +430,9 @@ static jint JNI_VERSION = JNI_VERSION_1_4;
 
 void NanoDet::invoke_class(char *objectLabel) {
 
-
+/* I don't really need the objectLabel at runtime. It's highly likely that the source of occasional
+ * SIGSEV crashes lies somewhere here. I might just write a invoke_class That does not pass the object Label at all.
+ * First I will try to debug the native code. */
    // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
 
     if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {

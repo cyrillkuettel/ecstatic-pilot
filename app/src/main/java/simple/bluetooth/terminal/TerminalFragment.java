@@ -31,7 +31,7 @@ import androidx.fragment.app.Fragment;
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.R;
 
-public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
+public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
 
     private enum Connected { False, Pending, True }
 
@@ -207,8 +207,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     }
 
 
-    // this method should be private, it would be a better design.
-    // However, this would require me to figure out a workaround to call send() from other places.
     public void send(String str) {
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
@@ -236,6 +234,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         }
     }
 
+
+    // here: Add Listener to start when the start command comes.
     private void receive(byte[] data) {
         if(hexEnabled) {
             receiveText.append(TextUtil.toHexString(data) + '\n');

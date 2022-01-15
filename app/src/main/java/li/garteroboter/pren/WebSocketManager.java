@@ -84,6 +84,7 @@ public class WebSocketManager extends AppCompatActivity {
 
     public boolean createAndOpenWebSocketConnection(SocketType socket) {
         if (!isInternetAvailable()) {
+            // TODO: test this. Test with no WLAN enabled
             new Handler(Looper.getMainLooper()).post(createToast(INTERNET_NOT_AVAILABLE, context));
             Log.error(INTERNET_NOT_AVAILABLE);
             return false;
@@ -136,6 +137,10 @@ public class WebSocketManager extends AppCompatActivity {
             }
         } catch (InterruptedException ex) {
             Log.debug(String.valueOf(ex.getMessage()));
+            ex.printStackTrace();
+        } catch (NullPointerException e) {
+            Log.debug("Nullpointer in future.get() in WebSocketManager");
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -157,7 +162,7 @@ public class WebSocketManager extends AppCompatActivity {
     /**
      * Connect to the server.
      */
-    private WebSocket createWebSocket(String completeURI) throws IOException, WebSocketException {
+    private WebSocket createWebSocket(final String completeURI) throws IOException, WebSocketException {
 
         return new WebSocketFactory()
                 .setConnectionTimeout(TIMEOUT)
