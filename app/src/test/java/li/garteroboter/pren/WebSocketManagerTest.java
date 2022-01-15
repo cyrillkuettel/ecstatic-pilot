@@ -6,15 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-import android.app.Activity;
 import android.content.Context;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -84,7 +81,7 @@ public class WebSocketManagerTest {
 
     /**
      * {@link WebSocketManager#getInternetTime() get Time from Website}
-     * {@link li.garteroboter.pren.MainActivity#getDeviceTimeStamp() get Time from Device }
+     * {@link li.garteroboter.pren.MainActivity#getDeviceTimeStampAsMilliseconds() get Time from Device }
      */
     @Test
     public void localTimeAndInternetTime_ShouldBeWithinOneSecond() {
@@ -95,7 +92,7 @@ public class WebSocketManagerTest {
 
         String internetTime = manager.getInternetTime();
         internetTime = internetTime.replace(",", "");
-        String localDeviceTime = MainActivity.getDeviceTimeStamp();
+        String localDeviceTime = MainActivity.getDeviceTimeStampAsMilliseconds();
         String[] timeOnlyMinSecMillisec = new String[]{internetTime, localDeviceTime};
 
         Date[] date = new Date[2];

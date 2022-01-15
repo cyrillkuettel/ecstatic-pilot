@@ -32,6 +32,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <signal.h>
 #define APPNAME "nanodetncnn.cpp"
 #if __ARM_NEON
 #include <arm_neon.h>

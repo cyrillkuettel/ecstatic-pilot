@@ -21,6 +21,7 @@
 
     <LinearLayout
         android:orientation="horizontal"
+        android:id="@+id/menuBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
@@ -40,9 +41,15 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <SurfaceView
         android:id="@+id/cameraview2"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</RelativeLayout>
+    <!-- maybe improves fps if the surfaceView is as little as possible width: 320 height: 240 -->
 </LinearLayout>

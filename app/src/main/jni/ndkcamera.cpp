@@ -34,7 +34,7 @@ static void onError(void* context, ACameraDevice* device, int error)
 
 static void onImageAvailable(void* context, AImageReader* reader)
 {
-//     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onImageAvailable %p", reader);
+     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onImageAvailable %p", reader);
 
     AImage* image = 0;
     media_status_t status = AImageReader_acquireLatestImage(reader, &image);

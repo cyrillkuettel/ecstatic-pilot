@@ -6,9 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.VibrationEffect;
@@ -20,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.hardware.camera2.CameraManager;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +30,6 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -62,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         BasicConfigurator.configure();
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
@@ -70,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         generateDropDownItems();
 
         Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
-        Log.info("CameraIDlist = " + getCameraIDList());
 
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
@@ -142,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         });
 
-
     }
 
     public void vibrate() {
@@ -182,22 +178,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return bytes;
-    }
-
-
-    /**
-     * Methods to check what camera ID's are available.
-     * @return String of the Camera DI lists of device.
-     */
-    public String getCameraIDList() {
-        CameraManager cameraManager =
-                (CameraManager) mainContext.getSystemService(Context.CAMERA_SERVICE);
-        try {
-            return Arrays.toString(cameraManager.getCameraIdList());
-        } catch (CameraAccessException e) {
-            Log.info(e.getMessage());
-            return null;
-        }
     }
 
 
@@ -256,9 +236,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * tells the webserver that the parkour has begun.
+     * Note that in the end this messsage has to be called as a result of the Bluetooth message
      */
     public void sendStartSignalToWebServer() {
-        String value_now = getDeviceTimeStamp();
+        String value_now = getDeviceTimeStampAsMilliseconds();
         LogAndToast(MainActivity.this, value_now);
         String message = String.format("command=startTime=%s", value_now);
         if (manager.sendText(message)) {
@@ -271,14 +252,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This methods returns the current Time on the device. It may differ slightly from the
      * internet time, which is more precise.
-     *
+     * I modify the String manually ( which is bad) to include 'T' and 'Z'
      * @return current System time
      */
-    public static String getDeviceTimeStamp() {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+    public static String getDeviceTimeStampAsMilliseconds() {
+        // ISO 8601
+        // 2018-04-04T16:00:00.000Z
+        // expects https://day.js.org/docs/en/parse/string
+        final Calendar cal = Calendar.getInstance();
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
-        return simpleDateFormat.format(cal.getTime());
+
+        final long timeInMillis = cal.getTimeInMillis();
+        final String message = Long.toString(timeInMillis);
+        final int numDigits = String.valueOf(timeInMillis).length();
+        assert numDigits == 13; // (13 digits, since the Unix Epoch Jan 1 1970 12AM UTC).
+        Log.info("startTime=" + message);
+        return message;
     }
 
 
