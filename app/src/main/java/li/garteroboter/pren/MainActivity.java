@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Achtung: Update Vorgehensweise");
         final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = String.format("Zuerst das App deinstallieren, bevor vom das apk installiert wird!");
+        final String defaultMessage = String.format("Zuerst dieses App deinstallieren, bevor das apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft meistens ein Neustart des Geräts. ");
         messageForUpdateProcedure.setText(defaultMessage);
         alert.setView(messageForUpdateProcedure);
 
