@@ -4,6 +4,7 @@ import static li.garteroboter.pren.Utils.LogAndToast;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -16,10 +17,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.apache.commons.io.IOUtils;
@@ -81,9 +85,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button updateApp = (Button) findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
-            Utils.LogAndToast(mainContext, "You have to delete this app before installing from apk!");
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
-            startActivity(browserIntent);
+            showUpdateMessageBox();
+
         });
 
         Button btnSelectImageAndSend = (Button) findViewById(R.id.btnSelectImageAndSend);
@@ -271,6 +274,33 @@ public class MainActivity extends AppCompatActivity {
         Log.info("startTime=" + message);
         return message;
     }
+
+
+    public final void showUpdateMessageBox() {
+
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Achtung: Update Vorgehensweise");
+        final TextView messageForUpdateProcedure = new TextView(this);
+        final String defaultMessage = String.format("Zuerst das App deinstallieren, bevor vom das apk installiert wird!");
+        messageForUpdateProcedure.setText(defaultMessage);
+        alert.setView(messageForUpdateProcedure);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
+                startActivity(browserIntent);
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                dialog.cancel();
+            }
+        });
+        alert.show();
+
+    }
+
+
 
 
     @Override
