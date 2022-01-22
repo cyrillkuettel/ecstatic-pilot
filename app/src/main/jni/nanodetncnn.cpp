@@ -144,11 +144,7 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
 
 JNIEnv *env;
 
-/**************************************************************
- * Declare JNI_VERSION for use in JNI_On
- * /JNI_OnUnLoad
- * Change value if a Java upgrade requires it
- **************************************************************/
+
 static jint JNI_VERSION = JNI_VERSION_1_4;
 
 static MyNdkCamera* g_camera = 0;

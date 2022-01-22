@@ -1,12 +1,9 @@
 package li.garteroboter.pren.nanodet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 
-import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
@@ -17,18 +14,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 
 /**
@@ -178,11 +170,11 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     }
 
     long lastTime = 0;
-    public static final boolean VIBRATE = false;
+    public static final boolean TOGGLE_VIBRATE = false;
 
     // this method is in fact used, IDE can't see it at compile time
     public void nonStaticDurchstich(String objectLabel) {
-        if (VIBRATE && System.currentTimeMillis() - lastTime > 1000) {
+        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > 1000) {
             // do nothing if last call was less than 1000 ms ago
             Log.info(String.format("detected %s", objectLabel));
 
