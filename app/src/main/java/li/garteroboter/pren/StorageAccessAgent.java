@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class StorageAccessAgent {
@@ -54,96 +55,62 @@ public class StorageAccessAgent {
         return Collections.emptyList();
     }
 
+    public List<File> getAllPlantImages() {
+        Predicate<File> FileNameContainsWEBP = file -> file.getName().contains(".webp");
+
+        final File[] files = context.getFilesDir().listFiles();
+        Arrays.stream(files)
+                .filter(FileNameContainsWEBP)
+                .map(File::getName)
+                .forEach(System.out::println);
+
+        return Arrays.stream(files)
+                .filter(FileNameContainsWEBP)
+                .collect(Collectors.toList());
+
+    }
+
+
+    public void filterAllDirectoriesInAssets() {
+        final File[] files = context.getFilesDir().listFiles();
+        List<File> directories = Arrays.stream(files)
+                .filter(File::isDirectory).collect(Collectors.toList());
+        Log.info(String.format("directories.size() =  %d", directories.size()));
+    }
 
 
 
 
+
+
+    // only has to run one time per Activity Lifecycle
+    // only for testing purposes
     public void copyPlantsToInternalDirectory(final String[] pottedPlantImageFiles) {
-        for (String filename : pottedPlantImageFiles) {
-            final String name = filename;
-            filename = "test_plants/" + filename;
-            InputStream in = null;
-            OutputStream out = null;
+        for (String filenameWithAssetsSubFolder : pottedPlantImageFiles) {
+            final String basename = filenameWithAssetsSubFolder;
+            filenameWithAssetsSubFolder = "test_plants/" + filenameWithAssetsSubFolder;
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
             try {
-                Log.info(String.format("attempting to copy filename = %s", filename));
-                in = assetManager.open(filename);
-                File outFile = new File(context.getFilesDir(), name);
-                out = new FileOutputStream(outFile);
-                copyFile(in, out);
+                Log.info(String.format("attempting to copy filename = %s", filenameWithAssetsSubFolder));
+                inputStream = assetManager.open(filenameWithAssetsSubFolder);
+                File outFile = new File(context.getFilesDir(), basename);
+                outputStream = new FileOutputStream(outFile);
+                IOUtils.copy(inputStream, outputStream);
                 Log.info("Copied 1 file");
             } catch (IOException e) {
-                Log.error("Failed to copy asset file: " + filename, e);
+                Log.error("Failed to copy asset file: " + filenameWithAssetsSubFolder, e);
             } finally {
-                if (in != null) {
+                if (inputStream != null) {
                     try {
-                        in.close();
+                        inputStream.close();
                     } catch (IOException e) {
                         // NOOP
                     }
                 }
-                if (out != null) {
+                if (outputStream != null) {
                     try {
-                        out.close();
-                    } catch (IOException e) {
-                        // NOOP
-                    }
-                }
-            }
-        }
-    }
-
-
-    // TODO: unwrap shallow method.
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
-        IOUtils.copy(in, out);
-        /*
-        byte[] buffer = new byte[1024];
-        int read;
-        while((read = in.read(buffer)) != -1){
-            out.write(buffer, 0, read);
-        }
-         */
-    }
-
-
-    /**
-     * Have some plant pictures ready to test.
-     */
-    public void copyAssets() {
-        AssetManager assetManager = context.getAssets();
-        String[] files = null;
-        try {
-            files = assetManager.list("");
-            Log.info(String.format("assetManager.list = %d", files.length));
-
-        } catch (IOException e) {
-            Log.error("Failed to get asset file list.", e);
-        }
-
-
-        if (files != null) for (String filename : files) {
-            InputStream in = null;
-            OutputStream out = null;
-            try {
-                Log.info(String.format("filename = %s" , filename));
-                in = assetManager.open(filename);
-                File outFile = new File(context.getFilesDir(), filename);
-                out = new FileOutputStream(outFile);
-                copyFile(in, out);
-            } catch(IOException e) {
-                Log.error("Failed to copy asset file: " + filename, e);
-            }
-            finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        // NOOP
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
+                        outputStream.close();
                     } catch (IOException e) {
                         // NOOP
                     }

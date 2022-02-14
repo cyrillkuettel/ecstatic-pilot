@@ -7,20 +7,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,22 +25,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -108,6 +100,13 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
         });
 
+        Button btnSendImagesFromDisk = (Button) findViewById(R.id.btnSendImagesFromDisk);
+        btnSendImagesFromDisk.setEnabled(false);
+        btnSendImagesFromDisk.setOnClickListener(v -> {
+            testSendArrayOfPlants();
+
+        });
+
         Button btnOpenByteSocketConnection =
                 (Button) findViewById(R.id.btnOpenByteSocketConnection);
         btnOpenByteSocketConnection.setOnClickListener(v -> {
@@ -122,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             // TODO: change this so be more optimal
             new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Bytes)).start();
             btnSelectImageAndSend.setEnabled(true);
+            btnSendImagesFromDisk.setEnabled(true);
         });
 
         Button btnInternetTime = (Button) findViewById(R.id.btnInternetTime);
@@ -154,15 +154,11 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         });
 
-        Button btnSendImagesFromDisk = (Button) findViewById(R.id.btnSendImagesFromDisk);
-        btnSendImagesFromDisk.setOnClickListener(v -> {
-            testSendArrayOfPlants();
 
-        });
 
         Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
         btnGetAbsoluteFilePath.setOnClickListener(v -> {
-            // nothing
+            Log.info("this button does nothing");
         });
 
     }
@@ -178,25 +174,28 @@ public class MainActivity extends AppCompatActivity {
 
         StorageAccessAgent storageAccessAgent = new StorageAccessAgent(mainContext);
         List<String> plants = storageAccessAgent.fetchNames();
+
         storageAccessAgent.copyPlantsToInternalDirectory(plants.toArray(new String[0]));
 
+        List<File> plantImages = storageAccessAgent.getAllPlantImages();
+        plantImages.forEach(this::sendSinglePlantImageFromInternalDirectory);
 
-/*
-        String filename = "myfile";
-        String string = "Hello world!";
-        FileOutputStream outputStream;
 
+
+    }
+
+    public void sendSinglePlantImageFromInternalDirectory(final File file) {
         try {
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(string.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
+            byte[] bytes = FileUtils.readFileToByteArray(file);
+            try {
+                manager.sendBytes(bytes);
+            } catch (Exception e) {
+                Log.error("Error while sending bytes");
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.info(String.format("Written %s", "a file"));
-
- */
-
     }
 
     public void vibrate() {
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public byte[] selectImageWithIntent(Intent data) {
+    public byte[] selectImageWithIntent(final Intent data) {
         byte[] bytes = new byte[0];
         try {
             InputStream inputStream =
