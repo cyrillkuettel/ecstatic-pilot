@@ -34,14 +34,17 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -64,9 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean START_SIGNAL_FIRED = false;
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
-                                                        // with google camera.
+    // with google camera.
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
-
 
 
     @Override
@@ -106,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
         });
 
-        Button btnOpenByteSocketConnection = (Button) findViewById(R.id.btnOpenByteSocketConnection);
+        Button btnOpenByteSocketConnection =
+                (Button) findViewById(R.id.btnOpenByteSocketConnection);
         btnOpenByteSocketConnection.setOnClickListener(v -> {
             if (manager != null) {
                 manager.disconnectAll();
@@ -131,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Button btnSendMessageToWebSocket  = (Button) findViewById(R.id.btnSendMessageToWebSocket);
+        Button btnSendMessageToWebSocket = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         btnSendMessageToWebSocket.setEnabled(false);
         btnSendMessageToWebSocket.setOnClickListener(v -> {
             manager.sendText("Hello from Android!");
@@ -146,27 +149,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Button btnClose  = (Button) findViewById(R.id.btnClose);
+        Button btnClose = (Button) findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
             manager.disconnectAll();
         });
 
         Button btnSendImagesFromDisk = (Button) findViewById(R.id.btnSendImagesFromDisk);
         btnSendImagesFromDisk.setOnClickListener(v -> {
-                testSendArrayOfPlants();
+            testSendArrayOfPlants();
 
+        });
+
+        Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
+        btnGetAbsoluteFilePath.setOnClickListener(v -> {
+            // nothing
         });
 
     }
 
-    public void testSendArrayOfPlants()  {
+
+
+    public void testSendArrayOfPlants() {
 
         // File file = new File(mainContext.getFilesDir(), "hello_world");
         File[] files = mainContext.getFilesDir().listFiles();
-        List<String> file_names = Arrays.stream(files).map(f -> f.getName().toString()).collect(Collectors.toList());
+        List<String> file_names = Arrays.stream(files)
+                .map(f -> f.getName().toString()).collect(Collectors.toList());
 
         StorageAccessAgent storageAccessAgent = new StorageAccessAgent(mainContext);
-        storageAccessAgent.fetchNames();
+        List<String> plants = storageAccessAgent.fetchNames();
+        storageAccessAgent.copyPlantsToInternalDirectory(plants.toArray(new String[0]));
+
 
 /*
         String filename = "myfile";
@@ -216,7 +229,8 @@ public class MainActivity extends AppCompatActivity {
     public byte[] selectImageWithIntent(Intent data) {
         byte[] bytes = new byte[0];
         try {
-            InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
+            InputStream inputStream =
+                    mainContext.getContentResolver().openInputStream(data.getData());
             bytes = IOUtils.toByteArray(inputStream);
 
         } catch (IOException e) {
@@ -282,7 +296,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * tells the webserver that the parkour has begun.
      * Note that in the end this messsage has to be called as a result of the Bluetooth message
@@ -302,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
      * This methods returns the current Time on the device. It may differ slightly from the
      * internet time, which is more precise.
      * I modify the String manually ( which is bad) to include 'T' and 'Z'
+     *
      * @return current System time
      */
     public static String getDeviceTimeStampAsMilliseconds() {
@@ -327,7 +341,9 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Achtung: Update Vorgehensweise");
         final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = String.format("Zuerst dieses App deinstallieren, bevor das apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft meistens ein Neustart des Geräts. ");
+        final String defaultMessage = String.format("Zuerst dieses App deinstallieren, bevor das " +
+                "apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft " +
+                "meistens ein Neustart des Geräts. ");
         messageForUpdateProcedure.setText(defaultMessage);
         alert.setView(messageForUpdateProcedure);
 
@@ -345,8 +361,6 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
 
     }
-
-
 
 
     @Override

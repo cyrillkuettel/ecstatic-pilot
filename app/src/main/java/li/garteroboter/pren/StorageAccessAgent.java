@@ -46,16 +46,65 @@ public class StorageAccessAgent {
         String[] filenames = null;
         try {
             filenames = assetManager.list("test_plants");
-            Log.info(String.format("assetManager.list.length = %d", filenames.length));
            return Arrays.stream(filenames).collect(Collectors.toList());
 
         } catch (IOException e) {
             Log.error("Failed to get asset file list.", e);
         }
-
         return Collections.emptyList();
-
     }
+
+
+
+
+
+    public void copyPlantsToInternalDirectory(final String[] pottedPlantImageFiles) {
+        for (String filename : pottedPlantImageFiles) {
+            final String name = filename;
+            filename = "test_plants/" + filename;
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                Log.info(String.format("attempting to copy filename = %s", filename));
+                in = assetManager.open(filename);
+                File outFile = new File(context.getFilesDir(), name);
+                out = new FileOutputStream(outFile);
+                copyFile(in, out);
+                Log.info("Copied 1 file");
+            } catch (IOException e) {
+                Log.error("Failed to copy asset file: " + filename, e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+            }
+        }
+    }
+
+
+    // TODO: unwrap shallow method.
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        IOUtils.copy(in, out);
+        /*
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+        }
+         */
+    }
+
 
     /**
      * Have some plant pictures ready to test.
@@ -102,21 +151,6 @@ public class StorageAccessAgent {
             }
         }
     }
-
-    // TODO: unwrap shallow method.
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
-        IOUtils.copy(in, out);
-        /*
-        byte[] buffer = new byte[1024];
-        int read;
-        while((read = in.read(buffer)) != -1){
-            out.write(buffer, 0, read);
-        }
-         */
-    }
-
-
-
 }
 
 
