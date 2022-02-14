@@ -7,11 +7,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -30,23 +34,29 @@ import java.util.concurrent.Future;
 public class WebSocketManagerTest {
 
     private static final Logger Log = Logger.getLogger(WebSocketManagerTest.class);
-    // Context context = ApplicationProvider.getApplicationContext();
-    // Context context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext();
-    // Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-    MainActivity main = new MainActivity();
 
-    Context context = main.mainContext;
+
+    MainActivity main = new MainActivity();
+    Context context;
 
     @BeforeAll
     public static void setup() {
         BasicConfigurator.configure();
     }
 
+    @Before
+    public void setupContext() {
+        // https://github.com/android/android-test/issues/409
+        // this is a hack to get hte context
+        this.context =  InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+    }
+
     @Test
     public void testOpenSocketConnectionInThread() {
         WebSocketManager manager = createWebSocket();
         WebSocket socket = manager.getSocketFromMap(SocketType.Text);
-          // Check the Websocket statte as well for good measure
+          // Check the Websocket state as well for good measure
            // Possible values CREATED,CONNECTING,OPEN,CLOSING,CLOSED
         assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
     }

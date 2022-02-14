@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,11 +34,17 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import simple.bluetooth.terminal.BlueActivity;
 
@@ -142,6 +151,39 @@ public class MainActivity extends AppCompatActivity {
             manager.disconnectAll();
         });
 
+        Button btnSendImagesFromDisk = (Button) findViewById(R.id.btnSendImagesFromDisk);
+        btnSendImagesFromDisk.setOnClickListener(v -> {
+                testSendArrayOfPlants();
+
+        });
+
+    }
+
+    public void testSendArrayOfPlants()  {
+
+        // File file = new File(mainContext.getFilesDir(), "hello_world");
+        File[] files = mainContext.getFilesDir().listFiles();
+        List<String> file_names = Arrays.stream(files).map(f -> f.getName().toString()).collect(Collectors.toList());
+
+        StorageAccessAgent storageAccessAgent = new StorageAccessAgent(mainContext);
+        storageAccessAgent.fetchNames();
+
+/*
+        String filename = "myfile";
+        String string = "Hello world!";
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream.write(string.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.info(String.format("Written %s", "a file"));
+
+ */
+
     }
 
     public void vibrate() {
@@ -176,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             InputStream inputStream = mainContext.getContentResolver().openInputStream(data.getData());
             bytes = IOUtils.toByteArray(inputStream);
+
         } catch (IOException e) {
             Log.error("Something went wrong when reading InputStream to bytes. Maybe context?");
             e.printStackTrace();

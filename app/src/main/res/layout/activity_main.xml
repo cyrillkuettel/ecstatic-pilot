@@ -94,6 +94,37 @@
             android:text="Open Byte Socket" />
     </RelativeLayout>
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <Button
+            android:id="@+id/example"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/btnSendImagesFromDisk"
+            android:text="example" />
+
+
+        <View
+            android:id="@+id/view3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/btnSendImagesFromDisk"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/view3"
+            android:text="send images from disk" />
+    </RelativeLayout>
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
