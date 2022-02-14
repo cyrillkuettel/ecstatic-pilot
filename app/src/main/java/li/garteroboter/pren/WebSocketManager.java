@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.neovisionaries.ws.client.HostnameUnverifiedException;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
 import com.neovisionaries.ws.client.StatusLine;
 import com.neovisionaries.ws.client.WebSocket;
@@ -29,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import javax.net.ssl.SSLSocketFactory;
 
 
 /**
@@ -112,11 +115,23 @@ public class WebSocketManager extends AppCompatActivity {
         WebSocket ws = null;
 
         try {
+            Log.info(String.format("Connecting to %s", completeURI));
             ws = createWebSocket(completeURI);
-        } catch (WebSocketException e) {
+        } catch (HostnameUnverifiedException hostnameUnverifiedException) {
+            Log.info("HostnameUnverifiedException");
+            final String hostname = hostnameUnverifiedException.getHostname();
+            final String ssl = hostnameUnverifiedException.getSSLSocket().toString();
+
+            Log.error(String.format("getHostname = %s", hostname));
+            Log.error(String.format("getSSLSocket = %s", ssl));
+            hostnameUnverifiedException.printStackTrace();
+        }
+        catch (WebSocketException e) {
+
             // Failed to establish a WebSocket connection.
             Log.error("WebSocketException : " + e.getMessage());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         if (ws == null) {
@@ -163,8 +178,11 @@ public class WebSocketManager extends AppCompatActivity {
      * Connect to the server.
      */
     private WebSocket createWebSocket(final String completeURI) throws IOException, WebSocketException {
+        WebSocketFactory factory = new WebSocketFactory();
+        factory.setServerName("pren.garteroboter.li");
+        Log.info("test Logger");
 
-        return new WebSocketFactory()
+        return factory
                 .setConnectionTimeout(TIMEOUT)
                 .createSocket(completeURI)
                 .addListener(new WebSocketAdapter() {
@@ -206,6 +224,8 @@ public class WebSocketManager extends AppCompatActivity {
                 })
                 // used in the handshake to indicate whether a connection should use compression
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
+
+
     }
 
 

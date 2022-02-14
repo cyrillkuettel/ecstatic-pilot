@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnSendMessageToWebSocket  = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         btnSendMessageToWebSocket.setEnabled(false);
         btnSendMessageToWebSocket.setOnClickListener(v -> {
-            manager.sendText("Hello");
+            manager.sendText("Hello from Android!");
             Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
         });
 
@@ -206,6 +206,9 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Hamburger Menu selection
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;

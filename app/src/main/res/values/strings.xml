@@ -15,8 +15,8 @@
     <string name="scan">Scan</string>
     <string name="reopen_socketconnection">reopen SocketConnection</string>
     <string-array name="uri">
-        <item>ws://pren.garteroboter.li:80/ws/</item>
-        <item>ws://192.168.188.38:80/ws/</item>
+        <item>wss://pren.garteroboter.li:443/ws/</item>
+        <item>wss://192.168.188.38:43/ws/</item>
     </string-array>
     <string name="devices">Bluetooth Devices</string>
     <string name="title_activity_simple_uiactivity">simpleUIActivity</string>

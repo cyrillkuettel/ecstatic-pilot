@@ -6,28 +6,23 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.nanodet.FragmentNanodet;
 import li.garteroboter.pren.nanodet.VibrationListener;
 import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 public class BlueActivity extends FragmentActivity implements VibrationListener {
-    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
+    private static final Logger Log = LogManager.getLogger(BlueActivity.class);
 
     /**
      * The number of pages (wizard steps) to show in this demo.
