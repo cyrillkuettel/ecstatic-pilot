@@ -12,8 +12,8 @@ import android.os.Environment;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,8 +28,7 @@ import java.util.stream.Collectors;
 
 public class StorageAccessAgent {
 
-    private static final Logger Log = LogManager.getLogger(StorageAccessAgent.class);
-
+    private static final String TAG = "StorageAccessAgent";
     private final Context context;
     private AssetManager assetManager;
 
@@ -50,7 +49,7 @@ public class StorageAccessAgent {
            return Arrays.stream(filenames).collect(Collectors.toList());
 
         } catch (IOException e) {
-            Log.error("Failed to get asset file list.", e);
+            Log.e(TAG, "Failed to get asset file list.", e);
         }
         return Collections.emptyList();
     }
@@ -75,7 +74,7 @@ public class StorageAccessAgent {
         final File[] files = context.getFilesDir().listFiles();
         List<File> directories = Arrays.stream(files)
                 .filter(File::isDirectory).collect(Collectors.toList());
-        Log.info(String.format("directories.size() =  %d", directories.size()));
+        Log.i(TAG, String.format("directories.size() =  %d", directories.size()));
     }
 
 
@@ -92,14 +91,14 @@ public class StorageAccessAgent {
             InputStream inputStream = null;
             OutputStream outputStream = null;
             try {
-                Log.info(String.format("attempting to copy filename = %s", filenameWithAssetsSubFolder));
+                Log.i(TAG, String.format("attempting to copy filename = %s", filenameWithAssetsSubFolder));
                 inputStream = assetManager.open(filenameWithAssetsSubFolder);
                 File outFile = new File(context.getFilesDir(), basename);
                 outputStream = new FileOutputStream(outFile);
                 IOUtils.copy(inputStream, outputStream);
-                Log.info("Copied 1 file");
+                Log.i(TAG, "Copied 1 file");
             } catch (IOException e) {
-                Log.error("Failed to copy asset file: " + filenameWithAssetsSubFolder, e);
+                Log.e(TAG,"Failed to copy asset file: " + filenameWithAssetsSubFolder, e);
             } finally {
                 if (inputStream != null) {
                     try {

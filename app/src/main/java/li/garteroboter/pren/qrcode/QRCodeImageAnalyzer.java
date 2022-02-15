@@ -19,11 +19,10 @@ import static android.graphics.ImageFormat.YUV_420_888;
 import static android.graphics.ImageFormat.YUV_422_888;
 import static android.graphics.ImageFormat.YUV_444_888;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
-    private static final Logger Log = LogManager.getLogger(QRCodeImageAnalyzer.class);
 
     private QRCodeFoundListener listener;
 
@@ -33,7 +32,7 @@ public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
 
     @Override
     public void analyze(@NonNull ImageProxy image) {
-        // Log.info("Camera Log : Analyze");
+        // Log.i(TAG, "Camera Log : Analyze");
 
         if (image.getFormat() == YUV_420_888 || image.getFormat() == YUV_422_888 || image.getFormat() == YUV_444_888) {
             ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
@@ -49,7 +48,7 @@ public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
             );
 
             // could maybe optimize, reduce size and grayscale
-            // Log.info(String.format("PlanarYUVLuminanceSource width = %d height =  %d " , source.getWidth(), source.getHeight()));
+            // Log.i(TAG, String.format("PlanarYUVLuminanceSource width = %d height =  %d " , source.getWidth(), source.getHeight()));
 
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
 

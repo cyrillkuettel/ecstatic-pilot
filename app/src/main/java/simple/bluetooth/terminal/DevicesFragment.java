@@ -1,11 +1,13 @@
 package simple.bluetooth.terminal;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,8 +23,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.ListFragment;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +33,7 @@ import li.garteroboter.pren.R;
 
 public class DevicesFragment extends ListFragment {
 
-    private static final Logger Log = LogManager.getLogger(DevicesFragment.class);
-
+    private static final String TAG = "DevicesFragment";
     private BluetoothAdapter bluetoothAdapter;
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
     private ArrayAdapter<BluetoothDevice> listAdapter;
@@ -44,12 +45,13 @@ public class DevicesFragment extends ListFragment {
         if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
             bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         listAdapter = new ArrayAdapter<BluetoothDevice>(getActivity(), 0, listItems) {
+            @SuppressLint("MissingPermission")
             @NonNull
             @Override
             public View getView(int position, View view, @NonNull ViewGroup parent) {
                 BluetoothDevice device = listItems.get(position);
 
-                    Log.info(String.format("BluetoothDevice.getName() %s", device.getName()));
+                    Log.i(TAG, String.format("BluetoothDevice.getName() %s", device.getName()));
                     if (view == null)
                         view = getActivity().getLayoutInflater().inflate(R.layout.device_list_item, parent, false);
                     TextView text1 = view.findViewById(R.id.text1);
@@ -84,7 +86,7 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public void onResume() {
-        Log.info("onResume()");
+        Log.i(TAG, "onResume()");
         super.onResume();
         if(bluetoothAdapter == null)
             setEmptyText("<bluetooth not supported>");
@@ -108,6 +110,7 @@ public class DevicesFragment extends ListFragment {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     void refresh() {
         listItems.clear();
@@ -140,10 +143,10 @@ public class DevicesFragment extends ListFragment {
      * sort by name, then address. sort named devices first
      */
     static int compareTo(BluetoothDevice a, BluetoothDevice b) {
-        boolean aValid = a.getName()!=null && !a.getName().isEmpty();
-        boolean bValid = b.getName()!=null && !b.getName().isEmpty();
+        @SuppressLint("MissingPermission") boolean aValid = a.getName()!=null && !a.getName().isEmpty();
+        @SuppressLint("MissingPermission") boolean bValid = b.getName()!=null && !b.getName().isEmpty();
         if(aValid && bValid) {
-            int ret = a.getName().compareTo(b.getName());
+            @SuppressLint("MissingPermission") int ret = a.getName().compareTo(b.getName());
             if (ret != 0) return ret;
             return a.getAddress().compareTo(b.getAddress());
         }

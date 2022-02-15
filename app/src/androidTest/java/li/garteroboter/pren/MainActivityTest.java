@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 public class MainActivityTest {
 
 // IT FINALLY WORKS THANKS TO THIS:
-
     // https://github.com/android/testing-samples/tree/main/unit/BasicUnitAndroidTest/app/src/androidTest/java/com/example/android/testing/unittesting/basicunitandroidtest
     @Test
     public void testBlah(){

@@ -7,14 +7,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,18 +31,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 public class WebSocketManagerTest {
-
-    private static final Logger Log = Logger.getLogger(WebSocketManagerTest.class);
-
+    private static final String TAG = "WebSocketManagerTest";
 
     MainActivity main = new MainActivity();
     Context context;
 
     @BeforeAll
     public static void setup() {
-        BasicConfigurator.configure();
+        
     }
 
     @Before
@@ -125,7 +125,7 @@ public class WebSocketManagerTest {
         try {
             return new SimpleDateFormat("mm:ss.SSS").parse(date);
         } catch (ParseException e) {
-            Log.error("Could not parse date! ");
+            Log.e(TAG, "Could not parse date! ");
             return null;
         }
     }
@@ -165,10 +165,9 @@ public class WebSocketManagerTest {
 
     @Test
     public void testLoggingWithColor() {
-        Log.info("Logging works");
-        Log.error("error");
-        Log.fatal("Houston, we have a problem");
-        Log.debug("debug");
+        Log.i(TAG, "Logging works");
+        Log.e(TAG, "error");
+        Log.d(TAG, "debug");
         // System.out.println(System.getProperty("java.class.path"));
 
     }

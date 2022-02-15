@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,9 +28,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
+
 
 import java.io.File;
 import java.io.IOException;
@@ -45,14 +46,14 @@ import simple.bluetooth.terminal.BlueActivity;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final Logger Log = LogManager.getLogger(MainActivity.class);
+    private static final String TAG = "MainActivity";
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
             "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
     private WebSocketManager manager = null;
     private Handler toastHandler;
     final Context mainContext = MainActivity.this;
+
     private static final int MY_CAMERA_REQUEST_CODE = 2;
     public static final int PICK_IMAGE = 1; // so you can recognize when the user comes back from
     // the image gallery
@@ -67,14 +68,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
 
-        BasicConfigurator.configure();
+        
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         generateDropDownItems();
 
-        Log.info(String.valueOf(android.os.Build.VERSION.SDK_INT));
+        Log.i(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
 
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
         btnGetAbsoluteFilePath.setOnClickListener(v -> {
-            Log.info("this button does nothing");
+            Log.i(TAG, "this button does nothing");
         });
 
     }
@@ -190,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 manager.sendBytes(bytes);
             } catch (Exception e) {
-                Log.error("Error while sending bytes");
+                Log.e(TAG, "Error while sending bytes");
                 e.printStackTrace();
             }
         } catch (IOException e) {
@@ -210,16 +211,16 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
             if (data == null) {
                 //Display an error
-                Log.error("Image data from Intent is null");
+                Log.e(TAG, "Image data from Intent is null");
                 return;
             }
             byte[] bytes = selectImageWithIntent(data);
-            Log.info(String.format("Sending %s bytes", bytes.length));
+            Log.i(TAG, String.format("Sending %s bytes", bytes.length));
 
             try {
                 manager.sendBytes(bytes);
             } catch (Exception e) {
-                Log.error("Error while sending bytes");
+                Log.e(TAG, "Error while sending bytes");
                 e.printStackTrace();
             }
         }
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
             bytes = IOUtils.toByteArray(inputStream);
 
         } catch (IOException e) {
-            Log.error("Something went wrong when reading InputStream to bytes. Maybe context?");
+            Log.e(TAG, "Something went wrong when reading InputStream to bytes. Maybe context?");
             e.printStackTrace();
         }
         return bytes;
@@ -330,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
         final String message = Long.toString(timeInMillis);
         final int numDigits = String.valueOf(timeInMillis).length();
         assert numDigits == 13; // (13 digits, since the Unix Epoch Jan 1 1970 12AM UTC).
-        Log.info("startTime=" + message);
+        Log.i(TAG, "startTime=" + message);
         return message;
     }
 

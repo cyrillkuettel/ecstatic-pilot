@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 //import androidx.fragment.app.
 import androidx.lifecycle.LifecycleOwner;
 
+import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +29,8 @@ import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import java.util.concurrent.ExecutionException;
 
@@ -44,7 +45,8 @@ import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 public class CameraPreviewFragment extends Fragment {
 
-    private static final Logger Log = LogManager.getLogger(simple.bluetooth.terminal.BlueActivity.class);
+    private static final String TAG = "CameraPreviewFragment";
+
     private static final int PERMISSION_REQUEST_CAMERA = 0;
     private PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
@@ -114,7 +116,7 @@ public class CameraPreviewFragment extends Fragment {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCamera();
             } else {
-                Log.warn("\"Camera Permission Denied\"");
+                Log.e(TAG, "\"Camera Permission Denied\"");
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -132,7 +134,7 @@ public class CameraPreviewFragment extends Fragment {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindCameraPreview(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
-                Log.error("Error starting camera " + e.getMessage());
+                Log.e(TAG, "Error starting camera " + e.getMessage());
                // Toast.makeText(this, "Error starting camera " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }, ContextCompat.getMainExecutor(getActivity()));
@@ -208,7 +210,7 @@ public class CameraPreviewFragment extends Fragment {
 
         } catch (ClassCastException castException) {
             /** The activity does not implement the listener. */
-            Log.error("Failed to implement VibrationListener");
+            Log.e(TAG, "Failed to implement VibrationListener");
         }
     }
 

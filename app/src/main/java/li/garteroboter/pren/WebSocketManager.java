@@ -3,6 +3,7 @@ package li.garteroboter.pren;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +17,8 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -47,7 +48,8 @@ import javax.net.ssl.SSLSocketFactory;
  */
 
 public class WebSocketManager extends AppCompatActivity {
-    private static final Logger Log = LogManager.getLogger(WebSocketManager.class);
+    private static final String TAG = "WebSocketManager";
+
     private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you " +
             "online? ";
     Context context;
@@ -72,7 +74,7 @@ public class WebSocketManager extends AppCompatActivity {
         this.context = context;
         this.URI = URI;
         this.sockets = new HashMap<>();
-        Log.info("Creating new fixed Threadpool!");
+        Log.i(TAG, "Creating new fixed Threadpool!");
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
@@ -89,7 +91,7 @@ public class WebSocketManager extends AppCompatActivity {
         if (!isInternetAvailable()) {
             // TODO: test this. Test with no WLAN enabled
             new Handler(Looper.getMainLooper()).post(createToast(INTERNET_NOT_AVAILABLE, context));
-            Log.error(INTERNET_NOT_AVAILABLE);
+            Log.e(TAG,  INTERNET_NOT_AVAILABLE);
             return false;
         }
 
@@ -105,7 +107,7 @@ public class WebSocketManager extends AppCompatActivity {
         // temporary for testing to allow multiple websocket clients
         /*
         typeOfSocketConnection = GenerateRandomNumber(11);
-        Log.info( "random_id = " + typeOfSocketConnection);
+        Log.i(TAG,  "random_id = " + typeOfSocketConnection);
 
          */
 
@@ -115,21 +117,21 @@ public class WebSocketManager extends AppCompatActivity {
         WebSocket ws = null;
 
         try {
-            Log.info(String.format("Connecting to %s", completeURI));
+            Log.i(TAG, String.format("Connecting to %s", completeURI));
             ws = createWebSocket(completeURI);
         } catch (HostnameUnverifiedException hostnameUnverifiedException) {
-            Log.info("HostnameUnverifiedException");
+            Log.i(TAG, "HostnameUnverifiedException");
             final String hostname = hostnameUnverifiedException.getHostname();
             final String ssl = hostnameUnverifiedException.getSSLSocket().toString();
 
-            Log.error(String.format("getHostname = %s", hostname));
-            Log.error(String.format("getSSLSocket = %s", ssl));
+            Log.e(TAG, String.format("getHostname = %s", hostname));
+            Log.e(TAG, String.format("getSSLSocket = %s", ssl));
             hostnameUnverifiedException.printStackTrace();
         }
         catch (WebSocketException e) {
 
             // Failed to establish a WebSocket connection.
-            Log.error("WebSocketException : " + e.getMessage());
+            Log.e(TAG, "WebSocketException : " + e.getMessage());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -148,13 +150,13 @@ public class WebSocketManager extends AppCompatActivity {
             future.get();
         } catch (ExecutionException e) {
             if (e.getCause() instanceof WebSocketException) {
-                Log.error(String.valueOf(e.getMessage()));
+                Log.e(TAG, String.valueOf(e.getMessage()));
             }
         } catch (InterruptedException ex) {
-            Log.debug(String.valueOf(ex.getMessage()));
+            Log.d(TAG, String.valueOf(ex.getMessage()));
             ex.printStackTrace();
         } catch (NullPointerException e) {
-            Log.debug("Nullpointer in future.get() in WebSocketManager");
+            Log.d(TAG, "Nullpointer in future.get() in WebSocketManager");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,7 +182,7 @@ public class WebSocketManager extends AppCompatActivity {
     private WebSocket createWebSocket(final String completeURI) throws IOException, WebSocketException {
         WebSocketFactory factory = new WebSocketFactory();
         factory.setServerName("pren.garteroboter.li");
-        Log.info("test Logger");
+        Log.i(TAG, "test Logger");
 
         return factory
                 .setConnectionTimeout(TIMEOUT)
@@ -195,18 +197,18 @@ public class WebSocketManager extends AppCompatActivity {
 
                             receivedInternetTime = message.replace("time=", "");
                         }
-                        Log.info("onTextMessage: " + message);
+                        Log.i(TAG, "onTextMessage: " + message);
                     }
 
                     @Override
                     public void onBinaryMessage(WebSocket websocket, byte[] binary) {
-                        Log.info("received binary message");
+                        Log.i(TAG, "received binary message");
                     }
 
                     @Override
                     public void onError(WebSocket websocket,
                                         WebSocketException cause) throws Exception {
-                        Log.error("Error : " + cause.getMessage());
+                        Log.e(TAG, "Error : " + cause.getMessage());
                         super.onError(websocket, cause);
                     }
 
@@ -214,7 +216,7 @@ public class WebSocketManager extends AppCompatActivity {
                     public void onConnected(WebSocket websocket,
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
-                        Log.info("connected!");
+                        Log.i(TAG, "connected!");
                         new Handler(Looper.getMainLooper()).post(createToast("Websocket " +
                                 "Connected", context));
 
@@ -237,7 +239,7 @@ public class WebSocketManager extends AppCompatActivity {
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
-            Log.error("sleep interrupted!");
+            Log.e(TAG, "sleep interrupted!");
         }
 
         return receivedInternetTime;
@@ -255,7 +257,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (message.equals("") || ws == null) {
             if (ws == null) {
-                Log.error("Websocket == Null in method sendText");
+                Log.e(TAG, "Websocket == Null in method sendText");
             }
             return false;
         }
@@ -264,7 +266,7 @@ public class WebSocketManager extends AppCompatActivity {
             return true;
         }
 
-        Log.error("Tried to call method 'sendText', but Websocket is not open!");
+        Log.e(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
     }
 
@@ -275,20 +277,20 @@ public class WebSocketManager extends AppCompatActivity {
      * Run createAndOpenWebSocketConnection before this !
      */
     public boolean sendBytes(byte[] bytes) {
-        Log.info("sending Bytes");
+        Log.i(TAG, "sending Bytes");
         WebSocket ws = sockets.get(SocketType.Bytes);
 
         if (ws == null) {
-            Log.info("Websocket == Null in method sendBytes");
+            Log.i(TAG, "Websocket == Null in method sendBytes");
             return false;
         }
 
         if (ws.isOpen()) {
             ws.sendBinary(bytes);
-            Log.info("I sent the bytes to %s} !".format(URI));
+            Log.i(TAG, "I sent the bytes to %s} !".format(URI));
             return true;
         }
-        Log.info("Tried to call method 'sendBytes', but Websocket is not open!");
+        Log.i(TAG, "Tried to call method 'sendBytes', but Websocket is not open!");
         return false;
 
     }
@@ -299,7 +301,7 @@ public class WebSocketManager extends AppCompatActivity {
             for (WebSocket w : sockets.values()) {
                 w.disconnect();
 
-                Log.info("Disconnected Websocket and Shutdown Executor.");
+                Log.i(TAG, "Disconnected Websocket and Shutdown Executor.");
             }
         }
         executorService.shutdown();
@@ -318,7 +320,7 @@ public class WebSocketManager extends AppCompatActivity {
             return !address.equals("");
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
-            Log.info(msg);
+            Log.i(TAG, msg);
             // Utils.LogAndToast(WebSocketManager.this, ,msg);
         }
         return false;
@@ -334,7 +336,7 @@ public class WebSocketManager extends AppCompatActivity {
         } catch (UnknownHostException e) {
             String msg = String.format("The website %s is not reachable with InetAddress",
                     Constants.GARTEROBOTERLI);
-            Log.info(msg);
+            Log.i(TAG, msg);
         }
         return false;
     }
@@ -358,7 +360,7 @@ public class WebSocketManager extends AppCompatActivity {
         // A violation against the WebSocket protocol was detected
         // during the opening handshake.
         // Status line.
-        Log.error("OpeningHandshakeException " + e.getMessage());
+        Log.e(TAG, "OpeningHandshakeException " + e.getMessage());
 
         StatusLine sl = e.getStatusLine();
         System.out.println("=== Status Line ===");
@@ -385,7 +387,7 @@ public class WebSocketManager extends AppCompatActivity {
             for (String value : values) {
                 // Print the name and the value.
                 String msg = String.format("%s: %s\n", name, value);
-                Log.error(msg);
+                Log.e(TAG, msg);
             }
         }
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
@@ -18,8 +19,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import li.garteroboter.pren.R;
 
@@ -30,8 +31,7 @@ import li.garteroboter.pren.R;
  *
  */
 public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback {
-
-    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
+    private static final String TAG = "FragmentNanodet";
 
     private VibrationListener vibrationListener;
 
@@ -72,10 +72,10 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
         boolean ret_init = nanodetncnn.loadModel(getContext().getAssets(), current_model, current_cpugpu);
         if (!ret_init)
         {
-            Log.error("nanodetncnn loadModel failed");
+            Log.e(TAG, "nanodetncnn loadModel failed");
         }
         String cpuCount = Integer.toString(nanodetncnn.getCPUCount());
-        Log.info(String.format("CpuCount = %s", cpuCount));
+        Log.i(TAG, String.format("CpuCount = %s", cpuCount));
     }
 
     @Override
@@ -83,11 +83,11 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
 
         // this should probably be in oncreateView right? And use the view parameter instead of getView()
 
-        cameraView = (SurfaceView) getView().findViewById(R.id.cameraview2);
+        cameraView = getView().findViewById(R.id.cameraview2);
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
-        Button buttonSwitchCamera = (Button) getView().findViewById(R.id.buttonSwitchCamera2);
+        Button buttonSwitchCamera = getView().findViewById(R.id.buttonSwitchCamera2);
         buttonSwitchCamera.setOnClickListener(arg0 -> {
 
             int new_facing = 1 - facing;
@@ -99,7 +99,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
             facing = new_facing;
         });
 
-        spinnerModel = (Spinner) getView().findViewById(R.id.spinnerModel2);
+        spinnerModel = getView().findViewById(R.id.spinnerModel2);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
@@ -117,7 +117,7 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
             }
         });
 
-        spinnerCPUGPU = (Spinner) getView().findViewById(R.id.spinnerCPUGPU2);
+        spinnerCPUGPU = getView().findViewById(R.id.spinnerCPUGPU2);
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
@@ -137,13 +137,13 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             vibrationListener = (VibrationListener) context;
         } catch (ClassCastException castException) {
             /** The activity does not implement the listener. */
-            Log.error("Failed to implement VibrationListener");
+            Log.e(TAG, "Failed to implement VibrationListener");
         }
     }
 
@@ -173,10 +173,12 @@ public class FragmentNanodet extends Fragment implements SurfaceHolder.Callback 
     public static final boolean TOGGLE_VIBRATE = false;
 
     // this method is in fact used, IDE can't see it at compile time
+    // due to JNI, it's only visible at runtime.
+
     public void nonStaticDurchstich(String objectLabel) {
         if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > 1000) {
             // do nothing if last call was less than 1000 ms ago
-            Log.info(String.format("detected %s", objectLabel));
+            Log.i(TAG, String.format("detected %s", objectLabel));
 
             vibrationListener.startVibrating(100);
 

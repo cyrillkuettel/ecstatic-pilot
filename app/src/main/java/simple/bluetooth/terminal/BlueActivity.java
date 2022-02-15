@@ -14,16 +14,15 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.nanodet.VibrationListener;
 import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 public class BlueActivity extends FragmentActivity implements VibrationListener {
-    private static final Logger Log = LogManager.getLogger(BlueActivity.class);
-
+    private static final String TAG = "BlueActivity";
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
@@ -41,7 +40,6 @@ public class BlueActivity extends FragmentActivity implements VibrationListener 
     private FragmentStateAdapter pagerAdapter;
     TabLayout tabLayout;
     final String[] tabNames = {"QR-Code", "Neural Network plant detection"};
-    private static final String TAG = "ScreenSlidePagerActivity";
 
 
     @Override
@@ -65,7 +63,7 @@ public class BlueActivity extends FragmentActivity implements VibrationListener 
                     }
             ).attach();
         } else {
-            Log.info( "tabLayout  or viewPager == null");
+            Log.i(TAG,  "tabLayout  or viewPager == null");
         }
 
 
@@ -109,7 +107,7 @@ public class BlueActivity extends FragmentActivity implements VibrationListener 
         try {
             v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
         } catch (Exception e) {
-            Log.debug("Failed to vibrate");
+            Log.d(TAG, "Failed to vibrate");
             e.printStackTrace();
         }
     }

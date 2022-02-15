@@ -7,21 +7,22 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import li.garteroboter.pren.R;
 
 public class MainActivity2 extends AppCompatActivity implements VibrationListener {
+    private static final String TAG = "MainActivity2";
 
     public static final int REQUEST_CAMERA = 100;
-    private static final Logger Log = LogManager.getLogger(FragmentNanodet.class);
 
 
     private li.garteroboter.pren.nanodet.NanoDetNcnn nanodetncnn =  new li.garteroboter.pren.nanodet.NanoDetNcnn();
@@ -41,7 +42,7 @@ public class MainActivity2 extends AppCompatActivity implements VibrationListene
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (savedInstanceState == null) {
-            Log.info("Starting Fragment transaction");
+            Log.i(TAG, "Starting Fragment transaction");
 
             li.garteroboter.pren.nanodet.FragmentNanodet fragmentNanodet =
                     li.garteroboter.pren.nanodet.FragmentNanodet.newInstance(nanodetncnn, facing);
@@ -77,7 +78,7 @@ public class MainActivity2 extends AppCompatActivity implements VibrationListene
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.info("on Destory fired!");
+        Log.i(TAG, "on Destory fired!");
     }
 
     @Override
@@ -87,7 +88,7 @@ public class MainActivity2 extends AppCompatActivity implements VibrationListene
         try {
             v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
         } catch (Exception e) {
-            Log.debug("Failed to vibrate");
+            Log.d(TAG, "Failed to vibrate");
             e.printStackTrace();
         }
     }
