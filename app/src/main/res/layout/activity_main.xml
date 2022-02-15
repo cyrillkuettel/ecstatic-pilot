@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/btnSendImagesFromDisk"
-            android:text="get absolute path" />
+            android:text="Dump Logcat" />
 
 
         <View

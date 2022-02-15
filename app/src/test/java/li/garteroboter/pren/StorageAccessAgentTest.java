@@ -64,6 +64,5 @@ public class StorageAccessAgentTest  {
         Log.e(TAG, "error");
         Log.d(TAG, "debug");
         // System.out.println(System.getProperty("java.class.path"));
-
     }
 }

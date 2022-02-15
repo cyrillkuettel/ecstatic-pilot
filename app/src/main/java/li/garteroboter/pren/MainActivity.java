@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import li.garteroboter.pren.log.LogcatData;
+import li.garteroboter.pren.log.LogcatDataReader;
 import simple.bluetooth.terminal.BlueActivity;
 
 
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         generateDropDownItems();
 
         Log.i(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
+        Log.i(TAG,"Logging from Main");
 
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
@@ -159,16 +162,28 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
         btnGetAbsoluteFilePath.setOnClickListener(v -> {
-            Log.i(TAG, "this button does nothing");
+            Log.i(TAG, "Attempt logcat read");
+            testReadingLogcatOutput();
         });
 
     }
 
 
 
-    public void testSendArrayOfPlants() {
 
-        // File file = new File(mainContext.getFilesDir(), "hello_world");
+    public void testReadingLogcatOutput() {
+        LogcatData logcatreader = new LogcatDataReader();
+
+        try {
+
+            System.out.println(logcatreader.read());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void testSendArrayOfPlants() {
         File[] files = mainContext.getFilesDir().listFiles();
         List<String> file_names = Arrays.stream(files)
                 .map(f -> f.getName().toString()).collect(Collectors.toList());
@@ -180,9 +195,6 @@ public class MainActivity extends AppCompatActivity {
 
         List<File> plantImages = storageAccessAgent.getAllPlantImages();
         plantImages.forEach(this::sendSinglePlantImageFromInternalDirectory);
-
-
-
     }
 
     public void sendSinglePlantImageFromInternalDirectory(final File file) {
