@@ -25,6 +25,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -44,7 +51,9 @@ import java.util.stream.Collectors;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
+import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.BlueActivity;
+import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -65,6 +74,20 @@ public class MainActivity extends AppCompatActivity {
     // with google camera.
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
+    private static final int NUM_PAGES = 2;
+
+    /**
+     * The pager widget, which handles animation and allows swiping horizontally to access previous
+     * and next wizard steps.
+     */
+    private ViewPager2 viewPager;
+
+    /**
+     * The pager adapter, which provides the pages to the view pager widget.
+     */
+    private FragmentStateAdapter pagerAdapter;
+    TabLayout tabLayout;
+    final String[] tabNames = {"First Tag", "Second Tab"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +96,30 @@ public class MainActivity extends AppCompatActivity {
         
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_screen_slide_main_acivity);
 
+        viewPager = findViewById(R.id.pager);
+        pagerAdapter = new MainActivity.ScreenSlidePagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setOffscreenPageLimit(2); // important: the fragments stay in memory
+        tabLayout =(TabLayout) findViewById(R.id.tabLayout);
+
+        if (tabLayout != null && viewPager!= null) {
+            new TabLayoutMediator(
+                    tabLayout,
+                    viewPager,
+                    (tab, position) -> {
+                        tab.setText(tabNames[position]);
+                        // tab.setIcon(R.drawable.ic_launcher_background);
+                    }
+            ).attach();
+        } else {
+            Log.i(TAG,  "tabLayout  or viewPager == null");
+        }
+/*
         generateDropDownItems();
 
-        Log.i(TAG, String.valueOf(android.os.Build.VERSION.SDK_INT));
-        Log.i(TAG,"Logging from Main");
+
 
         Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
         btnStartStop.setEnabled(false);
@@ -88,8 +129,6 @@ public class MainActivity extends AppCompatActivity {
             START_SIGNAL_FIRED = true;
             // }
         });
-
-
         Button updateApp = (Button) findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
             showUpdateMessageBox();
@@ -127,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
             btnSelectImageAndSend.setEnabled(true);
             btnSendImagesFromDisk.setEnabled(true);
         });
-
         Button btnInternetTime = (Button) findViewById(R.id.btnInternetTime);
         btnInternetTime.setEnabled(false);
         btnInternetTime.setOnClickListener(v -> {
@@ -136,35 +174,29 @@ public class MainActivity extends AppCompatActivity {
             String time = manager.getInternetTime();
             LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
         });
-
-
         Button btnSendMessageToWebSocket = (Button) findViewById(R.id.btnSendMessageToWebSocket);
         btnSendMessageToWebSocket.setEnabled(false);
         btnSendMessageToWebSocket.setOnClickListener(v -> {
             manager.sendText("Hello from Android!");
             Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
         });
-
         Button btnOpenConnection = (Button) findViewById(R.id.btnOpenConnection);
         btnOpenConnection.setOnClickListener(v -> {
             reOpenSocket();
             btnSendMessageToWebSocket.setEnabled(true);
             btnStartStop.setEnabled((true));
         });
-
-
         Button btnClose = (Button) findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> {
             manager.disconnectAll();
         });
-
-
-
         Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
         btnGetAbsoluteFilePath.setOnClickListener(v -> {
             Log.i(TAG, "Attempt logcat read");
             testReadingLogcatOutput();
         });
+
+ */
 
     }
 
@@ -399,6 +431,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * A simple pager adapter that represents some ScreenSlidePageFragment objects, in
+     * sequence.
+     */
+    private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
+        public ScreenSlidePagerAdapter(FragmentActivity fa) {
+            super(fa);
+        }
+
+        @Override
+        public Fragment createFragment(int position) {
+            // here you can supply custom ScreenSlidePageFragemnt, based on the position
+            // send logs
+            // send images
+            // test timer
+            // settings:
+                // options:
+                    //
+
+            if (position == 0) {
+                return ScreenSlidePageFragment.newInstance("This is the first Fragment");
+            } else {
+                return ScreenSlidePageFragment.newInstance("This is the second Fragment");
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return NUM_PAGES;
+        }
     }
 
 }
