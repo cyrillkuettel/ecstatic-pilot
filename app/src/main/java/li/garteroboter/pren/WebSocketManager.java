@@ -197,12 +197,13 @@ public class WebSocketManager extends AppCompatActivity {
 
                             receivedInternetTime = message.replace("time=", "");
                         }
-                        Log.i(TAG, "onTextMessage: " + message);
+
+                        Log.i(TAG, "WebSocket onTextMessage: " + message);
                     }
 
                     @Override
                     public void onBinaryMessage(WebSocket websocket, byte[] binary) {
-                        Log.i(TAG, "received binary message");
+                        Log.i(TAG, "WebSocket incoming binary data");
                     }
 
                     @Override
@@ -219,8 +220,6 @@ public class WebSocketManager extends AppCompatActivity {
                         Log.i(TAG, "connected!");
                         new Handler(Looper.getMainLooper()).post(createToast("Websocket " +
                                 "Connected", context));
-
-                        // Utils.LogAndToast(WebSocketManager.this, , "Connected");
 
                     }
                 })

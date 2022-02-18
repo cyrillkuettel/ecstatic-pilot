@@ -1,6 +1,5 @@
 package li.garteroboter.pren;
 
-import static li.garteroboter.pren.Utils.LogAndToast;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,43 +10,34 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import li.garteroboter.pren.log.LogcatData;
+import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.VibrationListener;
 
 
-/**
- * Very basic PageFragment, which can be a Fundament on which to build more complex structures.
- */
 public class LoggingFragment extends Fragment {
     private static final String TAG = "LoggingFragment";
-    private static final String ARG_PARAM1 = "param1";
-
-    private String mParam1;
-
     private WebSocketManager manager;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-        }
     }
 
-
-    public static LoggingFragment newInstance(String param1) {
+    public static LoggingFragment newInstance() {
         LoggingFragment fragment = new LoggingFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +69,7 @@ public class LoggingFragment extends Fragment {
             manager.sendText("Hello from Android!");
         });
 
-        Button btnStartStopTimer = (Button) view.findViewById(R.id.btnStartStop);
+        Button btnStartStopTimer = view.findViewById(R.id.btnStartStop);
         btnStartStopTimer.setEnabled(false);
         btnStartStopTimer.setOnClickListener(v -> {
             sendStartSignalToWebServer();
@@ -100,6 +90,18 @@ public class LoggingFragment extends Fragment {
             manager.disconnectAll();
         });
 
+        Button btnDumpLogcat = view.findViewById(R.id.btnDumpLogcat);
+        btnDumpLogcat.setOnClickListener(v -> {
+            Log.i(TAG, "Attempt logcat read");
+            LogcatData logcatreader = new LogcatDataReader();
+            try {
+                // Todo: print this to fragment
+                System.out.println(logcatreader.read());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         /*
         Button btnInternetTime =  view.findViewById(R.id.btnInternetTime);
         btnInternetTime.setEnabled(false);
@@ -116,13 +118,15 @@ public class LoggingFragment extends Fragment {
         return view;
     }
 
+
+
     public void reOpenSocket(final String hostname) {
         if (manager != null) {
             manager.disconnectAll();
         } else {
             Log.i(TAG, "Opening new Socket connection");
         }
-        manager = new WebSocketManager(getActivity(), hostname);
+        manager = new WebSocketManager(getContext(), hostname);
         // TODO: change this so be more optimal
         new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
     }
@@ -133,7 +137,7 @@ public class LoggingFragment extends Fragment {
         ArrayAdapter<CharSequence> adapter = null;
         try {
             adapter = ArrayAdapter.createFromResource(
-                    getActivity().getApplicationContext(), R.array.uri, android.R.layout.simple_spinner_item);
+                    getContext(), R.array.uri, android.R.layout.simple_spinner_item);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerHostname.setAdapter(adapter);
         } catch (Exception e) {

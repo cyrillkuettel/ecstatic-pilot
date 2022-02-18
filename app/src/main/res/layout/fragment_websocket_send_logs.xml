@@ -57,6 +57,14 @@
         android:text="Start/Stopp timer" />
 
 
+    <Button
+        android:id="@+id/btnDumpLogcat"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal|center"
+        android:layout_toRightOf="@+id/btnSendImagesFromDisk"
+        android:text="Dump Logcat" />
 
     <Button
         android:id="@+id/btnClose"
