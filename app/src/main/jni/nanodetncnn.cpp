@@ -29,6 +29,7 @@
 #include "nanodet.h"
 
 #include "ndkcamera.h"
+#include "wechat_qrcode.hpp"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -114,18 +115,37 @@ static int draw_fps(cv::Mat& rgb)
 static NanoDet* g_nanodet = 0;
 static ncnn::Mutex lock;
 
+cv::Ptr<cv::wechat_qrcode::WeChatQRCode> qr_detector;
+
 class MyNdkCamera : public NdkCameraWindow
 {
 public:
     virtual void on_image_render(cv::Mat& rgb) const;
 };
 
+void draw(cv::Mat& rgb, std::vector<std::string>& qr_string, std::vector<cv::Mat>& qr_points)
+{
+    for(int cnt = 0; cnt < qr_string.size(); cnt++) {
+        int x0 = qr_points[cnt].at<float>(0, 0);
+        int y0 = qr_points[cnt].at<float>(0, 1);
+        int x1 = qr_points[cnt].at<float>(1, 0);
+        int y1 = qr_points[cnt].at<float>(2, 1);
+
+        cv::rectangle(rgb, cv::Rect(cv::Point(x0,y0),cv::Point(x1,y1)), cv::Scalar(0,255,0), 2);
+
+        char text[256];
+        sprintf(text, "%s", qr_string[cnt].c_str());
+        cv::putText(rgb, text, cv::Point(x0, y0-8), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,255,0), 1);
+    }
+}
+
 void MyNdkCamera::on_image_render(cv::Mat& rgb) const
 {
     // nanodet
-    {
-        ncnn::MutexLockGuard g(lock);
+    // {
+      //  ncnn::MutexLockGuard g(lock);
 
+      /*
         if (g_nanodet)
         {
             std::vector<Object> objects;
@@ -133,11 +153,29 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
 
             g_nanodet->draw(rgb, objects);
         }
+        */
+        if (qr_detector)
+        {
+            __android_log_print(ANDROID_LOG_DEBUG, "nanodetncnnn", "found qr_detector!");
+
+            std::vector<std::string> qr_string;
+            std::vector<cv::Mat> qr_points;
+            {
+                ncnn::MutexLockGuard g(lock);
+
+                cv::Mat bgr;
+                cv::cvtColor(rgb,bgr,cv::COLOR_RGB2BGR);
+                qr_string = qr_detector->detectAndDecode(bgr, qr_points);
+
+                draw(rgb,qr_string,qr_points);
+            }
+        }
         else
         {
+            __android_log_print(ANDROID_LOG_DEBUG, "nanodetncnnn", "draw_unsupported(rgb);");
             draw_unsupported(rgb);
         }
-    }
+    // }
 
     draw_fps(rgb);
 }
@@ -193,9 +231,15 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
 
     {
         ncnn::MutexLockGuard g(lock);
-
-        delete g_nanodet;
-        g_nanodet = 0;
+        if (g_nanodet) {
+            delete g_nanodet;
+            g_nanodet = 0;
+        } else {
+            if (qr_detector) {
+                delete qr_detector;
+                qr_detector = 0;
+            }
+        }
     }
 
     // Obtain the JNIEnv from the VM
@@ -347,6 +391,65 @@ JNIEXPORT jint JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_getCPUCount
 
     return cpu_count;
 }
+
+
+
+
+
+// public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_loadModelNoModifications(JNIEnv* env, jobject thiz, jobject assetManager)
+{
+    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "loadModel %p", mgr);
+
+    {
+        ncnn::MutexLockGuard g(lock);
+        qr_detector = cv::makePtr<cv::wechat_qrcode::WeChatQRCode>(mgr);
+    }
+
+    return JNI_TRUE;
+}
+
+// public native boolean openCamera(int facing);
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_openCameraNoModifications(JNIEnv* env, jobject thiz, jint facing)
+{
+    if (facing < 0 || facing > 1)
+        return JNI_FALSE;
+
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "openCamera %d", facing);
+
+    g_camera->open((int)facing);
+
+    return JNI_TRUE;
+}
+
+// public native boolean closeCamera();
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_closeCameraNoModifications(JNIEnv* env, jobject thiz)
+{
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "closeCamera");
+
+    g_camera->close();
+
+    return JNI_TRUE;
+}
+
+// public native boolean setOutputWindow(Surface surface);
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_setOutputWindowNoModifications(JNIEnv* env, jobject thiz, jobject surface)
+{
+    ANativeWindow* win = ANativeWindow_fromSurface(env, surface);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setOutputWindow %p", win);
+
+    g_camera->set_window(win);
+
+    return JNI_TRUE;
+}
+
+
+
+
+
+
 
 }
 

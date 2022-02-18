@@ -23,6 +23,10 @@
                 android:id="@+id/nanodet"
                 android:title="Neural Network" />
 
+            <item
+                android:id="@+id/qrcode_ncnn"
+                android:title="Qr Code NCNN " />
+
          </menu>
 
      </item>

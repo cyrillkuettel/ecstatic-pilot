@@ -137,6 +137,9 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             case R.id.nanodet:
                 intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivity2.class);
                 break;
+            case R.id.qrcode_ncnn:
+                intent = new Intent(this, li.garteroboter.pren.QRCodeNCNN.MainActivityQRCodeNCNN.class);
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }

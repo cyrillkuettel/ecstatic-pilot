@@ -64,6 +64,10 @@
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden|adjustResize" >
         </activity>
+        <activity android:name="li.garteroboter.pren.QRCodeNCNN.MainActivityQRCodeNCNN"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
 
         <service android:name="simple.bluetooth.terminal.SerialService" />
 
