@@ -91,7 +91,7 @@ public class WebSocketManagerTest {
 
     /**
      * {@link WebSocketManager#getInternetTime() get Time from Website}
-     * {@link li.garteroboter.pren.MainActivity#getDeviceTimeStampAsMilliseconds() get Time from Device }
+     * {@link li.garteroboter.pren.LoggingFragment#getDeviceTimeStampAsMilliseconds() get Time from Device }
      */
     @Test
     public void localTimeAndInternetTime_ShouldBeWithinOneSecond() {
@@ -102,7 +102,7 @@ public class WebSocketManagerTest {
 
         String internetTime = manager.getInternetTime();
         internetTime = internetTime.replace(",", "");
-        String localDeviceTime = MainActivity.getDeviceTimeStampAsMilliseconds();
+        String localDeviceTime = LoggingFragment.getDeviceTimeStampAsMilliseconds();
         String[] timeOnlyMinSecMillisec = new String[]{internetTime, localDeviceTime};
 
         Date[] date = new Date[2];

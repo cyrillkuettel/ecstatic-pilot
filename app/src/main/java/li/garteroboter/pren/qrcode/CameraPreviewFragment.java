@@ -91,10 +91,6 @@ public class CameraPreviewFragment extends Fragment {
 
 
 
-
-
-
-
     private void requestCamera() {
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startCamera();

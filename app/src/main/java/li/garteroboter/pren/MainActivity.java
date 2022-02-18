@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,25 +49,22 @@ import java.util.stream.Collectors;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
-import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.BlueActivity;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
     private static final String TAG = "MainActivity";
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
             "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
     private WebSocketManager manager = null;
-    private Handler toastHandler;
     final Context mainContext = MainActivity.this;
 
     private static final int MY_CAMERA_REQUEST_CODE = 2;
     public static final int PICK_IMAGE = 1; // so you can recognize when the user comes back from
     // the image gallery
 
-    private boolean START_SIGNAL_FIRED = false;
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
     // with google camera.
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
@@ -87,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private FragmentStateAdapter pagerAdapter;
     TabLayout tabLayout;
-    final String[] tabNames = {"First Tag", "Second Tab"};
+    final String[] tabNames = {"Logs", "Images"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
         viewPager = findViewById(R.id.pager);
-        pagerAdapter = new MainActivity.ScreenSlidePagerAdapter(this);
+        pagerAdapter = new ScreenSlidePagerAdapter(this);
+        Log.d(TAG, "creating ScreenSlidePagerAdapter");
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(2); // important: the fragments stay in memory
         tabLayout =(TabLayout) findViewById(R.id.tabLayout);
@@ -117,18 +113,11 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG,  "tabLayout  or viewPager == null");
         }
 /*
-        generateDropDownItems();
 
 
 
-        Button btnStartStop = (Button) findViewById(R.id.btnStartStop);
-        btnStartStop.setEnabled(false);
-        btnStartStop.setOnClickListener(v -> {
-            // if (!START_SIGNAL_FIRED) {
-            sendStartSignalToWebServer();
-            START_SIGNAL_FIRED = true;
-            // }
-        });
+
+
         Button updateApp = (Button) findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
             showUpdateMessageBox();
@@ -166,30 +155,8 @@ public class MainActivity extends AppCompatActivity {
             btnSelectImageAndSend.setEnabled(true);
             btnSendImagesFromDisk.setEnabled(true);
         });
-        Button btnInternetTime = (Button) findViewById(R.id.btnInternetTime);
-        btnInternetTime.setEnabled(false);
-        btnInternetTime.setOnClickListener(v -> {
-            reOpenSocket();
-            Toast.makeText(MainActivity.this, "Sent time Request!", Toast.LENGTH_LONG).show();
-            String time = manager.getInternetTime();
-            LogAndToast(mainContext, String.format("getInternetTime() == %s", time));
-        });
-        Button btnSendMessageToWebSocket = (Button) findViewById(R.id.btnSendMessageToWebSocket);
-        btnSendMessageToWebSocket.setEnabled(false);
-        btnSendMessageToWebSocket.setOnClickListener(v -> {
-            manager.sendText("Hello from Android!");
-            Toast.makeText(MainActivity.this, "Sent message!", Toast.LENGTH_LONG).show();
-        });
-        Button btnOpenConnection = (Button) findViewById(R.id.btnOpenConnection);
-        btnOpenConnection.setOnClickListener(v -> {
-            reOpenSocket();
-            btnSendMessageToWebSocket.setEnabled(true);
-            btnStartStop.setEnabled((true));
-        });
-        Button btnClose = (Button) findViewById(R.id.btnClose);
-        btnClose.setOnClickListener(v -> {
-            manager.disconnectAll();
-        });
+
+
         Button btnGetAbsoluteFilePath = (Button) findViewById(R.id.btnGetAbsoluteFilePath);
         btnGetAbsoluteFilePath.setOnClickListener(v -> {
             Log.i(TAG, "Attempt logcat read");
@@ -285,19 +252,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void reOpenSocket() {
 
-        if (manager != null) {
-            manager.disconnectAll();
-        } else {
-            LogAndToast(mainContext, "Opening new Socket connection");
-        }
-        Spinner mySpinner = findViewById(R.id.dropdown_menu);
-        manager = new WebSocketManager(this, mySpinner.getSelectedItem().toString());
-
-        // TODO: change this so be more optimal
-        new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
-    }
 
 
     @Override
@@ -331,53 +286,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public final void generateDropDownItems() {
-        Spinner spinnerHostname = findViewById(R.id.dropdown_menu);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.uri, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerHostname.setAdapter(adapter);
-    }
 
 
-    /**
-     * tells the webserver that the parkour has begun.
-     * Note that in the end this messsage has to be called as a result of the Bluetooth message
-     */
-    public void sendStartSignalToWebServer() {
-        String value_now = getDeviceTimeStampAsMilliseconds();
-        LogAndToast(MainActivity.this, value_now);
-        String message = String.format("command=startTime=%s", value_now);
-        if (manager.sendText(message)) {
-            LogAndToast(MainActivity.this, "sendStartSignalToWebServer - successful");
-        } else {
-            LogAndToast(MainActivity.this, "Error sendStartSignalToWebServer " + message);
-        }
-    }
 
-    /**
-     * This methods returns the current Time on the device. It may differ slightly from the
-     * internet time, which is more precise.
-     * I modify the String manually ( which is bad) to include 'T' and 'Z'
-     *
-     * @return current System time
-     */
-    public static String getDeviceTimeStampAsMilliseconds() {
-        // ISO 8601
-        // 2018-04-04T16:00:00.000Z
-        // expects https://day.js.org/docs/en/parse/string
-        final Calendar cal = Calendar.getInstance();
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
 
-        final long timeInMillis = cal.getTimeInMillis();
-        final String message = Long.toString(timeInMillis);
-        final int numDigits = String.valueOf(timeInMillis).length();
-        assert numDigits == 13; // (13 digits, since the Unix Epoch Jan 1 1970 12AM UTC).
-        Log.i(TAG, "startTime=" + message);
-        return message;
-    }
+
 
 
     public final void showUpdateMessageBox() {
@@ -433,11 +347,16 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Override
+    public WebSocketManager getManager() {
+        return manager;
+    }
+
     /**
      * A simple pager adapter that represents some ScreenSlidePageFragment objects, in
      * sequence.
      */
-    private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
+    private static class ScreenSlidePagerAdapter extends FragmentStateAdapter {
         public ScreenSlidePagerAdapter(FragmentActivity fa) {
             super(fa);
         }
@@ -451,9 +370,10 @@ public class MainActivity extends AppCompatActivity {
             // settings:
                 // options:
                     //
-
+            Log.d(TAG, "creating fragments");
             if (position == 0) {
-                return ScreenSlidePageFragment.newInstance("This is the first Fragment");
+                Log.d(TAG, "returning the first fragment");
+                return LoggingFragment.newInstance("This is the first Fragment");
             } else {
                 return ScreenSlidePageFragment.newInstance("This is the second Fragment");
             }
