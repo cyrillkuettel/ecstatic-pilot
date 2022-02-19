@@ -26,6 +26,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
+import simple.bluetooth.terminal.DevicesFragment;
+import simple.bluetooth.terminal.TerminalFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
     // Attention: You have to change viewPager.setOffscreenPageLimit as well.
     // this sucks but it won't accept NUM_PAGES as argument
-    private static final int NUM_PAGES = 3;
+    private static final int NUM_PAGES = 4;
 
     /**
      * The pager adapter, which provides the pages to the view pager widget.
@@ -67,11 +69,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
          */
         ViewPager2 viewPager = findViewById(R.id.pager);
         pagerAdapter = new ScreenSlidePagerAdapter(this);
-        Log.d(TAG, "creating ScreenSlidePagerAdapter");
         viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
+        viewPager.setOffscreenPageLimit(4); // important: the fragments stay in memory
         tabLayout =findViewById(R.id.tabLayout);
-        tabNames = new String[]{"Start", "Logs", "Images"};
+        tabNames = new String[]{"Start", "Logs", "Images", "Bluetooth Terminal"};
         if (tabLayout != null) {
             new TabLayoutMediator(
                     tabLayout,
@@ -201,9 +202,12 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             } else if (position == 1){
                 Log.v(TAG, String.format("Position is %s, return LoggingFragment", position));
                 return LoggingFragment.newInstance();
-            } else {
+            } else if (position == 2) {
                 Log.v(TAG, String.format("Position is %s, return SendImagesFragment", position));
                 return SendImagesFragment.newInstance();
+            } else {
+                Log.v(TAG, String.format("Position is %s, return DevicesFragment", position));
+                return DevicesFragment.newInstance();
             }
         }
 

@@ -106,7 +106,9 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     public static final boolean TOGGLE_VIBRATE = true;
     long lastTime = 0;
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > 1000) { // safety mechanism to not vibrate too often.
+        int waitingTimeUntilNextVibrate = 1000;
+
+        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTimeUntilNextVibrate) { // safety mechanism to not vibrate too often.
             startVibrating(100);
 
             lastTime = System.currentTimeMillis();

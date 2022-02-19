@@ -159,7 +159,7 @@ void onCaptureSequenceAborted(void* context, ACameraCaptureSession* session, int
 
 void onCaptureCompleted(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
 {
-//     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onCaptureCompleted %p %p %p", session, request, result);
+    // __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onCaptureCompleted %p %p %p", session, request, result);
 }
 
 NdkCamera::NdkCamera()
@@ -180,7 +180,14 @@ NdkCamera::NdkCamera()
 
     // setup imagereader and its surface
     {
-        AImageReader_new(640, 480, AIMAGE_FORMAT_YUV_420_888, /*maxImages*/2, &image_reader);
+        // try out other options:
+        // Could add this as Parameter in the UI.
+        // https://www.wikiwand.com/en/Graphics_display_resolution#/Overview_by_vertical_resolution_and_aspect_ratio
+        // width: 640 height: 480
+        // width: 480 height: 320
+        // width: 480 height: 360
+        // width: 320 height: 240
+        AImageReader_new(320, 240, AIMAGE_FORMAT_YUV_420_888, /*maxImages*/2, &image_reader);
 
         AImageReader_ImageListener listener;
         listener.context = this;

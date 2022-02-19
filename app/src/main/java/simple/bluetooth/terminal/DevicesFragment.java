@@ -38,6 +38,17 @@ public class DevicesFragment extends ListFragment {
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
     private ArrayAdapter<BluetoothDevice> listAdapter;
 
+    public static DevicesFragment newInstance() {
+        DevicesFragment fragment = new DevicesFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public DevicesFragment() {
+        // required empty constructor
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +142,7 @@ public class DevicesFragment extends ListFragment {
         BluetoothDevice device = listItems.get(position-1);
         Bundle args = new Bundle();
         args.putString("device", device.getAddress());
+        Log.d(TAG, String.format("Clicked on List item with device.getAddress() %s" ,device.getAddress()));
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
 

@@ -12,5 +12,7 @@
     </string-array>
     <string-array name="esp_mac">
         <item>"4C:EB:D6:75:AB:4E"</item>
+        <!-- following is cyrill's ESP32 MAC Adress-->
+        <item>"58:BF:25:81:CC:C8"</item>
     </string-array>
 </resources>

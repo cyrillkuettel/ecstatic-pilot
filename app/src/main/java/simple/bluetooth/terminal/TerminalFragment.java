@@ -15,6 +15,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,10 +30,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import li.garteroboter.pren.Constants;
+import li.garteroboter.pren.LoggingFragment;
 import li.garteroboter.pren.R;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
-
+    private static final String TAG = "TerminalFragment";
     private enum Connected { False, Pending, True }
 
     private String deviceAddress;
@@ -48,6 +50,19 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+
+
+    public static TerminalFragment newInstance() {
+        TerminalFragment fragment = new TerminalFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public TerminalFragment() {
+
+    }
+
     /*
      * Lifecycle
      */
@@ -57,6 +72,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         setHasOptionsMenu(true);
         setRetainInstance(true);
         deviceAddress = getArguments().getString("device");
+        Log.d(TAG, String.format("Found device address: %s" , deviceAddress));
+        //deviceAddress = "58:BF:25:81:CC:C8";
     }
 
     @Override
