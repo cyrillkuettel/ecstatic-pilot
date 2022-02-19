@@ -90,6 +90,7 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.menu_devices, menu);
         if(bluetoothAdapter == null)
             menu.findItem(R.id.bt_settings).setEnabled(false);
@@ -110,6 +111,7 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
         int id = item.getItemId();
         if (id == R.id.bt_settings) {
             Intent intent = new Intent();

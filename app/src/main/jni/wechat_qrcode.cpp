@@ -111,6 +111,12 @@ vector<string> WeChatQRCode::Impl::decode(const Mat& img, vector<Mat>& candidate
     if (candidate_points.size() == 0) {
         return vector<string>();
     }
+    // candidate_points.size > 0, this means there might be a qr code.
+    // let's test how reliable this works and log the result.
+    // Update: Very reliable! Pop the Champagne!  NCNN is amazing :D
+
+    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "qr_points.size() %u", candidate_points.size());
+
     vector<string> decode_results;
     for (auto& point : candidate_points) {
         Mat cropped_img;
@@ -193,11 +199,6 @@ vector<float> WeChatQRCode::Impl::getScaleList(const int width, const int height
     if (width < 640 && height < 640) return {1.0, 0.5};
     return {0.5, 1.0};
 }
-
-
-
-
-
 
 
 }  // namespace wechat_qrcode

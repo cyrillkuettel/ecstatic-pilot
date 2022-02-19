@@ -130,13 +130,15 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
         cv::Mat bgr;
         cv::cvtColor(rgb,bgr,cv::COLOR_RGB2BGR);
         qr_string = qr_detector->detectAndDecode(bgr, qr_points);
-        // somehow loop through qr_string and search for reasonable entries.
 
-        //__android_log_print(ANDROID_LOG_DEBUG, "ncnn", "qr_string.size() %u", qr_string.size());
+       // __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "qr_points.size() %u", qr_points.size());
+
+       /*
          if (!qr_string.empty() ) {
             __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "Calling Java method now. ");
             NanoDet::invoke_java_method();
          }
+       */
 
 
         draw(rgb,qr_string,qr_points);
