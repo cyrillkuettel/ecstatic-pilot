@@ -103,7 +103,8 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
         points.assign(tmp_points);
     }
     return ret;
-};
+}
+
 
 vector<string> WeChatQRCode::Impl::decode(const Mat& img, vector<Mat>& candidate_points,
                                           vector<Mat>& points) {
@@ -192,5 +193,12 @@ vector<float> WeChatQRCode::Impl::getScaleList(const int width, const int height
     if (width < 640 && height < 640) return {1.0, 0.5};
     return {0.5, 1.0};
 }
+
+
+
+
+
+
+
 }  // namespace wechat_qrcode
 }  // namespace cv

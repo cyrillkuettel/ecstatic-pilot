@@ -26,6 +26,11 @@ struct Object
     float prob;
 };
 
+/*
+extern JavaVM* javaVM_global;
+extern jclass MainActivityQRCodeNCNNClass;
+extern jobject MainActivityQRCodeNCNNObject;
+*/
 class NanoDet
 {
 public:
@@ -39,6 +44,8 @@ public:
 
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
+    static void invoke_java_method();
+
 private:
     ncnn::Net nanodet;
     int target_size;
@@ -46,6 +53,8 @@ private:
     float norm_vals[3];
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
+
+
 };
 
 #endif // NANODET_H

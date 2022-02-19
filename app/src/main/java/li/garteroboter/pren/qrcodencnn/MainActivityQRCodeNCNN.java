@@ -12,7 +12,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-package li.garteroboter.pren.QRCodeNCNN;
+package li.garteroboter.pren.qrcodencnn;
 
 import android.Manifest;
 import android.app.Activity;
@@ -34,10 +34,11 @@ import li.garteroboter.pren.R;
 
 public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Callback
 {
+    private static final String TAG = "MainActivityQRCodeNCNN";
 
     public static final int REQUEST_CAMERA = 100;
 
-    private li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn nanodetncnn = new li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn();
+    private li.garteroboter.pren.qrcodencnn.NanoDetNcnn nanodetncnn = new li.garteroboter.pren.qrcodencnn.NanoDetNcnn();
     private int facing = 1; // changed to 0
     private SurfaceView cameraView;
 
@@ -48,6 +49,7 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        nanodetncnn.setObjectReferenceAsGlobal(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -95,6 +97,10 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     @Override
     public void surfaceDestroyed(SurfaceHolder holder)
     {
+    }
+
+    public void nonStaticDurchstich(String ye) {
+        Log.i(TAG, "durchstich");
     }
 
 

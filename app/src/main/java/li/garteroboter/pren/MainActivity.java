@@ -1,24 +1,17 @@
 package li.garteroboter.pren;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -32,6 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -93,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         Button updateApp = findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> showUpdateMessageBox());
+
+
     }
 
 
@@ -114,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                 intent = new Intent(this, MainActivity.class);
                 break;
             case R.id.qrcode_ncnn:
-                intent = new Intent(this, li.garteroboter.pren.QRCodeNCNN.MainActivityQRCodeNCNN.class);
+                intent = new Intent(this, li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN.class);
                 break;
             default:
                 return super.onOptionsItemSelected(item);

@@ -64,7 +64,7 @@
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden|adjustResize" >
         </activity>
-        <activity android:name="li.garteroboter.pren.QRCodeNCNN.MainActivityQRCodeNCNN"
+        <activity android:name="li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
         </activity>

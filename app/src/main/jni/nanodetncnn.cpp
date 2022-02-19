@@ -35,6 +35,7 @@
 
 #include "wechat_qrcode.hpp"
 #include <string>
+#define APPNAME "nanodetncnn.cpp"
 
 #if __ARM_NEON
 #include <arm_neon.h>
@@ -129,8 +130,14 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
         cv::Mat bgr;
         cv::cvtColor(rgb,bgr,cv::COLOR_RGB2BGR);
         qr_string = qr_detector->detectAndDecode(bgr, qr_points);
+        // somehow loop through qr_string and search for reasonable entries.
 
         __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "qr_string.size() %u", qr_string.size());
+        // if (!qr_string.empty() ) {
+            __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "Calling Java method now. ");
+            NanoDet::invoke_java_method();
+        // }
+
 
         draw(rgb,qr_string,qr_points);
     }
@@ -138,7 +145,11 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
     draw_fps(rgb);
 }
 
-
+JavaVM* javaVM_global;
+jclass MainActivityQRCodeNCNNClass; // to access the class. (for calling static methods. Probably I won't
+jobject MainActivityQRCodeNCNNObject; // to access the object.
+JNIEnv *env;
+static jint JNI_VERSION = JNI_VERSION_1_4;
 static MyNdkCamera* g_camera = 0;
 
 extern "C" {
@@ -146,6 +157,35 @@ extern "C" {
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "JNI_OnLoad");
+
+    // https://stackoverflow.com/questions/10617735/in-jni-how-do-i-cache-the-class-methodid-and-fieldids-per-ibms-performance-r/13940735
+    // Obtain the JNIEnv from the VM and confirm JNI_VERSION
+
+    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION) != JNI_OK) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "error seems to indicate that JNI_VERSION) != JNI_OK");
+        return JNI_ERR;
+    }
+    javaVM_global = vm; // important. This variable is critical for success.
+    // Is needed to ultimately access JNIEnv which gives access to Java Objects
+
+    // Temporary local reference holder
+    jclass tempLocalClassRef;
+
+    tempLocalClassRef = env->FindClass("li/garteroboter/pren/qrcodencnn/MainActivityQRCodeNCNN");
+
+
+    // STEP 1/3 : Load the class id
+    if (tempLocalClassRef == nullptr || env->ExceptionOccurred()) {
+        env->ExceptionClear();
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "There was an error in invoke_class");
+    }
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Assign the ClassId as a Global Reference");
+    // STEP 2/3 : Assign the ClassId as a Global Reference
+    MainActivityQRCodeNCNNClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
+
+    // STEP 3/3 : Delete the no longer needed local reference
+    env->DeleteLocalRef(tempLocalClassRef);
+
 
     g_camera = new MyNdkCamera;
 
@@ -163,12 +203,21 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
         qr_detector = 0;
     }
 
+    // Obtain the JNIEnv from the VM
+    // NOTE: some re-do the JNI Version check here, but I find that redundant
+
+    vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
+
+    env->DeleteGlobalRef(MainActivityQRCodeNCNNClass);
+    env->DeleteGlobalRef(MainActivityQRCodeNCNNObject);
+    // ... repeat for any other global references
+
     delete g_camera;
     g_camera = 0;
 }
 
 // public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_loadModel(JNIEnv* env, jobject thiz, jobject assetManager)
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_loadModel(JNIEnv* env, jobject thiz, jobject assetManager)
 {
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "loadModel %p", mgr);
@@ -182,7 +231,7 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_load
 }
 
 // public native boolean openCamera(int facing);
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_openCamera(JNIEnv* env, jobject thiz, jint facing)
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_openCamera(JNIEnv* env, jobject thiz, jint facing)
 {
     if (facing < 0 || facing > 1)
         return JNI_FALSE;
@@ -195,7 +244,7 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_open
 }
 
 // public native boolean closeCamera();
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_closeCamera(JNIEnv* env, jobject thiz)
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_closeCamera(JNIEnv* env, jobject thiz)
 {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "closeCamera");
 
@@ -205,7 +254,7 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_clos
 }
 
 // public native boolean setOutputWindow(Surface surface);
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_setOutputWindow(JNIEnv* env, jobject thiz, jobject surface)
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_setOutputWindow(JNIEnv* env, jobject thiz, jobject surface)
 {
     ANativeWindow* win = ANativeWindow_fromSurface(env, surface);
 
@@ -214,6 +263,53 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_QRCodeNCNN_NanoDetNcnn_setO
     g_camera->set_window(win);
 
     return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
+                                                                                                    jobject fragment_nanodet_object) {
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
+
+    MainActivityQRCodeNCNNObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
+
+    return JNI_TRUE;
+}
+
+// variables to cache
+// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter? Never change a running system /s
+JNIEnv *env2;
+
+
+jmethodID staticMethod_CallInJava;
+jmethodID instanceMethod_CallInJava;
+jstring jstrBuf;
+
+void NanoDet::invoke_java_method() {
+    if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
+        // I'm not 100% sure if this is necessary. Does it impact performance?
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
+        return;
+    }
+    if (env2 == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " env2 is nullptr");
+
+    }
+    instanceMethod_CallInJava = env2->GetMethodID(MainActivityQRCodeNCNNClass, "nonStaticDurchstich",
+                                                  "(Ljava/lang/String;)V"); // JNI type signature
+    if (instanceMethod_CallInJava == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+        return;
+    } else {
+
+        jstrBuf = env2->NewStringUTF("test");
+        if( !jstrBuf ) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+            return;
+        }
+
+
+       env2->CallVoidMethod(MainActivityQRCodeNCNNObject, instanceMethod_CallInJava, jstrBuf);
+
+    }
 }
 
 }
