@@ -17,8 +17,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.nanodet.VibrationListener;
-import li.garteroboter.pren.qrcode.CameraPreviewFragment;
 import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 public class BlueActivity extends FragmentActivity implements VibrationListener {
@@ -124,11 +122,9 @@ public class BlueActivity extends FragmentActivity implements VibrationListener 
         @Override
         public Fragment createFragment(int position) {
             // here you can supply custom ScreenSlidePageFragemnt, based on the position
-            if (position == 0) {
-                return CameraPreviewFragment.newInstance();
-            } else {
+
                 return ScreenSlidePageFragment.newInstance("This is the second Fragment");
-            }
+
         }
 
         @Override

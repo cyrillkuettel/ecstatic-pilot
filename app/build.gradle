@@ -61,12 +61,14 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.3.5'
     implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation 'com.neovisionaries:nv-websocket-client:2.14'
+    // implementation 'com.takisoft.fix:preference-v7:25.3.0.0'
 
     // implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     // implementation 'log4j:log4j:1.2.17'
 
     implementation group: 'com.jcabi', name: 'jcabi-log', version: '0.20.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.preference:preference:1.1.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'

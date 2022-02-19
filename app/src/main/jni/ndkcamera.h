@@ -30,13 +30,10 @@ class NdkCamera
 public:
     NdkCamera();
     virtual ~NdkCamera();
-
     // facing 0=front 1=back
     int open(int camera_facing = 0);
     void close();
-
     virtual void on_image(const cv::Mat& rgb) const;
-
     virtual void on_image(const unsigned char* nv21, int nv21_width, int nv21_height) const;
 
 public:
@@ -60,11 +57,8 @@ class NdkCameraWindow : public NdkCamera
 public:
     NdkCameraWindow();
     virtual ~NdkCameraWindow();
-
     void set_window(ANativeWindow* win);
-
     virtual void on_image_render(cv::Mat& rgb) const;
-
     virtual void on_image(const unsigned char* nv21, int nv21_width, int nv21_height) const;
 
 public:

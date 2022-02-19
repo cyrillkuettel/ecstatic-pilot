@@ -16,7 +16,7 @@
 #define NANODET_H
 
 #include <opencv2/core/core.hpp>
-#include <jni.h>
+
 #include <net.h>
 
 struct Object
@@ -25,14 +25,10 @@ struct Object
     int label;
     float prob;
 };
-extern JavaVM* javaVM_global;
-extern jclass FragmentNanodetClass;
-extern jobject FragmentNanodetObject;
 
-
-class NanoDet{
-
-    public:
+class NanoDet
+{
+public:
     NanoDet();
 
     int load(const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false);
@@ -43,8 +39,6 @@ class NanoDet{
 
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
-
-
 private:
     ncnn::Net nanodet;
     int target_size;
@@ -52,8 +46,6 @@ private:
     float norm_vals[3];
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
-
-    void invoke_class(char *objectLabel);
 };
 
 #endif // NANODET_H

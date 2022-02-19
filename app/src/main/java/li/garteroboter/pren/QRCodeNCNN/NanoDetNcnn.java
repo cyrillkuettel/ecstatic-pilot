@@ -19,10 +19,10 @@ import android.view.Surface;
 
 public class NanoDetNcnn
 {
-    public native boolean loadModelNoModifications(AssetManager mgr);
-    public native boolean openCameraNoModifications(int facing);
-    public native boolean closeCameraNoModifications();
-    public native boolean setOutputWindowNoModifications(Surface surface);
+    public native boolean loadModel(AssetManager mgr);
+    public native boolean openCamera(int facing);
+    public native boolean closeCamera();
+    public native boolean setOutputWindow(Surface surface);
 
     static {
         System.loadLibrary("nanodetncnn");

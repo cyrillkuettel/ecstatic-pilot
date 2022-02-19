@@ -22,7 +22,6 @@ import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
-import li.garteroboter.pren.nanodet.VibrationListener;
 
 
 public class LoggingFragment extends Fragment {

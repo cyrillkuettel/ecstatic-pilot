@@ -15,19 +15,9 @@
                  android:id="@+id/websocket"
                  android:title="WebSocket" />
 
-             <item
-                 android:id="@+id/bluetooth2"
-                 android:title="QR Code and Camera" />
-
-            <item
-                android:id="@+id/nanodet"
-                android:title="Neural Network" />
-
             <item
                 android:id="@+id/qrcode_ncnn"
                 android:title="Qr Code NCNN " />
-
          </menu>
-
      </item>
  </menu>

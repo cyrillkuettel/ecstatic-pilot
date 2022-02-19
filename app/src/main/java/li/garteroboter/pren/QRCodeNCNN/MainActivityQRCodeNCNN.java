@@ -37,8 +37,8 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
 
     public static final int REQUEST_CAMERA = 100;
 
-    private li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn nanodetncnn = new li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn(); // 调用ncnn的java接口类
-    private int facing = 0;
+    private li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn nanodetncnn = new li.garteroboter.pren.QRCodeNCNN.NanoDetNcnn();
+    private int facing = 1; // changed to 0
     private SurfaceView cameraView;
 
 
@@ -62,19 +62,18 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
             @Override
             public void onClick(View arg0) {
                 int new_facing = 1 - facing;
-                nanodetncnn.closeCameraNoModifications();
-                nanodetncnn.openCameraNoModifications(new_facing);
+                nanodetncnn.closeCamera();
+                nanodetncnn.openCamera(new_facing);
                 facing = new_facing;
             }
         });
 
-        // 所有初始化完成后，重新加载模型
         reload();
     }
 
     private void reload()
     {
-        boolean ret_init = nanodetncnn.loadModelNoModifications(getAssets());
+        boolean ret_init = nanodetncnn.loadModel(getAssets());
         if (!ret_init)
         {
             Log.e("MainActivity", "nanodetncnn loadModel failed");
@@ -85,7 +84,7 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
     {
-        nanodetncnn.setOutputWindowNoModifications(holder.getSurface());
+        nanodetncnn.setOutputWindow(holder.getSurface());
     }
 
     @Override
@@ -103,7 +102,7 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     public void onPause()
     {
         super.onPause();
-        nanodetncnn.closeCameraNoModifications();
+        nanodetncnn.closeCamera();
     }
 
     @Override
@@ -114,7 +113,7 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
         {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA);
         }
-        nanodetncnn.openCameraNoModifications(facing);
+        nanodetncnn.openCamera(facing);
     }
 
 

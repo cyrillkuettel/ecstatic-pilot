@@ -34,7 +34,7 @@ static void onError(void* context, ACameraDevice* device, int error)
 
 static void onImageAvailable(void* context, AImageReader* reader)
 {
-     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onImageAvailable %p", reader);
+//     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onImageAvailable %p", reader);
 
     AImage* image = 0;
     media_status_t status = AImageReader_acquireLatestImage(reader, &image);
@@ -180,12 +180,6 @@ NdkCamera::NdkCamera()
 
     // setup imagereader and its surface
     {
-        // try out other options:
-        // Could add this as Parameter in the UI.
-        // https://www.wikiwand.com/en/Graphics_display_resolution#/Overview_by_vertical_resolution_and_aspect_ratio
-        // width: 640 height: 480
-        // width: 320 height: 240
-
         AImageReader_new(640, 480, AIMAGE_FORMAT_YUV_420_888, /*maxImages*/2, &image_reader);
 
         AImageReader_ImageListener listener;

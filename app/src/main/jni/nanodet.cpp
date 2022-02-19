@@ -17,12 +17,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <android/log.h>
-#include <string>
-
-#define APPNAME "nanodet.cpp"
-#include <jni.h> // adding this to call Java Methods.
-#include <unistd.h>
 #include "cpu.h"
 
 static inline float intersection_area(const Object& a, const Object& b)
@@ -255,6 +249,7 @@ int NanoDet::load(const char* modeltype, int _target_size, const float* _mean_va
 
 int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu)
 {
+    // 把原有的环境清空一下
     nanodet.clear();
     blob_pool_allocator.clear();
     workspace_pool_allocator.clear();
@@ -272,14 +267,13 @@ int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, c
     nanodet.opt.blob_allocator = &blob_pool_allocator;
     nanodet.opt.workspace_allocator = &workspace_pool_allocator;
 
+    // 加载模型和设置模型对应的一些参数
     char parampath[256];
     char modelpath[256];
     sprintf(parampath, "nanodet-%s.param", modeltype);
     sprintf(modelpath, "nanodet-%s.bin", modeltype);
-
     nanodet.load_param(mgr, parampath);
     nanodet.load_model(mgr, modelpath);
-
     target_size = _target_size;
     mean_vals[0] = _mean_vals[0];
     mean_vals[1] = _mean_vals[1];
@@ -413,72 +407,8 @@ int NanoDet::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob
     return 0;
 }
 
-
-// variables to cache
-// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter? Never change a running system /s
-JNIEnv *env2;
-jclass FragmentNanodetClass; // to access the class. (for calling static methods. Probably I won't
-// even need this, but it's nice to know it exists)
-jobject FragmentNanodetObject; // to access the object.
-
-jmethodID staticMethod_CallInJava;
-jmethodID instanceMethod_CallInJava;
-jstring jstrBuf;
-JavaVM* javaVM_global;
-
-static jint JNI_VERSION = JNI_VERSION_1_4;
-
-void NanoDet::invoke_class(char *objectLabel) {
-
-/* I don't really need the objectLabel at runtime. It's highly likely that the source of occasional
- * SIGSEV crashes lies somewhere here. I might just write a invoke_class That does not pass the object Label at all.
- * First I will try to debug the native code. */
-
-// toggle to test crashing the native Layer:
-   // raise(SIGSEGV);
-
-   // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "invoke_class()");
-
-    if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
-        // I'm not 100% sure if this is necessary. Does it impact performance?
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
-        return;
-    }
-
-/* We don't need static calls right now.
-    staticMethod_CallInJava = env2->GetStaticMethodID(FragmentNanodetClass, "durchstich", "()V");
-    // () means a function with no parameter, V means the return type is void
-    if (staticMethod_CallInJava == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "staticMethod_CallInJava is NUll");
-    } else {
-        env2->CallStaticVoidMethod(FragmentNanodetClass, staticMethod_CallInJava);
-    }
-    */
-
-
-    instanceMethod_CallInJava = env2->GetMethodID(FragmentNanodetClass, "nonStaticDurchstich",
-                                                  "(Ljava/lang/String;)V"); // JNI type signature
-    if (instanceMethod_CallInJava == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
-        return;
-    } else {
-         jstrBuf = env2->NewStringUTF(objectLabel);
-        if( !jstrBuf ) {
-            __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
-            return;
-        }
-
-        env2->CallVoidMethod(FragmentNanodetObject, instanceMethod_CallInJava, jstrBuf);
-
-    }
-
-}
-
-
-
 int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 {
-
     static const char* class_names[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
         "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
@@ -489,11 +419,7 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
         "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
         "hair drier", "toothbrush"
-    }; // 80 objects
-
-
-
-
+    };
 
     static const unsigned char colors[19][3] = {
         { 54,  67, 244},
@@ -518,14 +444,13 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
     };
 
     int color_index = 0;
-    // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "The value of 1 + 1 is %d", 1+1);
 
     for (size_t i = 0; i < objects.size(); i++)
     {
         const Object& obj = objects[i];
 
-         // fprintf(stdout, " %d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
-              //    obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
+//         fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
+//                 obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
 
         const unsigned char* color = colors[color_index % 19];
         color_index++;
@@ -535,39 +460,6 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         cv::rectangle(rgb, obj.rect, cc, 2);
 
         char text[256];
-
-//      check for class_names[obj.label], if it equals "potted plant" or "vase"
-//      The following block of code (written by me) is an absolute abstrusity. It's so bad. I don't know any better.
-
-        const char *plant = "potted plant";
-        const char *vase = "vase";
-        char *buf;
-
-        int isPlantIfZero = strcmp( class_names[obj.label], plant ); // built-in function to compare char
-        int isVaseIfZero =  strcmp( class_names[obj.label], vase );
-
-        if (isPlantIfZero == 0 && isVaseIfZero == 0) {
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "plant + vase detected");
-            buf = (char*)malloc(13);
-            strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
-            invoke_class(buf);
-        } else {
-            if (isPlantIfZero == 0) {
-                buf = (char*)malloc(13);
-                strcpy(buf, plant); // with the null terminator the string adds up to 13 bytes
-                invoke_class(buf);
-            }
-            if (isVaseIfZero == 0) {
-                buf = (char*)malloc(5);
-                strcpy(buf, plant);
-                invoke_class(buf);
-            }
-        }
-
-
-
-       // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);
-
         sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
 
         int baseLine = 0;
@@ -589,5 +481,3 @@ int NanoDet::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 
     return 0;
 }
-
-

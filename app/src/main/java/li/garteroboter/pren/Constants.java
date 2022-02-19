@@ -14,7 +14,7 @@ public interface Constants {
     String DEVICE_NAME = "device_name";
     String TOAST = "toast";
 
-    String WEBSOCKET_URI =   "ws://pren.garteroboter.li:80/ws/";
+    String WEBSOCKET_URI =   "wss://pren.garteroboter.li:80/ws/";
     String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
     String GARTEROBOTERLI = "pren.garteroboter.li";
     String START_COMMAND_ESP32 = "start";

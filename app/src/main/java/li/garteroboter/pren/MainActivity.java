@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -31,26 +32,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-
-
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import li.garteroboter.pren.log.LogcatData;
-import li.garteroboter.pren.log.LogcatDataReader;
-import simple.bluetooth.terminal.BlueActivity;
-import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -65,14 +46,18 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
-    private static final int NUM_PAGES = 2;
+
+    // Attention: You have to change viewPager.setOffscreenPageLimit as well.
+    // this sucks but it won't accept NUM_PAGES as argument
+    private static final int NUM_PAGES = 3;
 
     /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private FragmentStateAdapter pagerAdapter;
     TabLayout tabLayout;
-    final String[] tabNames = {"Logs", "Images"};
+    String[] tabNames = new String[NUM_PAGES];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
-        /**
+        /*
          * The pager widget, which handles animation and allows swiping horizontally to access
          * previous
          * and next wizard steps.
@@ -90,10 +75,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         pagerAdapter = new ScreenSlidePagerAdapter(this);
         Log.d(TAG, "creating ScreenSlidePagerAdapter");
         viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(2); // important: the fragments stay in memory
+        viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout =findViewById(R.id.tabLayout);
-
-        if (tabLayout != null && viewPager != null) {
+        tabNames = new String[]{"Start", "Logs", "Images"};
+        if (tabLayout != null) {
             new TabLayoutMediator(
                     tabLayout,
                     viewPager,
@@ -107,10 +92,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         }
 
         Button updateApp = findViewById(R.id.updateApp);
-        updateApp.setOnClickListener(v -> {
-            showUpdateMessageBox();
-
-        });
+        updateApp.setOnClickListener(v -> showUpdateMessageBox());
     }
 
 
@@ -131,12 +113,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             case R.id.websocket:
                 intent = new Intent(this, MainActivity.class);
                 break;
-            case R.id.bluetooth2:
-                intent = new Intent(this, BlueActivity.class);
-                break;
-            case R.id.nanodet:
-                intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivity2.class);
-                break;
             case R.id.qrcode_ncnn:
                 intent = new Intent(this, li.garteroboter.pren.QRCodeNCNN.MainActivityQRCodeNCNN.class);
                 break;
@@ -156,9 +132,9 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle("Achtung: Update Vorgehensweise");
         final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = String.format("Zuerst dieses App deinstallieren, bevor das " +
+        final String defaultMessage = "Zuerst dieses App deinstallieren, bevor das " +
                 "apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft " +
-                "meistens ein Neustart des Geräts. ");
+                "meistens ein Neustart des Geräts. ";
         messageForUpdateProcedure.setText(defaultMessage);
         alert.setView(messageForUpdateProcedure);
 
@@ -191,8 +167,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
      * Fires when the user has allowed or denied camera access during runtime.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "camera permission granted");
@@ -222,7 +198,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             // send logs
             // send images
             // settings:
+
             if (position == 0) {
+                Log.v(TAG, String.format("Position is %s, return SettingsFragment", position));
+                return SettingsFragment.newInstance();
+            } else if (position == 1){
                 Log.v(TAG, String.format("Position is %s, return LoggingFragment", position));
                 return LoggingFragment.newInstance();
             } else {

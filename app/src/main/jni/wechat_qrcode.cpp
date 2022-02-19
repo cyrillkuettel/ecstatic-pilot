@@ -13,6 +13,8 @@
 #include "opencv2/core/utils/filesystem.hpp"
 #include "scale/super_scale.hpp"
 #include "zxing/result.hpp"
+
+#include <sstream> // adding to print candidate_points size_type
 namespace cv {
 namespace wechat_qrcode {
 class WeChatQRCode::Impl {
@@ -74,7 +76,19 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
     } else {
         input_img = img.getMat();
     }
-    auto candidate_points = p->detect(input_img);                        // DETECTION
+    auto candidate_points = p->detect(input_img);
+    // DETECTION
+/*
+    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "printing candidate_points");
+    std::stringstream ss;
+    ss << candidate_points.size();
+    std::string string1 = ss.str();
+    if (string1 == "1") {
+        __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode candidate_points.size() ", "equals 1");
+    }
+    const char *cstr = string1.c_str();
+    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode candidate_points.size()", "%s", cstr);
+*/
     auto res_points = vector<Mat>();
     auto ret = p->decode(input_img, candidate_points, res_points); // DECODE
     // opencv type convert
