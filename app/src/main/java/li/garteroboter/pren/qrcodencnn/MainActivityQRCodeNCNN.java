@@ -16,10 +16,13 @@ package li.garteroboter.pren.qrcodencnn;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -31,8 +34,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import li.garteroboter.pren.R;
+import simple.bluetooth.terminal.VibrationListener;
 
-public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Callback
+public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Callback, VibrationListener
 {
     private static final String TAG = "MainActivityQRCodeNCNN";
 
@@ -99,8 +103,14 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     {
     }
 
-    public void nonStaticDurchstich(String ye) {
-        Log.i(TAG, "durchstich");
+    public static final boolean TOGGLE_VIBRATE = true;
+    long lastTime = 0;
+    public void nonStaticDurchstich(String helloFromTheOtherSide) {
+        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > 1000) { // safety mechanism to not vibrate too often.
+            startVibrating(100);
+
+            lastTime = System.currentTimeMillis();
+        }
     }
 
 
@@ -123,4 +133,15 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
     }
 
 
+    @Override
+    public void startVibrating(final int millis) {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+// Vibrate for N milliseconds
+        try {
+            v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
+        } catch (Exception e) {
+            Log.d(TAG, "Failed to vibrate");
+            e.printStackTrace();
+        }
+    }
 }
