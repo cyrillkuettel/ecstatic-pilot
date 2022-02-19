@@ -16,3 +16,4 @@ I have no idea why this is set to 2. It does not make sense.
 
 - Chaning the AImagereader resolution did not change performance. 
 - Maybe try out setting more threads than cores?
+- fiddle with the probability threshhold?
