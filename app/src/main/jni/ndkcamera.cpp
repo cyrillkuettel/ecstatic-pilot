@@ -187,6 +187,8 @@ NdkCamera::NdkCamera()
         // width: 480 height: 320
         // width: 480 height: 360
         // width: 320 height: 240
+        //                                          AIMAGE_FORMAT_YUV_420_888
+
         AImageReader_new(640, 480, AIMAGE_FORMAT_YUV_420_888, /*maxImages*/2, &image_reader);
 
         AImageReader_ImageListener listener;

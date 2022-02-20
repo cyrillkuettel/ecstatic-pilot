@@ -26,3 +26,6 @@ This may matter for plants, but I think for QR-Code it is irrelevant
 
 # Idea: print the MAT
 maybe print the vector<Mat> and check if you find some pattern for QR Code 
+
+# idea for ndkCamera
+maybe rotation is not neccesary? It's a QR Code after all

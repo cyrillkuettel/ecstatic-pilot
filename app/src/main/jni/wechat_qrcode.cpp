@@ -18,8 +18,11 @@
 #include <sstream> // adding to print candidate_points size_type
 
 JavaVM* javaVM_global;
-jclass TerminalFragmentClass; // to access the class. (for calling static methods. Probably I won't
-jobject TerminalFragmentObject; // to access the object.
+jclass TerminalFragmentClass;
+jobject TerminalFragmentObject;
+
+jclass MainActivityQRCodeNCNNClass;
+jobject MainActivityQRCodeNCNNObject;
 
 namespace cv {
 namespace wechat_qrcode {
@@ -84,22 +87,12 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
     }
     auto candidate_points = p->detect(input_img);
     // DETECTION
-/*
-    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "printing candidate_points");
-    std::stringstream ss;
-    ss << candidate_points.size();
-    std::string string1 = ss.str();
-    if (string1 == "1") {
-        __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode candidate_points.size() ", "equals 1");
-    }
-    const char *cstr = string1.c_str();
-    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode candidate_points.size()", "%s", cstr);
-*/
     auto res_points = vector<Mat>();
     auto ret = p->decode(input_img, candidate_points, res_points); // DECODE
     // opencv type convert
     vector<Mat> tmp_points;
     if (points.needed()) {
+
         for (size_t i = 0; i < res_points.size(); i++) {
             Mat tmp_point;
             tmp_points.push_back(tmp_point);
@@ -121,7 +114,7 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
     jstring jstrBuf;
 
     static jint JNI_VERSION = JNI_VERSION_1_4;
-    void WeChatQRCode::invoke_java_method() {
+    void WeChatQRCode::invoke_java_method(int onlyVibrate) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " calling invoke_java_method");
         if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
             // I'm not 100% sure if this is necessary. Does it impact performance?
@@ -131,26 +124,42 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
         if (env2 == nullptr) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, " env2 is nullptr");
         }
-        instanceMethod_CallInJava = env2->GetMethodID(TerminalFragmentClass, "send",
-                                                      "(Ljava/lang/String;)V"); // JNI type signature
 
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " created instanceMethod_CallInJava with JNI");
+        if (onlyVibrate == 0) {
+            instanceMethod_CallInJava = env2->GetMethodID(TerminalFragmentClass, "send",
+                                                          "(Ljava/lang/String;)V"); // JNI type signature
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " created instanceMethod_CallInJava with JNI");
 
-        if (instanceMethod_CallInJava == nullptr) {
-            __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
-            return;
-        } else {
-
-            jstrBuf = env2->NewStringUTF("stop");
-            if( !jstrBuf ) {
-                __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+            if (instanceMethod_CallInJava == nullptr) {
+                __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
                 return;
+            } else {
+                jstrBuf = env2->NewStringUTF("send"); // message to send
+                if( !jstrBuf ) {
+                    __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+                    return;
+                }
+                env2->CallVoidMethod(TerminalFragmentObject, instanceMethod_CallInJava, jstrBuf);
             }
+        } else {
+            instanceMethod_CallInJava = env2->GetMethodID(MainActivityQRCodeNCNNClass, "nonStaticDurchstich",
+                                                          "(Ljava/lang/String;)V"); // JNI type signature
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " created instanceMethod_CallInJava with JNI");
 
-
-            env2->CallVoidMethod(TerminalFragmentObject, instanceMethod_CallInJava, jstrBuf);
-
+            if (instanceMethod_CallInJava == nullptr) {
+                __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+                return;
+            } else {
+                jstrBuf = env2->NewStringUTF("send"); // message to send
+                if( !jstrBuf ) {
+                    __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+                    return;
+                }
+                // TODO: remove redundant String arguments
+                env2->CallVoidMethod(MainActivityQRCodeNCNNObject, instanceMethod_CallInJava, jstrBuf);
+            }
         }
+
     }
 
 
@@ -159,14 +168,14 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
     if (candidate_points.size() == 0) {
         return vector<string>();
     }
-    // candidate_points.size > 0, this is an indication that there might me a qr code
-    // let's test how reliable this works and log the result.
-    __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "qr_points.size() %u", candidate_points.size());
 
-    WeChatQRCode::invoke_java_method();
-    // it works, but unfortunately there are false positives.
-    // Have to test if this is the case out in nature as well.
 
+    // __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "qr_points.size() %u", candidate_points.size());
+    // in my tests, candidate_points is 1, if QR is in the image. But also other times as well.
+    if (points.size() > 0) { // doesn't work
+        // @param points "optional output array of vertices of the found QR code quadrangle."
+         __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "points.size %u", points.size());
+    }
 
     vector<string> decode_results;
     for (auto& point : candidate_points) {
@@ -178,6 +187,7 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
             cropped_img = img;
         }
         // scale_list contains different scale ratios
+        int count = 0;
         auto scale_list = getScaleList(cropped_img.cols, cropped_img.rows);
         for (auto cur_scale : scale_list) {
             Mat scaled_img =
@@ -187,13 +197,14 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
             auto ret = decodemgr.decodeImage(scaled_img, use_nn_detector_, result);
 
             if (ret == 0) {
-
-                __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "This I think means we hvae fully detected a qr code. ");
+               // __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "Read QRCode. The current loop counter is %d", count);
+                WeChatQRCode::invoke_java_method(1);
 
                 decode_results.push_back(result);
                 points.push_back(point);
                 break;
             }
+            count++;
         }
     }
 
@@ -234,6 +245,7 @@ int WeChatQRCode::Impl::applyDetector(const Mat& img, vector<Mat>& points) {
     float resizeRatio = sqrt(img_w * img_h * 1.0 / (minInputSize * minInputSize));
     int detect_width = img_w / resizeRatio;
     int detect_height = img_h / resizeRatio;
+
 
     points = detector_->forward(img, detect_width, detect_height);
 

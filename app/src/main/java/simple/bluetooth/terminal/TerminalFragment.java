@@ -51,6 +51,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+    private VibrationListener vibrationListener;
+
+
     public native boolean setObjectReferenceAsGlobal(TerminalFragment mainActivityQRCodeNCNN);
 
 
@@ -111,6 +114,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         getActivity().bindService(new Intent(getActivity(), SerialService.class), this, Context.BIND_AUTO_CREATE);
+        try {
+            vibrationListener = (VibrationListener) activity;
+        } catch (ClassCastException castException) {
+            /** The activity does not implement the listener. */
+            Log.e(TAG, "Failed to cast VibrationListener in onAttach()");
+        }
     }
 
     @Override
@@ -231,6 +240,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
     public void send(String str) {
+        vibrationListener.startVibrating(100);
+
         Log.d(TAG, "Durchstich");
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();

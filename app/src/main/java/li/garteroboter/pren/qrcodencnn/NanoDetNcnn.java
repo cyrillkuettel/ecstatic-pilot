@@ -23,7 +23,7 @@ public class NanoDetNcnn
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
     public native boolean setOutputWindow(Surface surface);
-   // public native boolean setObjectReferenceAsGlobal(MainActivityQRCodeNCNN mainActivityQRCodeNCNN);
+    public native boolean setObjectReferenceAsGlobal(MainActivityQRCodeNCNN mainActivityQRCodeNCNN);
 
     static {
         System.loadLibrary("nanodetncnn");

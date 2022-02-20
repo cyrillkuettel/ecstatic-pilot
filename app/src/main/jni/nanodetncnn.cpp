@@ -136,23 +136,17 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
        /*
          if (!qr_string.empty() ) {
             __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "Calling Java method now. ");
-            NanoDet::invoke_java_method();
          }
        */
 
+    // disable the draw () -> performance reasons
 
-        draw(rgb,qr_string,qr_points);
+       // draw(rgb,qr_string,qr_points);
     }
 
-    draw_fps(rgb);
+    // draw_fps(rgb);
 }
 
-/*
- * don't need this because it is saved global access space.
-JavaVM* javaVM_global;
-jclass TerminalFragmentClass;
-jobject TerminalFragmentObject;
-*/
 JNIEnv *env;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
@@ -177,23 +171,24 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
     // Temporary local reference holder
     jclass tempLocalClassRef;
+    jclass tempLocalClassRef2;
 
     //tempLocalClassRef = env->FindClass("li/garteroboter/pren/qrcodencnn/MainActivityQRCodeNCNN");
     tempLocalClassRef = env->FindClass("simple/bluetooth/terminal/TerminalFragment");
-
+    tempLocalClassRef2 = env->FindClass("li/garteroboter/pren/qrcodencnn/MainActivityQRCodeNCNN");
 
     // STEP 1/3 : Load the class id
-    if (tempLocalClassRef == nullptr || env->ExceptionOccurred()) {
+    if (tempLocalClassRef == nullptr || env->ExceptionOccurred() || tempLocalClassRef2 == nullptr ) {
         env->ExceptionClear();
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "%s", "There was an error in JNI_OnLoad");
     }
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Assign the ClassId as a Global Reference");
     // STEP 2/3 : Assign the ClassId as a Global Reference
     TerminalFragmentClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
-
+    MainActivityQRCodeNCNNClass = (jclass) env->NewGlobalRef(tempLocalClassRef2);
     // STEP 3/3 : Delete the no longer needed local reference
     env->DeleteLocalRef(tempLocalClassRef);
-
+    env->DeleteLocalRef(tempLocalClassRef2);
 
     g_camera = new MyNdkCamera;
 
@@ -219,6 +214,9 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
     env->DeleteGlobalRef(TerminalFragmentClass);
     env->DeleteGlobalRef(TerminalFragmentObject);
     // ... repeat for any other global references
+
+    env->DeleteGlobalRef(MainActivityQRCodeNCNNObject);
+    env->DeleteGlobalRef(MainActivityQRCodeNCNNClass);
 
     delete g_camera;
     g_camera = 0;
@@ -286,5 +284,22 @@ JNIEXPORT jboolean JNICALL Java_simple_bluetooth_terminal_TerminalFragment_setOb
 }
 
 
+JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_qrcodencnn_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env,
+                                                                            jobject thiz,
+                                                                            jobject main_activity_qrcode_ncnn) {
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
+
+    MainActivityQRCodeNCNNObject = (jobject) env->NewGlobalRef(main_activity_qrcode_ncnn);
+
+    return JNI_TRUE;
+
 }
+
+
+}
+
+
+
+
+
 

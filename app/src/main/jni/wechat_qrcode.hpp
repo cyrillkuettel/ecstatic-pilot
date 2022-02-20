@@ -17,6 +17,9 @@ extern jclass TerminalFragmentClass;
 extern jobject TerminalFragmentObject;
 extern JavaVM* javaVM_global;
 
+extern jclass MainActivityQRCodeNCNNClass;
+extern jobject MainActivityQRCodeNCNNObject;
+
 namespace cv {
 namespace wechat_qrcode {
 
@@ -59,8 +62,13 @@ public:
     CV_WRAP std::vector<std::string> detectAndDecode(InputArray img,
                                                      OutputArrayOfArrays points = noArray());
 
-
-    static void invoke_java_method();
+    /**
+     *
+     * @param onlyVibrate indicates which method we are going to call.
+     * if it is 0, we send over bluetooth call TerminalFragmentObject
+     * if it is 1, we just simply vibrate (for testing.) This essentially calls the method on MainActivityQRCodeNCNNObject
+     */
+    static void invoke_java_method(int onlyVibrate);
 
 protected:
     class Impl;

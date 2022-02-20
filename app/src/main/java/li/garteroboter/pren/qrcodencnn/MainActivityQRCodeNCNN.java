@@ -51,13 +51,14 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
     private SurfaceView cameraView;
 
 
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // nanodetncnn.setObjectReferenceAsGlobal(this);
+        nanodetncnn.setObjectReferenceAsGlobal(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -71,6 +72,8 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+
+
                 int new_facing = 1 - facing;
                 nanodetncnn.closeCamera();
                 nanodetncnn.openCamera(new_facing);
@@ -112,19 +115,9 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
     {
     }
 
-    public static final boolean TOGGLE_VIBRATE = true;
-    long lastTime = 0;
-    public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        int waitingTimeUntilNextVibrate = 1000;
 
-        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTimeUntilNextVibrate) { // safety mechanism to not vibrate too often.
+    public void nonStaticDurchstich(String helloFromTheOtherSide) {
             startVibrating(100);
-            // maybe wrap this in try catch
-            // better idea: just get the terminal fragment object at runtime over JNI.
-            // no reason to make it that complicated
-            TerminalFragment fragment = (TerminalFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_terminal);
-            lastTime = System.currentTimeMillis();
-        }
     }
 
 
@@ -147,15 +140,23 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
     }
 
 
+    public static boolean TOGGLE_VIBRATE = true;
+    long lastTime = 0;
     @Override
     public void startVibrating(final int millis) {
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        final int waitingTimeUntilNextVibrate = 1000;
+        // safety mechanism to not vibrate too often.
+        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTimeUntilNextVibrate) {
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 // Vibrate for N milliseconds
-        try {
-            v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
-        } catch (Exception e) {
-            Log.d(TAG, "Failed to vibrate");
-            e.printStackTrace();
+            try {
+                v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
+            } catch (Exception e) {
+                Log.d(TAG, "Failed to initialize SystemService Vibration");
+                e.printStackTrace();
+            }
+            lastTime = System.currentTimeMillis();
         }
     }
 }

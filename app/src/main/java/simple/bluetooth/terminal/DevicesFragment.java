@@ -38,6 +38,8 @@ public class DevicesFragment extends ListFragment {
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
     private ArrayAdapter<BluetoothDevice> listAdapter;
 
+
+
     public static DevicesFragment newInstance() {
         DevicesFragment fragment = new DevicesFragment();
         Bundle args = new Bundle();
