@@ -29,3 +29,9 @@ maybe print the vector<Mat> and check if you find some pattern for QR Code
 
 # idea for ndkCamera
 maybe rotation is not neccesary? It's a QR Code after all
+
+# getActivity/()
+Look at the code: Whereever I use getActivity(), there has to be a Null chec
+
+# getActivity/()
+Look at the code: Whereever I use getActivity(), there has to be a Null checkk

@@ -22,7 +22,7 @@
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
-            android:text="Send image form device" />
+            android:text="select image form device" />
 
 
         <Button

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
     // Attention: You have to change viewPager.setOffscreenPageLimit as well.
     // this sucks but it won't accept NUM_PAGES as argument
-    private static final int NUM_PAGES = 4;
+    private static final int NUM_PAGES = 3;
 
     /**
      * The pager adapter, which provides the pages to the view pager widget.
@@ -70,9 +71,9 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         ViewPager2 viewPager = findViewById(R.id.pager);
         pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(4); // important: the fragments stay in memory
-        tabLayout =findViewById(R.id.tabLayout);
-        tabNames = new String[]{"Start", "Logs", "Images", "Bluetooth Terminal"};
+        viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
+        tabLayout = findViewById(R.id.tabLayout);
+        tabNames = new String[]{"Logs", "Images", "Bluetooth Terminal"};
         if (tabLayout != null) {
             new TabLayoutMediator(
                     tabLayout,
@@ -83,12 +84,22 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                     }
             ).attach();
         } else {
-            Log.i(TAG,  "tabLayout  or viewPager == null");
+            Log.i(TAG, "tabLayout  or viewPager == null");
         }
 
         Button updateApp = findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> showUpdateMessageBox());
 
+        Button settingsBtn = findViewById(R.id.idBtnSettings);
+
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // opening a new intent to open settings activity.
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
+            }
+        });
 
     }
 
@@ -111,7 +122,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                 intent = new Intent(this, MainActivity.class);
                 break;
             case R.id.qrcode_ncnn:
-                intent = new Intent(this, li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN.class);
+                intent = new Intent(this,
+                        li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN.class);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -121,16 +133,16 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
 
-
-
-
     public final void showUpdateMessageBox() {
 
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Achtung: Update Vorgehensweise");
+        alert.setTitle("Update Vorgehensweise");
         final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = "Zuerst dieses App deinstallieren, bevor das " +
-                "apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft " +
+        final String defaultMessage = "Du wirst jetzt weitergeleitet, um die neuste Version des " +
+                "Apps als apk herunterzuladen. \n *Wichtig* Zuerst dieses App deinstallieren, bevor " +
+                "das " +
+                "neue App installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, " +
+                "hilft " +
                 "meistens ein Neustart des Geräts. ";
         messageForUpdateProcedure.setText(defaultMessage);
         alert.setView(messageForUpdateProcedure);
@@ -192,24 +204,17 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         @Override
         public Fragment createFragment(int position) {
-            // send logs
-            // send images
-            // settings:
 
             if (position == 0) {
-                Log.v(TAG, String.format("Position is %s, return SettingsFragment", position));
-                return SettingsFragment.newInstance();
-            } else if (position == 1){
                 Log.v(TAG, String.format("Position is %s, return LoggingFragment", position));
                 return LoggingFragment.newInstance();
-            } else if (position == 2) {
+            } else if (position == 1) {
                 Log.v(TAG, String.format("Position is %s, return SendImagesFragment", position));
                 return SendImagesFragment.newInstance();
-            } else {
+            } else
                 Log.v(TAG, String.format("Position is %s, return DevicesFragment", position));
                 return DevicesFragment.newInstance();
             }
-        }
 
         @Override
         public int getItemCount() {
