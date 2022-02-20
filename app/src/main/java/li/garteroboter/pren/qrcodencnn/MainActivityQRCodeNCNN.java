@@ -17,6 +17,7 @@ package li.garteroboter.pren.qrcodencnn;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
@@ -33,8 +34,10 @@ import android.widget.Button;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 
 
+import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.TerminalFragment;
@@ -58,6 +61,8 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+
+
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -72,8 +77,6 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
-
                 int new_facing = 1 - facing;
                 nanodetncnn.closeCamera();
                 nanodetncnn.openCamera(new_facing);

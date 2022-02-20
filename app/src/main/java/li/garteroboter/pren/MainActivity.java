@@ -3,6 +3,7 @@ package li.garteroboter.pren;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -100,6 +102,12 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                 startActivity(i);
             }
         });
+
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this /* Activity context */);
+
+        String name = sharedPreferences.getString("key_show_an_approximation_of_fps", "");
+        Log.v(TAG, String.format("Printing fps on off value: %s", name));
 
     }
 
