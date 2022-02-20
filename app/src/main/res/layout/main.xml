@@ -15,6 +15,11 @@
         android:layout_height="wrap_content"
         android:text="switch camera" />
 
+        <FrameLayout
+            android:id="@+id/fragmentBluetoothChain"
+            android:layout_width="match_parent"
+            android:layout_height="100dp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -26,5 +31,6 @@
         android:id="@+id/cameraview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
+
 
 </LinearLayout>

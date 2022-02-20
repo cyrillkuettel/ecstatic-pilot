@@ -14,7 +14,13 @@
 #include "scale/super_scale.hpp"
 #include "zxing/result.hpp"
 
+#define APPNAME "wechat_qrcode.cpp"
 #include <sstream> // adding to print candidate_points size_type
+
+JavaVM* javaVM_global;
+jclass TerminalFragmentClass; // to access the class. (for calling static methods. Probably I won't
+jobject TerminalFragmentObject; // to access the object.
+
 namespace cv {
 namespace wechat_qrcode {
 class WeChatQRCode::Impl {
@@ -106,16 +112,61 @@ vector<string> WeChatQRCode::detectAndDecode(InputArray img, OutputArrayOfArrays
 }
 
 
-vector<string> WeChatQRCode::Impl::decode(const Mat& img, vector<Mat>& candidate_points,
+// This is very messy to say the least.
+// It should be possible to cache the instanceMethod_CallInJava no?
+
+    JNIEnv *env2;
+    jmethodID staticMethod_CallInJava;
+    jmethodID instanceMethod_CallInJava;
+    jstring jstrBuf;
+
+    static jint JNI_VERSION = JNI_VERSION_1_4;
+    void WeChatQRCode::invoke_java_method() {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " calling invoke_java_method");
+        if (javaVM_global->GetEnv(reinterpret_cast<void**>(&env2), JNI_VERSION) != JNI_OK) {
+            // I'm not 100% sure if this is necessary. Does it impact performance?
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
+            return;
+        }
+        if (env2 == nullptr) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, " env2 is nullptr");
+        }
+        instanceMethod_CallInJava = env2->GetMethodID(TerminalFragmentClass, "send",
+                                                      "(Ljava/lang/String;)V"); // JNI type signature
+
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, " created instanceMethod_CallInJava with JNI");
+
+        if (instanceMethod_CallInJava == nullptr) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+            return;
+        } else {
+
+            jstrBuf = env2->NewStringUTF("stop");
+            if( !jstrBuf ) {
+                __android_log_print(ANDROID_LOG_DEBUG, APPNAME,  "failed to create jstring." );
+                return;
+            }
+
+
+            env2->CallVoidMethod(TerminalFragmentObject, instanceMethod_CallInJava, jstrBuf);
+
+        }
+    }
+
+
+    vector<string> WeChatQRCode::Impl::decode(const Mat& img, vector<Mat>& candidate_points,
                                           vector<Mat>& points) {
     if (candidate_points.size() == 0) {
         return vector<string>();
     }
-    // candidate_points.size > 0, this means there might be a qr code.
+    // candidate_points.size > 0, this is an indication that there might me a qr code
     // let's test how reliable this works and log the result.
-    // Update: Very reliable! Pop the Champagne!  NCNN is amazing :D
-
     __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "qr_points.size() %u", candidate_points.size());
+
+    WeChatQRCode::invoke_java_method();
+    // it works, but unfortunately there are false positives.
+    // Have to test if this is the case out in nature as well.
+
 
     vector<string> decode_results;
     for (auto& point : candidate_points) {
@@ -136,6 +187,9 @@ vector<string> WeChatQRCode::Impl::decode(const Mat& img, vector<Mat>& candidate
             auto ret = decodemgr.decodeImage(scaled_img, use_nn_detector_, result);
 
             if (ret == 0) {
+
+                __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode", "This I think means we hvae fully detected a qr code. ");
+
                 decode_results.push_back(result);
                 points.push_back(point);
                 break;
@@ -154,6 +208,7 @@ vector<Mat> WeChatQRCode::Impl::detect(const Mat& img) {
         auto ret = applyDetector(img, points);
         CV_Assert(ret == 0);
     } else {
+        __android_log_print(ANDROID_LOG_DEBUG, "wechat_qrcode|detect", "Warning: variable use_nn_detector_ is false");
         auto width = img.cols, height = img.rows;
         // if there is no detector, use the full image as input
         auto point = Mat(4, 2, CV_32FC1);
@@ -199,6 +254,8 @@ vector<float> WeChatQRCode::Impl::getScaleList(const int width, const int height
     if (width < 640 && height < 640) return {1.0, 0.5};
     return {0.5, 1.0};
 }
+
+
 
 
 }  // namespace wechat_qrcode

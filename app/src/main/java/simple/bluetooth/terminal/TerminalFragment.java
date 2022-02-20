@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment;
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.LoggingFragment;
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
     private static final String TAG = "TerminalFragment";
@@ -50,6 +51,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+    public native boolean setObjectReferenceAsGlobal(TerminalFragment mainActivityQRCodeNCNN);
 
 
     public static TerminalFragment newInstance() {
@@ -74,6 +76,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         deviceAddress = getArguments().getString("device");
         Log.d(TAG, String.format("Found device address: %s" , deviceAddress));
         //deviceAddress = "58:BF:25:81:CC:C8";
+
+        /* We need this. This allows accessing the instance object of TerminalFragment from the C++ Layer */
+        Log.i(TAG, "setting Global reference for JNI ");
+        setObjectReferenceAsGlobal(this);
     }
 
     @Override
@@ -225,6 +231,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
     public void send(String str) {
+        Log.d(TAG, "Durchstich");
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
@@ -303,6 +310,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void onSerialIoError(Exception e) {
         status("connection lost: " + e.getMessage());
         disconnect();
+    }
+
+
+    static {
+        System.loadLibrary("nanodetncnn");
     }
 
 }

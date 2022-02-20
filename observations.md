@@ -17,3 +17,12 @@ I have no idea why this is set to 2. It does not make sense.
 - Chaning the AImagereader resolution did not change performance. 
 - Maybe try out setting more threads than cores?
 - fiddle with the probability threshhold?
+
+# Nkd Camera
+- It is logging this:
+open 0 90 
+this should indicate the orientation. Maybe the orientation can affect performance? 
+This may matter for plants, but I think for QR-Code it is irrelevant
+
+# Idea: print the MAT
+maybe print the vector<Mat> and check if you find some pattern for QR Code 

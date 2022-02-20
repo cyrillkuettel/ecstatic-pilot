@@ -18,7 +18,7 @@
         <item>wss://pren.garteroboter.li:443/ws/</item>
         <item>wss://192.168.188.38:43/ws/</item>
     </string-array>
-    <string name="devices">Bluetooth Devices</string>
+    <string name="devices">Bluetooth Devices (scroll down)</string>
     <string name="title_activity_simple_uiactivity">simpleUIActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

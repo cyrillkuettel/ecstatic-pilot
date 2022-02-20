@@ -16,7 +16,6 @@ int SuperScale::init(AAssetManager* mgr) {
 
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "Initializing  SuperScale. Printing big_cpu_count");
     int big_cpu_count = ncnn::get_big_cpu_count();
-
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "%d", big_cpu_count);
 
     ncnn::set_cpu_powersave(2);

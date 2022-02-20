@@ -240,6 +240,7 @@ int NdkCamera::open(int _camera_facing)
 
             // query faceing
             acamera_metadata_enum_android_lens_facing_t facing = ACAMERA_LENS_FACING_FRONT;
+
             {
                 ACameraMetadata_const_entry e = { 0 };
                 ACameraMetadata_getConstEntry(camera_metadata, ACAMERA_LENS_FACING, &e);

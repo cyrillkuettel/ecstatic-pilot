@@ -32,11 +32,15 @@ import android.widget.Button;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
 
 import li.garteroboter.pren.R;
+import simple.bluetooth.terminal.DevicesFragment;
+import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.VibrationListener;
 
-public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Callback, VibrationListener
+public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceHolder.Callback, VibrationListener
 {
     private static final String TAG = "MainActivityQRCodeNCNN";
 
@@ -53,7 +57,7 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        nanodetncnn.setObjectReferenceAsGlobal(this);
+        // nanodetncnn.setObjectReferenceAsGlobal(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -73,6 +77,11 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
                 facing = new_facing;
             }
         });
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain, new DevicesFragment(), "devices").commit();
+
+        }
 
         reload();
     }
@@ -110,7 +119,10 @@ public class MainActivityQRCodeNCNN extends Activity implements SurfaceHolder.Ca
 
         if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTimeUntilNextVibrate) { // safety mechanism to not vibrate too often.
             startVibrating(100);
-
+            // maybe wrap this in try catch
+            // better idea: just get the terminal fragment object at runtime over JNI.
+            // no reason to make it that complicated
+            TerminalFragment fragment = (TerminalFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_terminal);
             lastTime = System.currentTimeMillis();
         }
     }

@@ -11,8 +11,18 @@
 #include <net.h>
 /** @defgroup wechat_qrcode WeChat QR code detector for detecting and parsing QR code.
  */
+
+
+extern jclass TerminalFragmentClass;
+extern jobject TerminalFragmentObject;
+extern JavaVM* javaVM_global;
+
 namespace cv {
 namespace wechat_qrcode {
+
+
+
+
 //! @addtogroup wechat_qrcode
 //! @{
 /**
@@ -48,6 +58,9 @@ public:
      */
     CV_WRAP std::vector<std::string> detectAndDecode(InputArray img,
                                                      OutputArrayOfArrays points = noArray());
+
+
+    static void invoke_java_method();
 
 protected:
     class Impl;

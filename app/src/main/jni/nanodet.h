@@ -28,8 +28,8 @@ struct Object
 
 /*
 extern JavaVM* javaVM_global;
-extern jclass MainActivityQRCodeNCNNClass;
-extern jobject MainActivityQRCodeNCNNObject;
+extern jclass TerminalFragmentClass;
+extern jobject TerminalFragmentObject;
 */
 class NanoDet
 {
@@ -45,7 +45,6 @@ public:
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
     static void invoke_java_method();
-
 private:
     ncnn::Net nanodet;
     int target_size;

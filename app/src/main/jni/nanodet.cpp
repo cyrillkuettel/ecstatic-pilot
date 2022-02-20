@@ -249,7 +249,7 @@ int NanoDet::load(const char* modeltype, int _target_size, const float* _mean_va
 
 int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu)
 {
-    // 把原有的环境清空一下
+
     nanodet.clear();
     blob_pool_allocator.clear();
     workspace_pool_allocator.clear();
@@ -267,7 +267,7 @@ int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, c
     nanodet.opt.blob_allocator = &blob_pool_allocator;
     nanodet.opt.workspace_allocator = &workspace_pool_allocator;
 
-    // 加载模型和设置模型对应的一些参数
+
     char parampath[256];
     char modelpath[256];
     sprintf(parampath, "nanodet-%s.param", modeltype);
