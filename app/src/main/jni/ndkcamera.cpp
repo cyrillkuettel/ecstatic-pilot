@@ -180,6 +180,28 @@ NdkCamera::NdkCamera()
 
     // setup imagereader and its surface
     {
+        /*
+        ACameraMetadata_const_entry entry = { 0 };
+        ACameraMetadata* metadataObj;
+        ACameraMetadata_getConstEntry(metadataObj,
+                                      ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS, &entry);
+        for (int i = 0; i < entry.count; i += 4)
+        {
+            // We are only interested in output streams, so skip input stream
+            int32_t input = entry.data.i32[i + 3];
+            if (input)
+                continue;
+
+            int32_t format = entry.data.i32[i + 0];
+            if (format == AIMAGE_FORMAT_YUV_420_888)
+            {
+                int32_t width = entry.data.i32[i + 1];
+                int32_t height = entry.data.i32[i + 2];
+            }
+        }
+         */
+
+
         // try out other options:
         // Could add this as Parameter in the UI.
         // https://www.wikiwand.com/en/Graphics_display_resolution#/Overview_by_vertical_resolution_and_aspect_ratio
@@ -202,7 +224,7 @@ NdkCamera::NdkCamera()
         ANativeWindow_acquire(image_reader_surface);
     }
 }
-
+// destructor
 NdkCamera::~NdkCamera()
 {
     close();
