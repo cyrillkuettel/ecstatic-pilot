@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     private static final String TAG = "MainActivity";
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
-            "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
+            "-pilot/blob/QR/app/build/intermediates/apk/debug/app-debug.apk?raw=true";
+
     private WebSocketManager manager = null;
 
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
