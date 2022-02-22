@@ -1,4 +1,4 @@
-package li.garteroboter.pren.qrcodencnn;
+package li.garteroboter.pren.qrcodencnn.image;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -9,20 +9,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
+// This class implements the callback after ImageProcessor as initialized the Copy process.
 
-public class PixelCopyCallback implements MainActivityQRCodeNCNN.PostTake {
+public class PixelCopyCallback implements PostTake {
     private static final String TAG = "PixelCopyCallback";
 
-    String hasPermission = "PENDING";
+
     @Override
     public void onSuccess(Bitmap bitmap) {
         Log.d(TAG, "onSuccess!");
-        if (hasPermission.equals("YES")) {
-            savebitmap(bitmap);
-        } else {
-            Log.e(TAG, String.format("has permission = %s", hasPermission));
-        }
+       saveBitmap(bitmap);
     }
 
     @Override
@@ -31,21 +27,22 @@ public class PixelCopyCallback implements MainActivityQRCodeNCNN.PostTake {
 
     }
 
-    public void savebitmap(Bitmap bmp)  {
-
+    public void saveBitmap(Bitmap bmp)  {
+            final String filename = "testimage2.jpg";
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             bmp.compress(Bitmap.CompressFormat.JPEG, 60, bytes);
             File f = new File(Environment.getExternalStorageDirectory()
-                    + File.separator + "testimage_zhb.jpg");
+                    + File.separator + filename);
             f.createNewFile();
             FileOutputStream fo = new FileOutputStream(f);
             fo.write(bytes.toByteArray());
             fo.close();
         } catch (IOException e) {
-            Log.d(TAG, "failed to save bitmap");
+            Log.d(TAG, "failed to save bitma in PixelCopyCallback");
             e.printStackTrace();
         }
 
     }
+
 }

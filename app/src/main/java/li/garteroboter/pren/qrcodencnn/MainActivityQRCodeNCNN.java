@@ -18,15 +18,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.PixelCopy;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -40,14 +36,16 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.qrcodencnn.image.ImageCopyRequest;
+import li.garteroboter.pren.qrcodencnn.image.ImageProcessor;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.VibrationListener;
 
 public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceHolder.Callback,
         VibrationListener {
-    public static final int REQUEST_CAMERA = 100;
+
     private static final String TAG = "MainActivityQRCodeNCNN";
-    private static final int REQUEST_READ_WRITE_EXTERNAL_STORAGE = 112;
+
     public static boolean TOGGLE_VIBRATE = true;
     private final Context mContext = MainActivityQRCodeNCNN.this;
     long lastTime = 0;
@@ -55,18 +53,14 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
             new li.garteroboter.pren.qrcodencnn.NanoDetNcnn();
     private int facing = 1;
     private SurfaceView cameraView;
-    private PixelCopyCallback pixelCopyCallback;
+    private ImageProcessor imageProcessor;
 
-    private static boolean hasPermissions(Context context, String... permissions) {
-        if (context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    public static final int REQUEST_READ_WRITE_EXTERNAL_STORAGE = 112;
+    public static final int REQUEST_CAMERA = 100;
+    public static final String[] EXTERNAL_STORAGE_PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,8 +73,7 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
-        // This class implements the callback after we have copied the bitmap.
-        pixelCopyCallback = new PixelCopyCallback();
+        imageProcessor = new ImageCopyRequest(cameraView);
 
         Button buttonSwitchCamera = findViewById(R.id.buttonSwitchCamera);
         buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
@@ -99,14 +92,13 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
                     new DevicesFragment(), "devices").commit();
         }
 
-        String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!hasPermissions(mContext, PERMISSIONS)) {
-            ActivityCompat.requestPermissions((Activity) mContext, PERMISSIONS,
+
+        if (!hasPermissions(mContext, EXTERNAL_STORAGE_PERMISSIONS)) {
+            ActivityCompat.requestPermissions((Activity) mContext, EXTERNAL_STORAGE_PERMISSIONS,
                     REQUEST_READ_WRITE_EXTERNAL_STORAGE);
         } else {
             Log.e(TAG, "READ_EXTERNAL_STORAGE permission already granted");
-            pixelCopyCallback.hasPermission = "YES";
+          imageProcessor.setHasPermissionToSave(true);
         }
 
         reload();
@@ -128,54 +120,11 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
     public void surfaceCreated(SurfaceHolder holder) {
 
         cameraView.setOnClickListener(v -> {
-
-            Canvas canvas = null; // maybe canvas clip rect?,
-            int count = 0;
-            while (canvas == null || count > 100) {
-                try {
-                    canvas = cameraView.getHolder().lockCanvas(); // maybe try hardware lock
-                    Log.v(TAG, "onclick!");
-                    if (canvas != null) {
-                        Log.d(TAG, String.format("Got Lock on Canvas after %d tries", count));
-                        copyBitmapAndAttachListener(cameraView, pixelCopyCallback);
-                        cameraView.getHolder().unlockCanvasAndPost(canvas);
-                    } else {
-                        Log.v(TAG, "canvas == null");
-                    }
-                } catch (IllegalArgumentException e) {
-                    Log.e(TAG, "it is fucking locked");
-                    e.printStackTrace();
-                }
-
-                count++;
-            }
-
+            imageProcessor.start();
         });
     }
 
-    public void copyBitmapAndAttachListener(SurfaceView view, PostTake callback) {
-        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),
-                Bitmap.Config.ARGB_8888);
 
-        PixelCopy.OnPixelCopyFinishedListener listener =
-                new PixelCopy.OnPixelCopyFinishedListener() {
-            @Override
-            public void onPixelCopyFinished(int copyResult) {
-                if (copyResult == PixelCopy.SUCCESS) {
-                    callback.onSuccess(bitmap);
-                } else {
-                    callback.onFailure(copyResult);
-                }
-            }
-        };
-        try {
-            Log.d(TAG, "Trying PixelCopy.request");
-            PixelCopy.request(view, bitmap, listener, new Handler());
-        } catch (Exception e) {
-            Log.e(TAG, "failed: PixelCopy.request(view, bitmap, listener, new Handler());");
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -183,11 +132,10 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_READ_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pixelCopyCallback.hasPermission = "YES";
-
+                imageProcessor.setHasPermissionToSave(true);
             } else {
-                pixelCopyCallback.hasPermission = "NO";
-                Toast.makeText(mContext, "The app was not allowed to read your store.",
+                imageProcessor.setHasPermissionToSave(false);
+                Toast.makeText(mContext, "The app was not allowed to read storage.",
                         Toast.LENGTH_LONG).show();
             }
         }
@@ -236,10 +184,14 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
         }
     }
 
-    public interface PostTake {
-
-        void onSuccess(Bitmap bitmap);
-
-        void onFailure(int error);
+    private static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
