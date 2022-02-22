@@ -18,17 +18,28 @@ public class ImageCopyRequest implements ImageProcessor{
 
     public ImageCopyRequest(SurfaceView camerview) {
         cameraview = camerview;
-        pixelCopyCallback  = new PixelCopyCallback();
+
     }
 
+    @Override
     public void start() {
         if (!setHasPermissionToSave) {
             Log.e(TAG, "Fatal: Image copy initialization started before we know for sure we have permissions. ");
             return;
         }
-        startCopyOnLockAcquired(cameraview);
+        pixelCopyCallback  = new PixelCopyCallback();
+
+        try {
+            copyBitmapAndAttachListener(cameraview, pixelCopyCallback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        // startCopyOnLockAcquired(cameraview);
 
     }
+
 
 
     public void startCopyOnLockAcquired(SurfaceView cameraView) {
@@ -53,6 +64,7 @@ public class ImageCopyRequest implements ImageProcessor{
         }
     }
 
+    @Override
     public void copyBitmapAndAttachListener(SurfaceView view, PostTake callback) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -77,6 +89,7 @@ public class ImageCopyRequest implements ImageProcessor{
         }
     }
 
+    @Override
     public void setHasPermissionToSave(boolean value) {
         this.setHasPermissionToSave = value;
     }

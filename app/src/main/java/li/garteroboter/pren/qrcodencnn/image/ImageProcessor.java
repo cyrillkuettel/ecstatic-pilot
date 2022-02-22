@@ -11,7 +11,6 @@ import android.view.SurfaceView;
  */
 public interface ImageProcessor {
 
-    void startCopyOnLockAcquired(SurfaceView view);
 
     void copyBitmapAndAttachListener(SurfaceView view, PostTake callback);
 
