@@ -57,9 +57,9 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
 
     public static final int REQUEST_READ_WRITE_EXTERNAL_STORAGE = 112;
     public static final int REQUEST_CAMERA = 100;
-    public static final String[] EXTERNAL_STORAGE_PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
+    public static final String[] EXTERNAL_STORAGE_PERMISSIONS =
+            {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
 
 
     @Override
@@ -98,7 +98,7 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
                     REQUEST_READ_WRITE_EXTERNAL_STORAGE);
         } else {
             Log.e(TAG, "READ_EXTERNAL_STORAGE permission already granted");
-          imageProcessor.setHasPermissionToSave(true);
+            imageProcessor.setHasPermissionToSave(true);
         }
 
         reload();
@@ -123,7 +123,6 @@ public class MainActivityQRCodeNCNN extends FragmentActivity implements SurfaceH
             imageProcessor.start();
         });
     }
-
 
 
     @Override
