@@ -3,6 +3,7 @@ package li.garteroboter.pren;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
+import li.garteroboter.pren.shell.RootShell;
 
 
 public class LoggingFragment extends Fragment {
@@ -99,6 +101,25 @@ public class LoggingFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        });
+
+        Button btnRootShell = view.findViewById(R.id.btnRootShell);
+        btnRootShell.setOnClickListener(v -> {
+            Log.i(TAG, "creating Rootshell Class");
+            String availableDevices = RootShell.sudoForResult("ls -lah /sys/class/leds/");
+            Log.v(TAG,availableDevices );
+           // String torch_light0 = RootShell.sudoForResult("cd /sys/class/");
+
+            // String nowitworks = RootShell.sudoForResult("cd /sys/class/leds/torch-light0/power && pwd && ls -l");
+            // Log.v(TAG, nowitworks);
+            String shouldTurnOn = RootShell.sudoForResult("echo 255 > /sys/class/leds:torch-light1/brightness");
+
+
+            Log.v(TAG,shouldTurnOn);
+
+          // String torchON = "echo 128 > /sys/class/leds/torch-light0/brightness";
+
+
         });
 
         /*
