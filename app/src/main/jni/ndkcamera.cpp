@@ -30,6 +30,13 @@ static void onDisconnected(void* context, ACameraDevice* device)
 static void onError(void* context, ACameraDevice* device, int error)
 {
     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onError %p %d", device, error);
+    /* The camera may throw an error.
+     * The UI will become unresponsive, until we restart the camera. This happens quite rarely.
+     * To resolve this issue, just restart the camera */
+    __android_log_print(ANDROID_LOG_DEBUG, "NdkCamera", "Camera threw an error. Restarting camera now.");
+    ((NdkCamera*)context)->close();
+    ((NdkCamera*)context)->open(1);
+
 }
 
 static void onImageAvailable(void* context, AImageReader* reader)
@@ -145,6 +152,7 @@ static void onSessionClosed(void* context, ACameraCaptureSession *session)
 void onCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraCaptureFailure* failure)
 {
     __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onCaptureFailed %p %p %p", session, request, failure);
+
 }
 
 void onCaptureSequenceCompleted(void* context, ACameraCaptureSession* session, int sequenceId, int64_t frameNumber)
