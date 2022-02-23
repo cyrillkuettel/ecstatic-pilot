@@ -31,6 +31,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
 import li.garteroboter.pren.settings.SettingsActivity;
+
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
 import simple.bluetooth.terminal.DevicesFragment;
@@ -111,9 +112,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         String name = sharedPreferences.getString("key_show_an_approximation_of_fps", "");
 
-
         Log.v(TAG, String.format("Printing fps on off value: %s", name));
-
 
         Intent myIntent = new Intent(this, MainActivityQRCodeNCNN.class);
         startActivity(myIntent);

@@ -213,6 +213,7 @@ NdkCamera::NdkCamera()
         // try out other options:
         // Could add this as Parameter in the UI.
         // https://www.wikiwand.com/en/Graphics_display_resolution#/Overview_by_vertical_resolution_and_aspect_ratio
+        // width: 960 height 720
         // width: 640 height: 480 (orginal)
         // width: 480 height: 320
         // width: 480 height: 360
