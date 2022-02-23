@@ -29,8 +29,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-
-
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
 
 
 public class SendImagesFragment extends Fragment {

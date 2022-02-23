@@ -24,6 +24,8 @@ import java.util.TimeZone;
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.shell.RootShell;
+import li.garteroboter.pren.socket.*;
+
 
 
 public class LoggingFragment extends Fragment {

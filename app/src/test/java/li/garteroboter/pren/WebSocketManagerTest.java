@@ -33,6 +33,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
+
 public class WebSocketManagerTest {
     private static final String TAG = "WebSocketManagerTest";
 

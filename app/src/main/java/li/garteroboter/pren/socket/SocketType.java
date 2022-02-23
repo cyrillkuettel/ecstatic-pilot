@@ -1,4 +1,4 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.socket;
 
 public enum SocketType {
 
