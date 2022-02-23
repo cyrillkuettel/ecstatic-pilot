@@ -24,7 +24,6 @@ public class SettingsActivity extends AppCompatActivity {
             SettingsFragment settingsFragment = new SettingsFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.idFrameLayout, settingsFragment).commit();
 
-
         }
     }
 }
