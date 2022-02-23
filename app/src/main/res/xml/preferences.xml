@@ -12,7 +12,7 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="@string/key_show_an_approximation_of_fps"
+            android:key="fps_key"
             android:summary="@string/show_an_approximation_of_fps"
             android:title="@string/show_fps" />
 

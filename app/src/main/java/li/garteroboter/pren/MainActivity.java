@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,8 +30,10 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
+import li.garteroboter.pren.settings.SettingsActivity;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
 import simple.bluetooth.terminal.DevicesFragment;
-import simple.bluetooth.terminal.TerminalFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -40,15 +43,13 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             "-pilot/blob/QR/app/build/intermediates/apk/debug/app-debug.apk?raw=true";
 
     private WebSocketManager manager = null;
-
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
 
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
 
-    // Attention: You have to change viewPager.setOffscreenPageLimit as well.
-    // this sucks but it won't accept NUM_PAGES as argument
+    // You have to change viewPager.setOffscreenPageLimit as well.
     private static final int NUM_PAGES = 3;
 
     /**
@@ -93,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         Button updateApp = findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> showUpdateMessageBox());
 
-        Button settingsBtn = findViewById(R.id.idBtnSettings);
 
+        Button settingsBtn = findViewById(R.id.idBtnSettings);
         settingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,15 +105,20 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             }
         });
 
+        /*
         SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this /* Activity context */);
+                PreferenceManager.
 
         String name = sharedPreferences.getString("key_show_an_approximation_of_fps", "");
+
+
         Log.v(TAG, String.format("Printing fps on off value: %s", name));
 
 
         Intent myIntent = new Intent(this, MainActivityQRCodeNCNN.class);
         startActivity(myIntent);
+
+         */
     }
 
 

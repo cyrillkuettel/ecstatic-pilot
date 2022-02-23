@@ -22,6 +22,9 @@ import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
 
 
 public class LoggingFragment extends Fragment {
@@ -100,6 +103,7 @@ public class LoggingFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+
 
         /*
         Button btnInternetTime =  view.findViewById(R.id.btnInternetTime);

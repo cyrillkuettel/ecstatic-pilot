@@ -1,5 +1,6 @@
 package simple.bluetooth.terminal;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -7,6 +8,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+
+import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -81,6 +85,7 @@ class SerialSocket implements Runnable {
     @Override
     public void run() { // connect & read
         try {
+
             socket = device.createRfcommSocketToServiceRecord(BLUETOOTH_SPP);
             socket.connect();
             if (listener != null)
