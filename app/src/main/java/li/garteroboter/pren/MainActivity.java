@@ -1,56 +1,26 @@
 package li.garteroboter.pren;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-
-
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import li.garteroboter.pren.log.LogcatData;
-import li.garteroboter.pren.log.LogcatDataReader;
 import simple.bluetooth.terminal.BlueActivity;
-import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -58,21 +28,17 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
             "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
-    private WebSocketManager manager = null;
-
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
-
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
-
     private static final int NUM_PAGES = 2;
-
+    final String[] tabNames = {"Logs", "Images"};
+    TabLayout tabLayout;
+    private WebSocketManager manager = null;
     /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private FragmentStateAdapter pagerAdapter;
-    TabLayout tabLayout;
-    final String[] tabNames = {"Logs", "Images"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         Log.d(TAG, "creating ScreenSlidePagerAdapter");
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(2); // important: the fragments stay in memory
-        tabLayout =findViewById(R.id.tabLayout);
+        tabLayout = findViewById(R.id.tabLayout);
 
         if (tabLayout != null && viewPager != null) {
             new TabLayoutMediator(
@@ -103,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                     }
             ).attach();
         } else {
-            Log.i(TAG,  "tabLayout  or viewPager == null");
+            Log.i(TAG, "tabLayout  or viewPager == null");
         }
 
         Button updateApp = findViewById(R.id.updateApp);
@@ -143,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         startActivity(intent);
         return true;
     }
-
-
-
 
 
     public final void showUpdateMessageBox() {
