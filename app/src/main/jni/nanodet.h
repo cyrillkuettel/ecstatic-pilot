@@ -26,8 +26,8 @@ struct Object
     float prob;
 };
 extern JavaVM* javaVM_global;
-extern jclass FragmentNanodetClass;
-extern jobject FragmentNanodetObject;
+extern jclass MainActivityNanodetNCNNClass;
+extern jobject MainActivityNanodetNCNNObject;
 
 
 class NanoDet{

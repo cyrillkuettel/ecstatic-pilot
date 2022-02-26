@@ -10,30 +10,27 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/buttonSwitchCamera2"
+            android:id="@+id/buttonSwitchCamera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:text="switch camera" />
-
+            android:text="flip camera" />
 
     </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
-        android:id="@+id/menuBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
         <Spinner
-            android:id="@+id/spinnerModel2"
+            android:id="@+id/spinnerModel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawSelectorOnTop="true"
             android:entries="@array/model_array" />
 
         <Spinner
-            android:id="@+id/spinnerCPUGPU2"
+            android:id="@+id/spinnerCPUGPU"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawSelectorOnTop="true"
@@ -41,15 +38,9 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
     <SurfaceView
-        android:id="@+id/cameraview2"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</RelativeLayout>
-    <!-- maybe improves fps if the surfaceView is as little as possible width: 320 height: 240 -->
+        android:id="@+id/cameraview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
 </LinearLayout>

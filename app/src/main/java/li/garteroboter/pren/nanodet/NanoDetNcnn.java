@@ -26,7 +26,7 @@ public class NanoDetNcnn implements Parcelable
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
     public native boolean setOutputWindow(Surface surface);
-    public native boolean setObjectReferenceAsGlobal(FragmentNanodet fragmentNanodet_object);
+    public native boolean setObjectReferenceAsGlobal(MainActivityNanodetNCNN mainActivityNanodetNCNN);
 
     public native int getCPUCount();
 

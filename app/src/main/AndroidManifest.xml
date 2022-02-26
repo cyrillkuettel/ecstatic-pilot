@@ -35,19 +35,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
-
+        android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
 
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.PIlot" >
-
-        <activity android:name="li.garteroboter.pren.nanodet.MainActivity2"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait">
-
-
-        </activity>
 
         <activity
             android:name=".MainActivity"
@@ -66,7 +59,10 @@
         </activity>
 
         <service android:name="simple.bluetooth.terminal.SerialService" />
-
+        <activity
+            android:name=".nanodet.MainActivityNanodetNCNN"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 

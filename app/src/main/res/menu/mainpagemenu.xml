@@ -12,16 +12,18 @@
         <menu android:id="@+id/menu">
 
              <item
-                 android:id="@+id/websocket"
-                 android:title="WebSocket" />
+                 android:id="@+id/Main"
+                 android:title="Main" />
 
              <item
-                 android:id="@+id/bluetooth2"
-                 android:title="QR Code and Camera" />
+                 android:id="@+id/deprecated_fragment_QR"
+                 android:title="Fragment QR (deprecated " />
+
 
             <item
-                android:id="@+id/nanodet"
-                android:title="Neural Network" />
+                android:id="@+id/nanodet_Activity"
+                android:title="Nanodet stable" />
+
 
          </menu>
 

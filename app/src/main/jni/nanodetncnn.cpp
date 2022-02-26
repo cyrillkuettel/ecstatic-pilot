@@ -111,6 +111,9 @@ static int draw_fps(cv::Mat& rgb)
     return 0;
 }
 
+
+
+
 static NanoDet* g_nanodet = 0;
 static ncnn::Mutex lock;
 
@@ -156,19 +159,15 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     __android_log_print(ANDROID_LOG_DEBUG, "nanodetncnnn", "JNI_OnLoad");
     // https://stackoverflow.com/questions/10617735/in-jni-how-do-i-cache-the-class-methodid-and-fieldids-per-ibms-performance-r/13940735
     // Obtain the JNIEnv from the VM and confirm JNI_VERSION
-
     if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION) != JNI_OK) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "error seems to indicate that JNI_VERSION) != JNI_OK");
         return JNI_ERR;
     }
     javaVM_global = vm; // important. This variable is critical for success.
                         // Is needed to ultimately access JNIEnv which gives access to Java Objects
-
     // Temporary local reference holder
     jclass tempLocalClassRef;
-
-    tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/FragmentNanodet");
-
+    tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/MainActivityNanodetNCNN");
 
     // STEP 1/3 : Load the class id
     if (tempLocalClassRef == nullptr || env->ExceptionOccurred()) {
@@ -177,13 +176,11 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     }
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Assign the ClassId as a Global Reference");
     // STEP 2/3 : Assign the ClassId as a Global Reference
-    FragmentNanodetClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
+    MainActivityNanodetNCNNClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
 
     // STEP 3/3 : Delete the no longer needed local reference
     env->DeleteLocalRef(tempLocalClassRef);
-
     g_camera = new MyNdkCamera;
-
     return JNI_VERSION_1_4;
 }
 
@@ -204,8 +201,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
     vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
 
 
-      env->DeleteGlobalRef(FragmentNanodetClass);
-      env->DeleteGlobalRef(FragmentNanodetObject);
+      env->DeleteGlobalRef(MainActivityNanodetNCNNClass);
+      env->DeleteGlobalRef(MainActivityNanodetNCNNObject);
     // ... repeat for any other global references
 
     delete g_camera;
@@ -336,7 +333,7 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObje
                                                                                                     jobject fragment_nanodet_object) {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
 
-     FragmentNanodetObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
+    MainActivityNanodetNCNNObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
 
     return JNI_TRUE;
 }

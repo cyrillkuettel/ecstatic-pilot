@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-            case R.id.websocket:
+            case R.id.Main:
                 intent = new Intent(this, MainActivity.class);
                 break;
-            case R.id.bluetooth2:
+            case R.id.deprecated_fragment_QR:
                 intent = new Intent(this, BlueActivity.class);
                 break;
-            case R.id.nanodet:
-                intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivity2.class);
+            case R.id.nanodet_Activity:
+                intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivityNanodetNCNN.class);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
