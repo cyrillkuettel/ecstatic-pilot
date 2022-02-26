@@ -132,7 +132,9 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
         if (g_nanodet)
         {
             std::vector<Object> objects;
-            g_nanodet->detect(rgb, objects);
+            // toggle one of the two functions on the next line, but not both
+            // g_nanodet->detect(rgb, objects);
+            g_nanodet->detect_plant_vase(rgb, objects);
 
             g_nanodet->draw(rgb, objects);
         }

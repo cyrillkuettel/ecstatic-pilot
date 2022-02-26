@@ -108,7 +108,107 @@ static void nms_sorted_bboxes(const std::vector<Object> &faceobjects, std::vecto
 }
 
 
-static void generate_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
+static void generate_proposals(const ncnn::Mat& cls_pred, const ncnn::Mat& dis_pred, int stride, const ncnn::Mat& in_pad, float prob_threshold, std::vector<Object>& objects)
+{
+    const int num_grid = cls_pred.h;
+
+    int num_grid_x;
+    int num_grid_y;
+    if (in_pad.w > in_pad.h)
+    {
+        num_grid_x = in_pad.w / stride;
+        num_grid_y = num_grid / num_grid_x;
+    }
+    else
+    {
+        num_grid_y = in_pad.h / stride;
+        num_grid_x = num_grid / num_grid_y;
+    }
+
+    const int num_class = cls_pred.w;
+    const int reg_max_1 = dis_pred.w / 4;
+
+    for (int i = 0; i < num_grid_y; i++)
+    {
+        for (int j = 0; j < num_grid_x; j++)
+        {
+            const int idx = i * num_grid_x + j;
+
+            const float* scores = cls_pred.row(idx);
+
+            // find label with max score
+            int label = -1;
+            float score = -FLT_MAX;
+            for (int k = 0; k < num_class; k++)
+            {
+                if (scores[k] > score)
+                {
+                    label = k;
+                    score = scores[k];
+                }
+            }
+
+            if (score >= prob_threshold)
+            {
+                ncnn::Mat bbox_pred(reg_max_1, 4, (void*)dis_pred.row(idx));
+                {
+                    ncnn::Layer* softmax = ncnn::create_layer("Softmax");
+
+                    ncnn::ParamDict pd;
+                    pd.set(0, 1); // axis
+                    pd.set(1, 1);
+                    softmax->load_param(pd);
+
+                    ncnn::Option opt;
+                    opt.num_threads = 1;
+                    opt.use_packing_layout = false;
+
+                    softmax->create_pipeline(opt);
+
+                    softmax->forward_inplace(bbox_pred, opt);
+
+                    softmax->destroy_pipeline(opt);
+
+                    delete softmax;
+                }
+
+                float pred_ltrb[4];
+                for (int k = 0; k < 4; k++)
+                {
+                    float dis = 0.f;
+                    const float* dis_after_sm = bbox_pred.row(k);
+                    for (int l = 0; l < reg_max_1; l++)
+                    {
+                        dis += l * dis_after_sm[l];
+                    }
+
+                    pred_ltrb[k] = dis * stride;
+                }
+
+                float pb_cx = (j + 0.5f) * stride;
+                float pb_cy = (i + 0.5f) * stride;
+
+                float x0 = pb_cx - pred_ltrb[0];
+                float y0 = pb_cy - pred_ltrb[1];
+                float x1 = pb_cx + pred_ltrb[2];
+                float y1 = pb_cy + pred_ltrb[3];
+
+                Object obj;
+                obj.rect.x = x0;
+                obj.rect.y = y0;
+                obj.rect.width = x1 - x0;
+                obj.rect.height = y1 - y0;
+                obj.label = label;
+                obj.prob = score;
+
+                objects.push_back(obj);
+            }
+        }
+    }
+}
+
+
+static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
                                const ncnn::Mat &in_pad, float prob_threshold,
                                std::vector<Object> &objects) {
     const int num_grid = cls_pred.h;
@@ -150,6 +250,11 @@ static void generate_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_p
 
 
             if (score != -FLT_MAX) {  // not neccessary
+
+                // Success! Found plant or vase with probability > 0.4
+                NanoDet::invoke_class_from_static("either");
+
+
                 ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));
                 {
                     ncnn::Layer *softmax = ncnn::create_layer("Softmax");
@@ -306,6 +411,144 @@ static const char *class_names[] = {
         "teddy bear",
         "hair drier", "toothbrush"
 }; // 80 objects
+
+
+int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
+                    float nms_threshold) {
+    int width = rgb.cols;
+    int height = rgb.rows;
+
+    // pad to multiple of 32
+    int w = width;
+    int h = height;
+    float scale = 1.f;
+    if (w > h) {
+        scale = (float) target_size / w;
+        w = target_size;
+        h = h * scale;
+    } else {
+        scale = (float) target_size / h;
+        h = target_size;
+        w = w * scale;
+    }
+
+    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height,
+                                                 w, h);
+
+    // pad to target_size rectangle
+    int wpad = (w + 31) / 32 * 32 - w;
+    int hpad = (h + 31) / 32 * 32 - h;
+    ncnn::Mat in_pad;
+    ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2,
+                           ncnn::BORDER_CONSTANT, 0.f);
+
+    in_pad.substract_mean_normalize(mean_vals, norm_vals);
+
+    ncnn::Extractor ex = nanodet.create_extractor();
+
+    ex.input("input.1", in_pad);
+
+    std::vector<Object> proposals;
+
+    // stride 8
+    {
+        ncnn::Mat cls_pred;
+        ncnn::Mat dis_pred;
+        ex.extract("cls_pred_stride_8", cls_pred);
+        ex.extract("dis_pred_stride_8", dis_pred);
+
+        std::vector<Object> objects8;
+        generate_plant_vase_proposals(cls_pred, dis_pred, 8, in_pad, prob_threshold, objects8);
+
+        proposals.insert(proposals.end(), objects8.begin(), objects8.end());
+    }
+
+    // stride 16
+    {
+        ncnn::Mat cls_pred;
+        ncnn::Mat dis_pred;
+        ex.extract("cls_pred_stride_16", cls_pred);
+        ex.extract("dis_pred_stride_16", dis_pred);
+
+        std::vector<Object> objects16;
+        generate_plant_vase_proposals(cls_pred, dis_pred, 16, in_pad, prob_threshold, objects16);
+
+        proposals.insert(proposals.end(), objects16.begin(), objects16.end());
+    }
+
+    // stride 32
+    {
+        ncnn::Mat cls_pred;
+        ncnn::Mat dis_pred;
+        ex.extract("cls_pred_stride_32", cls_pred);
+        ex.extract("dis_pred_stride_32", dis_pred);
+
+        std::vector<Object> objects32;
+        generate_plant_vase_proposals(cls_pred, dis_pred, 32, in_pad, prob_threshold, objects32);
+
+        proposals.insert(proposals.end(), objects32.begin(), objects32.end());
+    }
+
+    // sort all proposals by score from highest to lowest
+    qsort_descent_inplace(proposals);
+
+    // apply nms with nms_threshold
+    std::vector<int> picked;
+    nms_sorted_bboxes(proposals, picked, nms_threshold);
+
+    int count = picked.size();
+
+    objects.resize(count);
+    for (int i = 0; i < count; i++) {
+        objects[i] = proposals[picked[i]];
+
+        // adjust offset to original unpadded
+        float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
+        float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
+        float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
+        float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
+
+        // clip
+        x0 = std::max(std::min(x0, (float) (width - 1)), 0.f);
+        y0 = std::max(std::min(y0, (float) (height - 1)), 0.f);
+        x1 = std::max(std::min(x1, (float) (width - 1)), 0.f);
+        y1 = std::max(std::min(y1, (float) (height - 1)), 0.f);
+
+        objects[i].rect.x = x0;
+        objects[i].rect.y = y0;
+        objects[i].rect.width = x1 - x0;
+        objects[i].rect.height = y1 - y0;
+
+        /* trying something out */
+
+        const char *plant = "potted plant";
+        const char *vase = "vase";
+        char *buf;
+
+        int isPlantIfZero = strcmp(class_names[objects[i].label],
+                                   plant); // built-in function to compare char
+        int isVaseIfZero = strcmp(class_names[objects[i].label], vase);
+
+        if (isPlantIfZero || isVaseIfZero == 0 && objects[i].prob) {
+            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "potted plant");
+        }
+        if (objects[i].label == 60) {
+            // try this out later
+        }
+    }
+
+    // sort objects by area
+    struct {
+        bool operator()(const Object &a, const Object &b) const {
+
+            return a.rect.area() > b.rect.area();
+        }
+    } objects_area_greater;
+    std::sort(objects.begin(), objects.end(), objects_area_greater);
+
+    return 0;
+}
+
 
 int NanoDet::detect(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
                     float nms_threshold) {
@@ -488,6 +731,30 @@ void NanoDet::invoke_class(char *objectLabel) {
 
 }
 
+void NanoDet::invoke_class_from_static(char *objectLabel) {
+    if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
+        // I'm not 100% sure if this is necessary. Does it impact performance?
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
+        return;
+    }
+
+    instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
+                                                  "nonStaticDurchstich",
+                                                  "(Ljava/lang/String;)V"); // JNI type signature
+    if (instanceMethod_CallInJava == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+        return;
+    } else {
+        jstrBuf = env2->NewStringUTF(objectLabel);
+        if (!jstrBuf) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jstring.");
+            return;
+        }
+        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
+    }
+}
+
+
 
 int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
 
@@ -532,12 +799,9 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
 
         char text[256];
 
-//      check for class_names[obj.label], if it equals "potted plant" or "vase"
-//      The following block of code (written by me) is an absolute abstrusity. It's so bad. I don't know any better.
-
+/*
         char *plant = "potted plant";
         char *vase = "vase";
-
         char *either_plant_or_vase = "either_plant_or_vase";
 
         int isPlantIfZero = strcmp(class_names[obj.label],
@@ -545,20 +809,11 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
                                    plant); // built-in function to compare char
         int isVaseIfZero = strcmp(class_names[obj.label], vase);
 
-        /*
-         * potted plant: label 58;
-         * vase: label 75;
-         */
+
         if (isPlantIfZero == 0 || isVaseIfZero == 0) {
-            //__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "plant + vase detected");
-            if (isVaseIfZero == 0) {
-                __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "vase label %d", obj.label);
-
-            }
-
-            invoke_class(either_plant_or_vase);
+          //  invoke_class(either_plant_or_vase);
         }
-
+*/
         // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);
 
         sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
@@ -586,5 +841,8 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
 
     return 0;
 }
+
+
+
 
 

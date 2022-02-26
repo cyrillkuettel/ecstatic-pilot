@@ -41,9 +41,12 @@ class NanoDet{
 
     int detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold = 0.4f, float nms_threshold = 0.5f);
 
+    int detect_plant_vase(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold = 0.4f, float nms_threshold = 0.5f);
+
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
 
+    static void invoke_class_from_static(char *objectLabel);
 
 private:
     ncnn::Net nanodet;
@@ -54,6 +57,7 @@ private:
     ncnn::PoolAllocator workspace_pool_allocator;
 
     void invoke_class(char *objectLabel);
+
 };
 
 #endif // NANODET_H
