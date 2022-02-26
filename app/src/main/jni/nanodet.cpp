@@ -26,12 +26,16 @@
 #include <unistd.h>
 #include "cpu.h"
 
+const int potted_plant_label = 58;
+const int vase_label = 75;
+
 static inline float intersection_area(const Object &a, const Object &b) {
     cv::Rect_<float> inter = a.rect & b.rect;
     return inter.area();
 }
 
 static void qsort_descent_inplace(std::vector<Object> &faceobjects, int left, int right) {
+
     int i = left;
     int j = right;
     float p = faceobjects[(left + right) / 2].prob;
@@ -103,10 +107,14 @@ static void nms_sorted_bboxes(const std::vector<Object> &faceobjects, std::vecto
     }
 }
 
+
 static void generate_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
                                const ncnn::Mat &in_pad, float prob_threshold,
                                std::vector<Object> &objects) {
     const int num_grid = cls_pred.h;
+
+
+
 
     int num_grid_x;
     int num_grid_y;
@@ -126,18 +134,22 @@ static void generate_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_p
             const int idx = i * num_grid_x + j;
 
             const float *scores = cls_pred.row(idx);
-
-            // find label with max score
+            // find label with max score,
+            // which is object 'potted_plant' or 'vase'
+            // I will write a custom function. No need to loop through all objects.
+            // here: condition for the label to match potted_plant or vase!
             int label = -1;
             float score = -FLT_MAX;
-            for (int k = 0; k < num_class; k++) {
-                if (scores[k] > score) {
-                    label = k;
-                    score = scores[k];
-                }
+            if (scores[potted_plant_label] >= prob_threshold) {
+                label = potted_plant_label;
+                score = scores[potted_plant_label];
+            } else if (scores[vase_label] >= prob_threshold) {
+                label = vase_label;
+                score = scores[vase_label];
             }
 
-            if (score >= prob_threshold) {
+
+            if (score != -FLT_MAX) {  // not neccessary
                 ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));
                 {
                     ncnn::Layer *softmax = ncnn::create_layer("Softmax");
@@ -526,20 +538,25 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
         char *plant = "potted plant";
         char *vase = "vase";
 
+        char *either_plant_or_vase = "either_plant_or_vase";
+
         int isPlantIfZero = strcmp(class_names[obj.label],
+
                                    plant); // built-in function to compare char
         int isVaseIfZero = strcmp(class_names[obj.label], vase);
 
-        if (isPlantIfZero == 0 && isVaseIfZero == 0) {
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "plant + vase detected");
-            invoke_class(vase);
-        } else {
-            if (isPlantIfZero == 0) {
-                invoke_class(plant);
-            }
+        /*
+         * potted plant: label 58;
+         * vase: label 75;
+         */
+        if (isPlantIfZero == 0 || isVaseIfZero == 0) {
+            //__android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "plant + vase detected");
             if (isVaseIfZero == 0) {
-                invoke_class(vase);
+                __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "vase label %d", obj.label);
+
             }
+
+            invoke_class(either_plant_or_vase);
         }
 
         // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);

@@ -20,6 +20,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
 import simple.bluetooth.terminal.BlueActivity;
 
 
@@ -75,8 +77,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         Button updateApp = findViewById(R.id.updateApp);
         updateApp.setOnClickListener(v -> {
             showUpdateMessageBox();
-
         });
+
+        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
+        startActivity(myIntent);
     }
 
 

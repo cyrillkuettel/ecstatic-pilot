@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -23,17 +26,21 @@ import androidx.core.content.ContextCompat;
 import li.garteroboter.pren.R;
 
 public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.Callback,
-        VibrationListener {
+        VibrationListener, PlaySoundListener {
 
     private static final String TAG = "MainActivityNanodetNCNN";
     private final Context mContext = MainActivityNanodetNCNN.this;
 
-    public static boolean TOGGLE_VIBRATE = true;
+    public static boolean TOGGLE_VIBRATE = false;
+    public static boolean TOGGLE_RINGTONE = true;
+
+    final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid spamming)
+
     long lastTime = 0;
 
     public static final int REQUEST_CAMERA = 100;
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
-    private int facing = 0;
+    private int facing = 1;
 
     private Spinner spinnerModel;
     private Spinner spinnerCPUGPU;
@@ -41,6 +48,7 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
+    private Ringtone ringtone;
 
     /** Called when the activity is first created. */
     @Override
@@ -102,6 +110,9 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
             }
         });
 
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+
         reload();
     }
 
@@ -131,7 +142,8 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
     }
 
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        startVibrating(100);
+        startRingtone();
+       // startVibrating(100);
     }
 
 
@@ -148,11 +160,10 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
 
     @Override
     public void startVibrating(final int millis) {
-
-        final int waitingTimeUntilNextVibrate = 1000;
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // safety mechanism to not vibrate too often.
-        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTimeUntilNextVibrate) {
-            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTime) {
+
 // Vibrate for N milliseconds
             try {
                 v.vibrate(VibrationEffect.createOneShot(millis, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -164,12 +175,26 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
         }
     }
 
+    @Override
+    public void startRingtone() {
+        if (TOGGLE_RINGTONE && System.currentTimeMillis() - lastTime > waitingTime) {
+
+            try {
+                ringtone.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            lastTime = System.currentTimeMillis();
+        }
+    }
+
 
     @Override
     public void onPause()
     {
         super.onPause();
-
         nanodetncnn.closeCamera();
     }
+
+
 }
