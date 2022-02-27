@@ -110,10 +110,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         Log.v(TAG, String.format("Printing fps on off value: %s", name));
 
-        Intent myIntent = new Intent(this, MainActivityQRCodeNCNN.class);
-        startActivity(myIntent);
+
 
          */
+        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
+        startActivity(myIntent);
     }
 
 
