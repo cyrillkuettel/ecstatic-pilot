@@ -59,17 +59,18 @@
 
 
     <string-array name="camera_resolution_entries">
-    <item>width: 640 height: 480 (default)</item>
-    <item>width: 480 height: 320</item>
-    <item>width: 480 height: 360</item>
-    <item>width: 320 height: 240</item>
-</string-array>
+        <item>width: 640 height: 480 (default)</item>
+        <item>width: 480 height: 320</item>
+        <item>width: 480 height: 360</item>
+        <item>width: 320 height: 240</item>
+    </string-array>
 
 
-<string-array name="camera_resolution_values">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-    <item>3</item>
-</string-array>
+    <string-array name="camera_resolution_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string name="title_activity_qrcode">QRCodeActivity</string>
 </resources>

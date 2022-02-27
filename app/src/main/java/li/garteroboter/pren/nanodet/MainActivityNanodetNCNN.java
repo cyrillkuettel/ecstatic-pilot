@@ -3,6 +3,7 @@ package li.garteroboter.pren.nanodet;
 import android.Manifest;
 import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.media.Ringtone;
@@ -25,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.nanodet.image.ImageCopyRequest;
 import li.garteroboter.pren.nanodet.image.ImageProcessor;
+import li.garteroboter.pren.qrcode.QrCodeActivity;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.VibrationListener;
 
@@ -145,6 +147,9 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
         startRingtone();
        // startVibrating(100);
+        // plant detection, so we switch to the QR Activity
+        Intent myIntent = new Intent(this, QrCodeActivity.class);
+        startActivity(myIntent);
     }
 
 
