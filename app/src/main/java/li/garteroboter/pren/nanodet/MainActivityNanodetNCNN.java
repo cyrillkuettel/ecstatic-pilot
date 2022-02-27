@@ -1,5 +1,7 @@
 package li.garteroboter.pren.nanodet;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+
 import android.Manifest;
 import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
@@ -149,6 +151,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
        // startVibrating(100);
         // plant detection, so we switch to the QR Activity
         Intent myIntent = new Intent(this, QrCodeActivity.class);
+        myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
     }
 
