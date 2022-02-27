@@ -693,6 +693,8 @@ JNIEnv *env2;
 jclass MainActivityNanodetNCNNClass;
 jobject MainActivityNanodetNCNNObject; // to access the object.
 
+jclass TerminalFragmentClass;
+jobject TerminalFragmentObject;
 
 jmethodID staticMethod_CallInJava;
 jmethodID instanceMethod_CallInJava;

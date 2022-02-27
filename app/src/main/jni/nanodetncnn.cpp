@@ -169,20 +169,28 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
                         // Is needed to ultimately access JNIEnv which gives access to Java Objects
     // Temporary local reference holder
     jclass tempLocalClassRef;
+    jclass tempLocalClassRef2;
+
     tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/MainActivityNanodetNCNN");
+    tempLocalClassRef2 = env->FindClass("simple/bluetooth/terminal/TerminalFragment");
+
 
     // STEP 1/3 : Load the class id
-    if (tempLocalClassRef == nullptr || env->ExceptionOccurred()) {
+    if (tempLocalClassRef == nullptr || env->ExceptionOccurred() || tempLocalClassRef2 == nullptr ) {
         env->ExceptionClear();
-        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "There was an error in invoke_class");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "%s", "There was an error in JNI_OnLoad");
     }
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Assign the ClassId as a Global Reference");
     // STEP 2/3 : Assign the ClassId as a Global Reference
+    TerminalFragmentClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
     MainActivityNanodetNCNNClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
 
     // STEP 3/3 : Delete the no longer needed local reference
     env->DeleteLocalRef(tempLocalClassRef);
+    env->DeleteLocalRef(tempLocalClassRef2);
+
     g_camera = new MyNdkCamera;
+
     return JNI_VERSION_1_4;
 }
 
@@ -340,12 +348,18 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObje
     return JNI_TRUE;
 }
 
-JNIEXPORT jint JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_getCPUCount(JNIEnv *env, jobject thiz) {
-     int cpu_count = ncnn::get_gpu_count(); // seems to always be 1
-    __android_log_print(ANDROID_LOG_INFO, "ncnn", "CPU_COUNT: %d", cpu_count);
+JNIEXPORT jboolean JNICALL Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env,
+                                                                                                      jobject thiz,
+                                                                                                      jobject terminalFragment) {
+    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
 
-    return cpu_count;
+    TerminalFragmentObject = (jobject) env->NewGlobalRef(terminalFragment);
+
+    return JNI_TRUE;
+
 }
+
+
 
 }
 

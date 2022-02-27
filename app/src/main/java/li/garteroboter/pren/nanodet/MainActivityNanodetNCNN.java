@@ -1,7 +1,7 @@
 package li.garteroboter.pren.nanodet;
 
 import android.Manifest;
-import android.app.Activity;
+import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
@@ -22,10 +22,16 @@ import android.widget.Spinner;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import li.garteroboter.pren.R;
+import li.garteroboter.pren.nanodet.image.ImageCopyRequest;
+import li.garteroboter.pren.nanodet.image.ImageProcessor;
+import simple.bluetooth.terminal.DevicesFragment;
+import simple.bluetooth.terminal.VibrationListener;
 
 import li.garteroboter.pren.R;
+import simple.bluetooth.terminal.DevicesFragment;
 
-public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.Callback,
+public class MainActivityNanodetNCNN extends FragmentActivity implements SurfaceHolder.Callback,
         VibrationListener, PlaySoundListener {
 
     private static final String TAG = "MainActivityNanodetNCNN";
@@ -63,16 +69,6 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
-        Button buttonSwitchCamera = (Button) findViewById(R.id.buttonSwitchCamera);
-        buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                int new_facing = 1 - facing;
-                nanodetncnn.closeCamera();
-                nanodetncnn.openCamera(new_facing);
-                facing = new_facing;
-            }
-        });
 
         spinnerModel = (Spinner) findViewById(R.id.spinnerModel);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -109,6 +105,11 @@ public class MainActivityNanodetNCNN extends Activity implements SurfaceHolder.C
             {
             }
         });
+        // Initialize a little menu at the edge of the screen, to connect to a Bluetooth Device.
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
+                    new DevicesFragment(), "devices").commit();
+        }
 
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);

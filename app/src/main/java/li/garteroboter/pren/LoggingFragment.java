@@ -2,6 +2,7 @@ package li.garteroboter.pren;
 
 
 import android.content.Context;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -22,7 +22,10 @@ import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
-import li.garteroboter.pren.nanodet.VibrationListener;
+import li.garteroboter.pren.shell.RootShell;
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
 
 
 public class LoggingFragment extends Fragment {
@@ -101,6 +104,33 @@ public class LoggingFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+
+
+        Button btnRootShell = view.findViewById(R.id.btnRootShell);
+        btnRootShell.setVisibility(View.INVISIBLE);
+        btnRootShell.setOnClickListener(v -> {
+            // This is an attempt to turn the the flashlight on using the kernel interface.
+            // Somehow did not work. I have no idea why.
+            try {
+                Log.i(TAG, "creating Rootshell Class");
+                String availableDevices = RootShell.sudoForResult("ls -lah /sys/class/leds/");
+                Log.v(TAG,availableDevices );
+                // String torch_light0 = RootShell.sudoForResult("cd /sys/class/");
+
+                // String nowitworks = RootShell.sudoForResult("cd /sys/class/leds/torch-light0/power && pwd && ls -l");
+                // Log.v(TAG, nowitworks);
+                String shouldTurnOn = RootShell.sudoForResult("echo 255 > /sys/class/leds:torch-light1/brightness");
+
+
+                Log.v(TAG,shouldTurnOn);
+
+                // String torchON = "echo 128 > /sys/class/leds/torch-light0/brightness";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+
 
         /*
         Button btnInternetTime =  view.findViewById(R.id.btnInternetTime);

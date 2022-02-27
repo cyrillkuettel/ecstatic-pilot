@@ -29,6 +29,8 @@ extern JavaVM* javaVM_global;
 extern jclass MainActivityNanodetNCNNClass;
 extern jobject MainActivityNanodetNCNNObject;
 
+extern jclass TerminalFragmentClass;
+extern jobject TerminalFragmentObject;
 
 class NanoDet{
 

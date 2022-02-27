@@ -10,37 +10,51 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
-import simple.bluetooth.terminal.BlueActivity;
+import li.garteroboter.pren.settings.SettingsActivity;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
+import simple.bluetooth.terminal.DevicesFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
     private static final String TAG = "MainActivity";
 
     private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
-            "-pilot/blob/master/app/build/outputs/apk/debug/app-debug.apk?raw=true";
+            "-pilot/blob/QR/app/build/intermediates/apk/debug/app-debug.apk?raw=true";
+
+    private WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
+
     private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
     private static final int PIXEL_CAMERA_HEIGHT = 4048;
-    private static final int NUM_PAGES = 2;
-    final String[] tabNames = {"Logs", "Images"};
-    TabLayout tabLayout;
-    private WebSocketManager manager = null;
+
+
+    // You have to change viewPager.setOffscreenPageLimit as well.
+    private static final int NUM_PAGES = 3;
+
     /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private FragmentStateAdapter pagerAdapter;
+    TabLayout tabLayout;
+    String[] tabNames = new String[NUM_PAGES];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +63,18 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
-        /**
+        /*
          * The pager widget, which handles animation and allows swiping horizontally to access
          * previous
          * and next wizard steps.
          */
         ViewPager2 viewPager = findViewById(R.id.pager);
         pagerAdapter = new ScreenSlidePagerAdapter(this);
-        Log.d(TAG, "creating ScreenSlidePagerAdapter");
         viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(2); // important: the fragments stay in memory
+        viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout = findViewById(R.id.tabLayout);
-
-        if (tabLayout != null && viewPager != null) {
+        tabNames = new String[]{"Logs", "Images", "Bluetooth Terminal"};
+        if (tabLayout != null) {
             new TabLayoutMediator(
                     tabLayout,
                     viewPager,
@@ -75,12 +88,31 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         }
 
         Button updateApp = findViewById(R.id.updateApp);
-        updateApp.setOnClickListener(v -> {
-            showUpdateMessageBox();
+        updateApp.setOnClickListener(v -> showUpdateMessageBox());
+
+
+        Button settingsBtn = findViewById(R.id.idBtnSettings);
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // opening a new intent to open settings activity.
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
+            }
         });
 
-        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
+        /*
+        SharedPreferences sharedPreferences =
+                PreferenceManager.
+
+        String name = sharedPreferences.getString("key_show_an_approximation_of_fps", "");
+
+        Log.v(TAG, String.format("Printing fps on off value: %s", name));
+
+        Intent myIntent = new Intent(this, MainActivityQRCodeNCNN.class);
         startActivity(myIntent);
+
+         */
     }
 
 
@@ -98,15 +130,20 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
-            case R.id.Main:
+            case R.id.websocket:
                 intent = new Intent(this, MainActivity.class);
                 break;
-            case R.id.deprecated_fragment_QR:
-                intent = new Intent(this, BlueActivity.class);
+            case R.id.nanodet:
+                intent = new Intent(this, MainActivityNanodetNCNN.class);
                 break;
-            case R.id.nanodet_Activity:
-                intent = new Intent(this, li.garteroboter.pren.nanodet.MainActivityNanodetNCNN.class);
+                /*
+            case R.id.qrcode_ncnn:
+                intent = new Intent(this,
+                        li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN.class);
+
                 break;
+                 */
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -118,11 +155,14 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     public final void showUpdateMessageBox() {
 
         final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Achtung: Update Vorgehensweise");
+        alert.setTitle("Update Vorgehensweise");
         final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = String.format("Zuerst dieses App deinstallieren, bevor das " +
-                "apk installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, hilft " +
-                "meistens ein Neustart des Geräts. ");
+        final String defaultMessage = "Du wirst jetzt weitergeleitet, um die neuste Version des " +
+                "Apps als apk herunterzuladen. \n *Wichtig* Zuerst dieses App deinstallieren, bevor " +
+                "das " +
+                "neue App installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, " +
+                "hilft " +
+                "meistens ein Neustart des Geräts. ";
         messageForUpdateProcedure.setText(defaultMessage);
         alert.setView(messageForUpdateProcedure);
 
@@ -155,8 +195,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
      * Fires when the user has allowed or denied camera access during runtime.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "camera permission granted");
@@ -183,17 +223,17 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         @Override
         public Fragment createFragment(int position) {
-            // send logs
-            // send images
-            // settings:
+
             if (position == 0) {
                 Log.v(TAG, String.format("Position is %s, return LoggingFragment", position));
                 return LoggingFragment.newInstance();
-            } else {
+            } else if (position == 1) {
                 Log.v(TAG, String.format("Position is %s, return SendImagesFragment", position));
                 return SendImagesFragment.newInstance();
+            } else
+                Log.v(TAG, String.format("Position is %s, return DevicesFragment", position));
+                return DevicesFragment.newInstance();
             }
-        }
 
         @Override
         public int getItemCount() {

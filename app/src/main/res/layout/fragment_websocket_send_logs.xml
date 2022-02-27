@@ -64,6 +64,7 @@
         android:layout_height="45dp"
         android:layout_gravity="center_horizontal|center"
         android:layout_toRightOf="@+id/btnSendImagesFromDisk"
+        android:enabled="false"
         android:text="Dump Logcat" />
 
     <Button
@@ -74,6 +75,14 @@
         android:layout_gravity="center_horizontal|center"
 
         android:text="Close Socket Connection" />
+
+    <Button
+        android:id="@+id/btnRootShell"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal|center"
+        android:text="Run Shell Commands" />
 
 </LinearLayout>
 </ScrollView>

@@ -9,10 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
-
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -23,22 +20,24 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import li.garteroboter.pren.nanodet.VibrationListener;
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.socket.WebSocketManagerInstance;
 
 
-
+/**
+ * this is the tab for testing the sending of images to the webserver.
+ */
 public class SendImagesFragment extends Fragment {
     private static final String TAG = "SendImagesFragment";
     public static final int PICK_IMAGE = 1; // code to identify action in onActivityResult
 
     private WebSocketManager manager;
+    private Context applicationContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

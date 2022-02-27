@@ -1,13 +1,13 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.pren;
 
 
 import static com.google.common.truth.Truth.assertThat;
-import androidx.test.filters.SmallTest;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+
 import android.util.Log;
 
-import org.junit.Before;
+import androidx.test.filters.SmallTest;
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

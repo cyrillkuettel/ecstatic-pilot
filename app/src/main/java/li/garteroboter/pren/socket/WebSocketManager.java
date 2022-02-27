@@ -1,4 +1,4 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.socket;
 
 import android.content.Context;
 import android.os.Handler;
@@ -17,9 +17,6 @@ import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
-
-
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,19 +29,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.net.ssl.SSLSocketFactory;
+import li.garteroboter.pren.Constants;
 
 
 /**
  * This Class realises the Websocket connections, and sending and receiving Data from the Server
  * pren.garteroboter.li
- * There are two distinct websocket connections to the same server from the same client.
- * It is technically possible to to both text and binary in the same connection. But I assume this
- * would add more complexity to the websocket endpoint. It would have to check each incoming
- * message every time, which could decrease performance.
- * <p>
- * I  have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
- * with adding my own protocol layer to distinguish, since WebSockets already do this.
+ * There are two distinct websocket connections in this application:
+ * image data and text data.
+ * I have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
+ * with adding my own protocol layer to distinguish. That's why we have two connections.
  */
 
 public class WebSocketManager extends AppCompatActivity {
@@ -98,7 +92,7 @@ public class WebSocketManager extends AppCompatActivity {
         String typeOfSocketConnection = null;
         if (socket.equals(SocketType.Text)) {
             typeOfSocketConnection = "999";  // I define these special client ID's on the server
-            // of course
+
         }
         if (socket.equals(SocketType.Bytes)) {
             typeOfSocketConnection = "888";
@@ -182,7 +176,6 @@ public class WebSocketManager extends AppCompatActivity {
     private WebSocket createWebSocket(final String completeURI) throws IOException, WebSocketException {
         WebSocketFactory factory = new WebSocketFactory();
         factory.setServerName("pren.garteroboter.li");
-        Log.i(TAG, "test Logger");
 
         return factory
                 .setConnectionTimeout(TIMEOUT)
@@ -209,8 +202,8 @@ public class WebSocketManager extends AppCompatActivity {
                     @Override
                     public void onError(WebSocket websocket,
                                         WebSocketException cause) throws Exception {
-                        Log.e(TAG, "Error : " + cause.getMessage());
                         super.onError(websocket, cause);
+                        Log.e(TAG, "Error : " + cause.getMessage());
                     }
 
                     @Override
@@ -225,8 +218,6 @@ public class WebSocketManager extends AppCompatActivity {
                 })
                 // used in the handshake to indicate whether a connection should use compression
                 .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
-
-
     }
 
 
@@ -322,7 +313,7 @@ public class WebSocketManager extends AppCompatActivity {
             Log.i(TAG, msg);
             // Utils.LogAndToast(WebSocketManager.this, ,msg);
         }
-        return false;
+        return false; // no internet
     }
 
     /**
@@ -330,11 +321,11 @@ public class WebSocketManager extends AppCompatActivity {
      */
     public boolean isWebserverUp() {
         try {
-            InetAddress address = InetAddress.getByName("pren.garteroboter.li");
+            InetAddress address = InetAddress.getByName(Constants.GARTEROBOTERLI_HOSTNAME);
             return !address.equals("");
         } catch (UnknownHostException e) {
             String msg = String.format("The website %s is not reachable with InetAddress",
-                    Constants.GARTEROBOTERLI);
+                    Constants.GARTEROBOTERLI_HOSTNAME);
             Log.i(TAG, msg);
         }
         return false;
@@ -352,8 +343,10 @@ public class WebSocketManager extends AppCompatActivity {
         return sockets.get(socketType);
     }
 
+
+
     /*
-     * Pretty Print the OpeningHandshakeException e (Debugging purposes)
+     * Pretty Prints the OpeningHandshakeException e (Debugging purposes)
      */
     private void createDetailedExceptionLog(OpeningHandshakeException e) {
         // A violation against the WebSocket protocol was detected

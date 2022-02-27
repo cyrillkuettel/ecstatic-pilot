@@ -9,11 +9,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/buttonSwitchCamera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="flip camera" />
+        <FrameLayout
+            android:id="@+id/fragmentBluetoothChain"
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
 
     </LinearLayout>
 

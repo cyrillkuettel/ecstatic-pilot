@@ -1,10 +1,9 @@
 package li.garteroboter.pren;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 import android.content.Context;
 import android.util.Log;
@@ -13,25 +12,24 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
+
 import org.apache.commons.lang3.time.DateUtils;
-
-
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.Calendar;
 import java.util.Date;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
+
+import li.garteroboter.pren.socket.SocketType;
+import li.garteroboter.pren.socket.WebSocketManager;
 
 public class WebSocketManagerTest {
     private static final String TAG = "WebSocketManagerTest";
@@ -91,7 +89,7 @@ public class WebSocketManagerTest {
 
     /**
      * {@link WebSocketManager#getInternetTime() get Time from Website}
-     * {@link li.garteroboter.pren.LoggingFragment#getDeviceTimeStampAsMilliseconds() get Time from Device }
+     * {@link LoggingFragment#getDeviceTimeStampAsMilliseconds() get Time from Device }
      */
     @Test
     public void localTimeAndInternetTime_ShouldBeWithinOneSecond() {

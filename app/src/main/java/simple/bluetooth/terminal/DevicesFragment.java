@@ -23,11 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.ListFragment;
 
-
-
-
 import java.util.ArrayList;
-import java.util.Collections;
 
 import li.garteroboter.pren.R;
 
@@ -37,6 +33,19 @@ public class DevicesFragment extends ListFragment {
     private BluetoothAdapter bluetoothAdapter;
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
     private ArrayAdapter<BluetoothDevice> listAdapter;
+
+
+
+    public static DevicesFragment newInstance() {
+        DevicesFragment fragment = new DevicesFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public DevicesFragment() {
+        // required empty constructor
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,6 +88,7 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+        Log.d(TAG, "onCreateOptionsMenu");
         inflater.inflate(R.menu.menu_devices, menu);
         if(bluetoothAdapter == null)
             menu.findItem(R.id.bt_settings).setEnabled(false);
@@ -99,6 +109,7 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
         int id = item.getItemId();
         if (id == R.id.bt_settings) {
             Intent intent = new Intent();
@@ -117,12 +128,12 @@ public class DevicesFragment extends ListFragment {
         if(bluetoothAdapter != null) {
             for (BluetoothDevice device : bluetoothAdapter.getBondedDevices())
                 if (device.getType() != BluetoothDevice.DEVICE_TYPE_LE) // check here for only ESP32
-                    if (device.getName().contains("ESP32")) {
+                   // if (device.getName().contains("ESP32")) {
                         listItems.add(device);
-                    }
+                   // }
 
         }
-        Collections.sort(listItems, DevicesFragment::compareTo);
+        listItems.sort(DevicesFragment::compareTo);
         listAdapter.notifyDataSetChanged();
     }
 
@@ -131,6 +142,7 @@ public class DevicesFragment extends ListFragment {
         BluetoothDevice device = listItems.get(position-1);
         Bundle args = new Bundle();
         args.putString("device", device.getAddress());
+        Log.d(TAG, String.format("Clicked on List item with device.getAddress() %s" ,device.getAddress()));
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
 

@@ -14,4 +14,10 @@
         android:gravity="center"
         android:text="@string/devices"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+<!-- The following is a change made by me to use-->
+    <FrameLayout
+        android:id="@+id/fragmentBluetoothChain"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_weight="3" />
 </LinearLayout>

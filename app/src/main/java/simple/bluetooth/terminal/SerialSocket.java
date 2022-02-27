@@ -81,6 +81,7 @@ class SerialSocket implements Runnable {
     @Override
     public void run() { // connect & read
         try {
+
             socket = device.createRfcommSocketToServiceRecord(BLUETOOTH_SPP);
             socket.connect();
             if (listener != null)

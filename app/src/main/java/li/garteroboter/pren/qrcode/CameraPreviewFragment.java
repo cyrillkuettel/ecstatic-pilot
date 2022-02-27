@@ -34,13 +34,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
 
-import li.garteroboter.pren.Constants;
-import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.nanodet.VibrationListener;
 import simple.bluetooth.terminal.EngineControlListener;
-import simple.bluetooth.terminal.TerminalFragment;
-import simple.bluetooth.terminal.screen.ScreenSlidePageFragment;
 
 
 public class CameraPreviewFragment extends Fragment {

@@ -1,6 +1,7 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.pren;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import androidx.test.filters.SmallTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
@@ -10,8 +11,8 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.List;
 
-import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.log.LogcatData;
+import li.garteroboter.pren.log.LogcatDataReader;
 
 @RunWith(AndroidJUnit4ClassRunner.class)
 @SmallTest

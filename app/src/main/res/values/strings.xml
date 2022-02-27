@@ -18,7 +18,7 @@
         <item>wss://pren.garteroboter.li:443/ws/</item>
         <item>wss://192.168.188.38:43/ws/</item>
     </string-array>
-    <string name="devices">Bluetooth Devices</string>
+    <string name="devices">Bluetooth Devices (scroll down) </string>
     <string name="title_activity_simple_uiactivity">simpleUIActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -43,6 +43,33 @@
         <item>CPU</item>
         <item>GPU</item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="set_camera_reader_resolution">Resolution of ImageReader</string>
+    <string name="default_resolution_value">Default is 640x480</string>
+    <string name="camera_resolution_title">Change ImageReader Resolution</string>
+    <string name="key_camera_reader_resolution">key_camera_reader_resolution</string>
+
+
+    <string name="key_draw_qr_code">draw_qr_code</string>
+    <string name="might_impact_performance">Enabling this might impact performance</string>
+    <string name="draw_bounding_box">Draw Bounding Box around QRCode</string>
+    <string name="key_show_an_approximation_of_fps">draw_fps</string>
+    <string name="show_an_approximation_of_fps">Show an approximation of FPS</string>
+    <string name="show_fps">Show FPS</string>
+
+
+    <string-array name="camera_resolution_entries">
+    <item>width: 640 height: 480 (default)</item>
+    <item>width: 480 height: 320</item>
+    <item>width: 480 height: 360</item>
+    <item>width: 320 height: 240</item>
+</string-array>
+
+
+<string-array name="camera_resolution_values">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+</string-array>
 </resources>

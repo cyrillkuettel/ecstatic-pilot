@@ -8,12 +8,9 @@ package li.garteroboter.pren;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.os.Environment;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
-
-
 
 import java.io.File;
 import java.io.FileOutputStream;

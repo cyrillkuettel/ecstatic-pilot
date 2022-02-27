@@ -15,6 +15,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +33,7 @@ import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.R;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
-
+    private static final String TAG = "TerminalFragment";
     private enum Connected { False, Pending, True }
 
     private String deviceAddress;
@@ -48,6 +49,23 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+    private VibrationListener vibrationListener;
+
+
+    public native boolean setObjectReferenceAsGlobal(TerminalFragment mainActivityQRCodeNCNN);
+
+
+    public static TerminalFragment newInstance() {
+        TerminalFragment fragment = new TerminalFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public TerminalFragment() {
+
+    }
+
     /*
      * Lifecycle
      */
@@ -57,6 +75,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         setHasOptionsMenu(true);
         setRetainInstance(true);
         deviceAddress = getArguments().getString("device");
+        Log.d(TAG, String.format("Found device address: %s" , deviceAddress));
+        //deviceAddress = "58:BF:25:81:CC:C8";
+
+        /* We need this. This allows accessing the instance object of TerminalFragment from the C++ Layer */
+        Log.i(TAG, "setting Global reference for JNI ");
+        setObjectReferenceAsGlobal(this);
     }
 
     @Override
@@ -88,6 +112,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         getActivity().bindService(new Intent(getActivity(), SerialService.class), this, Context.BIND_AUTO_CREATE);
+        try {
+            vibrationListener = (VibrationListener) activity;
+        } catch (ClassCastException castException) {
+            /** The activity does not implement the listener. */
+            Log.e(TAG, "Failed to cast VibrationListener in onAttach()");
+        }
     }
 
     @Override
@@ -208,6 +238,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
     public void send(String str) {
+
+
+        Log.d(TAG, "Durchstich");
         if(connected != Connected.True) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
@@ -286,6 +319,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void onSerialIoError(Exception e) {
         status("connection lost: " + e.getMessage());
         disconnect();
+    }
+
+
+    static {
+        System.loadLibrary("nanodetncnn");
     }
 
 }

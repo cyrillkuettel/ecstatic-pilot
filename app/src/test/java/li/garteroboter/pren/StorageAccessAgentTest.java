@@ -1,9 +1,6 @@
 package li.garteroboter.pren;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 import android.content.Context;
 import android.util.Log;
@@ -11,18 +8,12 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-
-
-
-import org.junit.Before;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @RunWith(AndroidJUnit4.class)
 public class StorageAccessAgentTest  {

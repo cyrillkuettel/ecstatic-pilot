@@ -52,16 +52,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="simple.bluetooth.terminal.BlueActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden|adjustResize" >
-        </activity>
 
-        <service android:name="simple.bluetooth.terminal.SerialService" />
         <activity
             android:name=".nanodet.MainActivityNanodetNCNN"
             android:screenOrientation="portrait" >
+        </activity>
+
+        <service android:name="simple.bluetooth.terminal.SerialService" />
+
+        <activity android:name="li.garteroboter.pren.settings.SettingsActivity"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 
