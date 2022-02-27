@@ -21,7 +21,7 @@ public class LogcatDataReader implements LogcatData {
 
         Process process = null;
         try {
-            // Runtime.getRuntime().exec("logcat -c"); // flush the logcat first
+            Runtime.getRuntime().exec("logcat -c"); // flush the logcat first
             // read the most recent X lines from logcat
             String command =  "logcat -t" + String.valueOf(readNumberOfLines);
             process = Runtime.getRuntime().exec(command);

@@ -112,9 +112,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
 
 
-         */
+
         Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
         startActivity(myIntent);
+        */
+
     }
 
 

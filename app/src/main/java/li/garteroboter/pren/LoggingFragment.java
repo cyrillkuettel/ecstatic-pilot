@@ -2,7 +2,6 @@ package li.garteroboter.pren;
 
 
 import android.content.Context;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,7 +63,7 @@ public class LoggingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_websocket_send_logs, container, false);
         generateDropDownItems(view);
 
-        Button btnClose =  view.findViewById(R.id.btnClose);
+        Button btnClose =  view.findViewById(R.id.btnCloseConnection);
 
         Button btnSendMessageToWebSocket = view.findViewById(R.id.btnSendMessageToWebSocket);
         btnSendMessageToWebSocket.setEnabled(false);
@@ -99,6 +98,7 @@ public class LoggingFragment extends Fragment {
             LogcatData logcatreader = new LogcatDataReader();
             try {
                 // Todo: print this to fragment
+                Log.i(TAG, "Dumping Logcat output");
                 System.out.println(logcatreader.read());
             } catch (IOException e) {
                 e.printStackTrace();
