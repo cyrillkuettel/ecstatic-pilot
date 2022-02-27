@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
@@ -30,7 +31,7 @@ import li.garteroboter.pren.socket.WebSocketManagerInstance;
 public class LoggingFragment extends Fragment {
     private static final String TAG = "LoggingFragment";
     private WebSocketManager manager;
-
+    private LogcatData logcatreader;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,14 +93,20 @@ public class LoggingFragment extends Fragment {
             manager.disconnectAll();
         });
 
+
+        logcatreader = new LogcatDataReader();
+        logcatreader.flush();
+
         Button btnDumpLogcat = view.findViewById(R.id.btnDumpLogcat);
         btnDumpLogcat.setOnClickListener(v -> {
             Log.i(TAG, "Attempt logcat read");
-            LogcatData logcatreader = new LogcatDataReader();
+
             try {
                 // Todo: print this to fragment
-                Log.i(TAG, "Dumping Logcat output");
-                System.out.println(logcatreader.read());
+                Log.i(TAG, "     -------- Dumping Logcat output --------       ");
+                List<String> logs = logcatreader.read();
+                // print the lOgs
+                logs.forEach(System.out::println);
             } catch (IOException e) {
                 e.printStackTrace();
             }

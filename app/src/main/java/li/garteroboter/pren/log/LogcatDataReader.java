@@ -16,12 +16,13 @@ public class LogcatDataReader implements LogcatData {
 
     private final List<String> log = new ArrayList<>();
 
+
     @Override
     public List<String> read() throws IOException {
 
         Process process = null;
         try {
-            Runtime.getRuntime().exec("logcat -c"); // flush the logcat first
+            // Runtime.getRuntime().exec("logcat -c"); // flush the logcat first
             // read the most recent X lines from logcat
             String command =  "logcat -t" + String.valueOf(readNumberOfLines);
             process = Runtime.getRuntime().exec(command);
@@ -40,6 +41,15 @@ public class LogcatDataReader implements LogcatData {
             log.add(line);
         }
         return log;
+    }
+
+    public void flush() {
+        try {
+            Runtime.getRuntime().exec("logcat -c"); // flush logcat
+        } catch (IOException e) {
+            Log.e(TAG, "Attempted logcat -c to flush. This failed. Printing Stacktrace");
+            e.printStackTrace();
+        }
     }
 
 

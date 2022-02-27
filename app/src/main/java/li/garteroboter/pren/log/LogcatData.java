@@ -11,4 +11,10 @@ public interface LogcatData {
      */
     List<String> read() throws IOException;
 
+    /**
+     * Flush the Logs. This will erase history.
+     * I suppose it makes sense to call this when the app is first started.
+     */
+    void flush();
+
 }
