@@ -9,15 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogcatDataReader implements LogcatData {
+
     private  static final String TAG = "LogcatData";
+
+    private long readNumberOfLines = 100;
+
+    private final List<String> log = new ArrayList<>();
 
     @Override
     public List<String> read() throws IOException {
 
-        Process process = null; // filters logcat to only "ActivityManager:I" logs
+        Process process = null;
         try {
             // Runtime.getRuntime().exec("logcat -c"); // flush the logcat first
-            process = Runtime.getRuntime().exec("logcat -t 100"); // read the most recent 100 lines from logcat
+            // read the most recent X lines from logcat
+            String command =  "logcat -t" + String.valueOf(readNumberOfLines);
+            process = Runtime.getRuntime().exec(command);
         } catch (IOException e) {
             Log.e(TAG, "Runtime.getRuntime().exec failed. Printing Stacktrace");
             e.printStackTrace();
@@ -25,7 +32,7 @@ public class LogcatDataReader implements LogcatData {
         final BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()));
 
-        final List<String> log = new ArrayList<>();
+
 
         String line = "";
         Log.d(TAG,  "Reading filtered logcat");
@@ -33,5 +40,10 @@ public class LogcatDataReader implements LogcatData {
             log.add(line);
         }
         return log;
+    }
+
+
+    public void setReadNumberOfLines(long readNumberOfLines) {
+        this.readNumberOfLines = readNumberOfLines;
     }
 }
