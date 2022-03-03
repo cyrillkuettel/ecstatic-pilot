@@ -16,7 +16,7 @@ android {
     }
 
  */
-    compileSdk 29
+    compileSdk 31
 
     defaultConfig {
         applicationId "li.garteroboter.pren"
