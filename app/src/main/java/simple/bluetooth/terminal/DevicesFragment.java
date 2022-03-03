@@ -86,13 +86,7 @@ public class DevicesFragment extends ListFragment {
         setListAdapter(listAdapter);
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-        Log.d(TAG, "onCreateOptionsMenu");
-        inflater.inflate(R.menu.menu_devices, menu);
-        if(bluetoothAdapter == null)
-            menu.findItem(R.id.bt_settings).setEnabled(false);
-    }
+
 
     @Override
     public void onResume() {
@@ -107,19 +101,7 @@ public class DevicesFragment extends ListFragment {
         refresh();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected");
-        int id = item.getItemId();
-        if (id == R.id.bt_settings) {
-            Intent intent = new Intent();
-            intent.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-            startActivity(intent);
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
+
 
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
