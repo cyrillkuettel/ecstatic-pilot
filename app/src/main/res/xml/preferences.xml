@@ -6,9 +6,9 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="@string/key_draw_qr_code"
-            android:summary="@string/might_impact_performance"
-            android:title="@string/draw_bounding_box" />
+            android:key="@string/key_bluetooth"
+            android:summary="@string/disable_for_testing_without_esp"
+            android:title="@string/send_bluetooth_commands" />
 
         <SwitchPreference
             android:defaultValue="false"

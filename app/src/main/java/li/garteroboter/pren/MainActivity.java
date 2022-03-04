@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         }
 
         Button updateApp = findViewById(R.id.updateApp);
-        updateApp.setOnClickListener(v -> showUpdateMessageBox());
+        updateApp.setVisibility(View.INVISIBLE);
+        // updateApp.setOnClickListener(v -> showUpdateMessageBox());
 
 
         Button settingsBtn = findViewById(R.id.idBtnSettings);

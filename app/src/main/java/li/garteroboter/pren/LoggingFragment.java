@@ -105,7 +105,6 @@ public class LoggingFragment extends Fragment {
                 // Todo: print this to fragment
                 Log.i(TAG, "     -------- Dumping Logcat output --------       ");
                 List<String> logs = logcatreader.read();
-                // print the lOgs
                 logs.forEach(System.out::println);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -50,9 +50,9 @@
     <string name="key_camera_reader_resolution">key_camera_reader_resolution</string>
 
 
-    <string name="key_draw_qr_code">draw_qr_code</string>
-    <string name="might_impact_performance">Enabling this might impact performance</string>
-    <string name="draw_bounding_box">Draw Bounding Box around QRCode</string>
+    <string name="key_bluetooth">key_bluetooth</string>
+    <string name="disable_for_testing_without_esp">Disable for testing without ESP</string>
+    <string name="send_bluetooth_commands">Send Bluetooth Commands</string>
     <string name="key_show_an_approximation_of_fps">draw_fps</string>
     <string name="show_an_approximation_of_fps">Show an approximation of FPS</string>
     <string name="show_fps">Show FPS</string>

@@ -6,6 +6,7 @@ import android.Manifest;
 import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.media.Ringtone;
@@ -25,6 +26,10 @@ import android.widget.Spinner;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
+import java.util.Map;
+
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.nanodet.image.ImageCopyRequest;
 import li.garteroboter.pren.nanodet.image.ImageProcessor;
@@ -118,6 +123,16 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
+        // Read the preferences
+        Context applicationContext = getApplicationContext();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        Map<String, ?> map = preferences.getAll();
+
+        for (Object item : map.entrySet()) {
+            Log.v(TAG, item.toString());
+        }
+        Log.v(TAG, String.format("map.size() = %s", map.size()));
+
         reload();
     }
 
@@ -148,7 +163,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
         startRingtone();
-       // startVibrating(100);
+        startVibrating(100);
         // plant detection, so we switch to the QR Activity
         Intent myIntent = new Intent(this, QrCodeActivity.class);
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);

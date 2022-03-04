@@ -236,8 +236,7 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             const float *scores = cls_pred.row(idx);
             // find label with max score,
             // which is object 'potted_plant' or 'vase'
-            // I will write a custom function. No need to loop through all objects.
-            // here: condition for the label to match potted_plant or vase!
+            // Check condition of the label to match potted_plant or vase!
             int label = -1;
             float score = -FLT_MAX;
             if (scores[potted_plant_label] >= prob_threshold) {
@@ -249,7 +248,7 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             }
 
 
-            if (score != -FLT_MAX) {  // not neccessary
+            if (score != -FLT_MAX) {  // not necessary
 
                 // Success! Found plant or vase with probability > 0.4
                 NanoDet::invoke_class_from_static("either");
@@ -519,22 +518,8 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
         objects[i].rect.width = x1 - x0;
         objects[i].rect.height = y1 - y0;
 
-        /* trying something out */
 
-        const char *plant = "potted plant";
-        const char *vase = "vase";
-        char *buf;
 
-        int isPlantIfZero = strcmp(class_names[objects[i].label],
-                                   plant); // built-in function to compare char
-        int isVaseIfZero = strcmp(class_names[objects[i].label], vase);
-
-        if (isPlantIfZero || isVaseIfZero == 0 && objects[i].prob) {
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "potted plant");
-        }
-        if (objects[i].label == 60) {
-            // try this out later
-        }
     }
 
     // sort objects by area
@@ -548,144 +533,6 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
 
     return 0;
 }
-
-
-int NanoDet::detect(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
-                    float nms_threshold) {
-    int width = rgb.cols;
-    int height = rgb.rows;
-
-    // pad to multiple of 32
-    int w = width;
-    int h = height;
-    float scale = 1.f;
-    if (w > h) {
-        scale = (float) target_size / w;
-        w = target_size;
-        h = h * scale;
-    } else {
-        scale = (float) target_size / h;
-        h = target_size;
-        w = w * scale;
-    }
-
-    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height,
-                                                 w, h);
-
-    // pad to target_size rectangle
-    int wpad = (w + 31) / 32 * 32 - w;
-    int hpad = (h + 31) / 32 * 32 - h;
-    ncnn::Mat in_pad;
-    ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2,
-                           ncnn::BORDER_CONSTANT, 0.f);
-
-    in_pad.substract_mean_normalize(mean_vals, norm_vals);
-
-    ncnn::Extractor ex = nanodet.create_extractor();
-
-    ex.input("input.1", in_pad);
-
-    std::vector<Object> proposals;
-
-    // stride 8
-    {
-        ncnn::Mat cls_pred;
-        ncnn::Mat dis_pred;
-        ex.extract("cls_pred_stride_8", cls_pred);
-        ex.extract("dis_pred_stride_8", dis_pred);
-
-        std::vector<Object> objects8;
-        generate_proposals(cls_pred, dis_pred, 8, in_pad, prob_threshold, objects8);
-
-        proposals.insert(proposals.end(), objects8.begin(), objects8.end());
-    }
-
-    // stride 16
-    {
-        ncnn::Mat cls_pred;
-        ncnn::Mat dis_pred;
-        ex.extract("cls_pred_stride_16", cls_pred);
-        ex.extract("dis_pred_stride_16", dis_pred);
-
-        std::vector<Object> objects16;
-        generate_proposals(cls_pred, dis_pred, 16, in_pad, prob_threshold, objects16);
-
-        proposals.insert(proposals.end(), objects16.begin(), objects16.end());
-    }
-
-    // stride 32
-    {
-        ncnn::Mat cls_pred;
-        ncnn::Mat dis_pred;
-        ex.extract("cls_pred_stride_32", cls_pred);
-        ex.extract("dis_pred_stride_32", dis_pred);
-
-        std::vector<Object> objects32;
-        generate_proposals(cls_pred, dis_pred, 32, in_pad, prob_threshold, objects32);
-
-        proposals.insert(proposals.end(), objects32.begin(), objects32.end());
-    }
-
-    // sort all proposals by score from highest to lowest
-    qsort_descent_inplace(proposals);
-
-    // apply nms with nms_threshold
-    std::vector<int> picked;
-    nms_sorted_bboxes(proposals, picked, nms_threshold);
-
-    int count = picked.size();
-
-    objects.resize(count);
-    for (int i = 0; i < count; i++) {
-        objects[i] = proposals[picked[i]];
-
-        // adjust offset to original unpadded
-        float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
-        float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
-        float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
-        float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
-
-        // clip
-        x0 = std::max(std::min(x0, (float) (width - 1)), 0.f);
-        y0 = std::max(std::min(y0, (float) (height - 1)), 0.f);
-        x1 = std::max(std::min(x1, (float) (width - 1)), 0.f);
-        y1 = std::max(std::min(y1, (float) (height - 1)), 0.f);
-
-        objects[i].rect.x = x0;
-        objects[i].rect.y = y0;
-        objects[i].rect.width = x1 - x0;
-        objects[i].rect.height = y1 - y0;
-
-        /* trying something out */
-
-        const char *plant = "potted plant";
-        const char *vase = "vase";
-        char *buf;
-
-        int isPlantIfZero = strcmp(class_names[objects[i].label],
-                                   plant); // built-in function to compare char
-        int isVaseIfZero = strcmp(class_names[objects[i].label], vase);
-
-        if (isPlantIfZero || isVaseIfZero == 0 && objects[i].prob) {
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%s", "potted plant");
-        }
-        if (objects[i].label == 60) {
-            // try this out later
-        }
-    }
-
-    // sort objects by area
-    struct {
-        bool operator()(const Object &a, const Object &b) const {
-
-            return a.rect.area() > b.rect.area();
-        }
-    } objects_area_greater;
-    std::sort(objects.begin(), objects.end(), objects_area_greater);
-
-    return 0;
-}
-
 
 // variables to cache
 // my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter? Never change a running system /s
@@ -784,7 +631,6 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
     };
 
     int color_index = 0;
-    // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "The value of 1 + 1 is %d", 1+1);
 
     for (size_t i = 0; i < objects.size(); i++) {
         const Object &obj = objects[i];
@@ -816,7 +662,6 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
           //  invoke_class(either_plant_or_vase);
         }
 */
-        // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "class_names[obj.label] = %s", class_names[obj.label]);
 
         sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
 

@@ -1,8 +1,9 @@
 package li.garteroboter.pren.settings;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,8 +27,6 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
 
-            // https://stackoverflow.com/questions/11316560/sharedpreferences-from-different-activity
-            Context applicationContext = getApplicationContext();
 
             settingsFragment = new SettingsFragment();
             getSupportFragmentManager()
@@ -37,13 +36,16 @@ public class SettingsActivity extends AppCompatActivity {
 
             Button btnApply = findViewById(R.id.btnApply);
             btnApply.setOnClickListener(v -> {
-                commitSettings();
+                goBack();
             });
 
         }
     }
-    public void commitSettings() {
-
+    private void goBack() {
+        Log.d(TAG, "Commit Settings. Go back to Main.");
+        Toast.makeText(this, "Settings saved",
+                Toast.LENGTH_SHORT).show();
+        super.onBackPressed();
     }
 }
 
