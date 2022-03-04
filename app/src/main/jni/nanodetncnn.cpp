@@ -33,13 +33,13 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <signal.h>
+
 #define APPNAME "nanodetncnn.cpp"
 #if __ARM_NEON
 #include <arm_neon.h>
 #endif // __ARM_NEON
 
-static int draw_unsupported(cv::Mat& rgb)
-{
+static int draw_unsupported(cv::Mat &rgb) {
     const char text[] = "unsupported";
 
     int baseLine = 0;
@@ -48,8 +48,9 @@ static int draw_unsupported(cv::Mat& rgb)
     int y = (rgb.rows - label_size.height) / 2;
     int x = (rgb.cols - label_size.width) / 2;
 
-    cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
-                    cv::Scalar(255, 255, 255), -1);
+    cv::rectangle(rgb, cv::Rect(cv::Point(x, y),
+                                cv::Size(label_size.width, label_size.height + baseLine)),
+                  cv::Scalar(255, 255, 255), -1);
 
     cv::putText(rgb, text, cv::Point(x, y + label_size.height),
                 cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 0));
@@ -57,8 +58,7 @@ static int draw_unsupported(cv::Mat& rgb)
     return 0;
 }
 
-static int draw_fps(cv::Mat& rgb)
-{
+static int draw_fps(cv::Mat &rgb) {
     // resolve moving average
     float avg_fps = 0.f;
     {
@@ -66,8 +66,7 @@ static int draw_fps(cv::Mat& rgb)
         static float fps_history[10] = {0.f};
 
         double t1 = ncnn::get_current_time();
-        if (t0 == 0.f)
-        {
+        if (t0 == 0.f) {
             t0 = t1;
             return 0;
         }
@@ -75,19 +74,16 @@ static int draw_fps(cv::Mat& rgb)
         float fps = 1000.f / (t1 - t0);
         t0 = t1;
 
-        for (int i = 9; i >= 1; i--)
-        {
+        for (int i = 9; i >= 1; i--) {
             fps_history[i] = fps_history[i - 1];
         }
         fps_history[0] = fps;
 
-        if (fps_history[9] == 0.f)
-        {
+        if (fps_history[9] == 0.f) {
             return 0;
         }
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             avg_fps += fps_history[i];
         }
         avg_fps /= 10.f;
@@ -102,8 +98,9 @@ static int draw_fps(cv::Mat& rgb)
     int y = 0;
     int x = rgb.cols - label_size.width;
 
-    cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
-                    cv::Scalar(255, 255, 255), -1);
+    cv::rectangle(rgb, cv::Rect(cv::Point(x, y),
+                                cv::Size(label_size.width, label_size.height + baseLine)),
+                  cv::Scalar(255, 255, 255), -1);
 
     cv::putText(rgb, text, cv::Point(x, y + label_size.height),
                 cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
@@ -112,33 +109,26 @@ static int draw_fps(cv::Mat& rgb)
 }
 
 
-
-
-static NanoDet* g_nanodet = 0;
+static NanoDet *g_nanodet = 0;
 static ncnn::Mutex lock;
 
-class MyNdkCamera : public NdkCameraWindow
-{
+class MyNdkCamera : public NdkCameraWindow {
 public:
-    virtual void on_image_render(cv::Mat& rgb) const;
+    virtual void on_image_render(cv::Mat &rgb) const;
 };
 
-void MyNdkCamera::on_image_render(cv::Mat& rgb) const
-{
+void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
     // nanodet
     {
         ncnn::MutexLockGuard g(lock);
 
-        if (g_nanodet)
-        {
+        if (g_nanodet) {
             std::vector<Object> objects;
             // toggle one of the two functions on the next line, but not both
             g_nanodet->detect_plant_vase(rgb, objects);
 
             g_nanodet->draw(rgb, objects);
-        }
-        else
-        {
+        } else {
             draw_unsupported(rgb);
         }
     }
@@ -151,21 +141,21 @@ JNIEnv *env;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
 
-static MyNdkCamera* g_camera = 0;
+static MyNdkCamera *g_camera = 0;
 
 extern "C" {
 
-JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "nanodetncnnn", "JNI_OnLoad");
     // https://stackoverflow.com/questions/10617735/in-jni-how-do-i-cache-the-class-methodid-and-fieldids-per-ibms-performance-r/13940735
     // Obtain the JNIEnv from the VM and confirm JNI_VERSION
-    if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION) != JNI_OK) {
-            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "error seems to indicate that JNI_VERSION) != JNI_OK");
+    if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION) != JNI_OK) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                            "error seems to indicate that JNI_VERSION) != JNI_OK");
         return JNI_ERR;
     }
     javaVM_global = vm; // important. This variable is critical for success.
-                        // Is needed to ultimately access JNIEnv which gives access to Java Objects
+    // Is needed to ultimately access JNIEnv which gives access to Java Objects
     // Temporary local reference holder
     jclass tempLocalClassRef;
     jclass tempLocalClassRef2;
@@ -175,7 +165,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 
     // STEP 1/3 : Load the class id
-    if (tempLocalClassRef == nullptr || env->ExceptionOccurred() || tempLocalClassRef2 == nullptr ) {
+    if (tempLocalClassRef == nullptr || env->ExceptionOccurred() || tempLocalClassRef2 == nullptr) {
         env->ExceptionClear();
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "%s", "There was an error in JNI_OnLoad");
     }
@@ -193,8 +183,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
     return JNI_VERSION_1_4;
 }
 
-JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
-{
+JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "JNI_OnUnload");
 
     {
@@ -207,11 +196,11 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
     // Obtain the JNIEnv from the VM
     // NOTE: some re-do the JNI Version check here, but I find that redundant
 
-    vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION);
+    vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION);
 
 
-      env->DeleteGlobalRef(MainActivityNanodetNCNNClass);
-      env->DeleteGlobalRef(MainActivityNanodetNCNNObject);
+    env->DeleteGlobalRef(MainActivityNanodetNCNNClass);
+    env->DeleteGlobalRef(MainActivityNanodetNCNNObject);
     // ... repeat for any other global references
 
     delete g_camera;
@@ -220,80 +209,79 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
 
 // public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
 
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv* env, jobject thiz, jobject assetManager, jint modelid, jint cpugpu)
-{
-    if (modelid < 0 || modelid > 6 || cpugpu < 0 || cpugpu > 1)
-    {
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thiz,
+                                                        jobject assetManager, jint modelid,
+                                                        jint cpugpu) {
+    if (modelid < 0 || modelid > 6 || cpugpu < 0 || cpugpu > 1) {
         return JNI_FALSE;
     }
 
-    AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+    AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
 
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "loadModel %p", mgr);
 
-    const char* modeltypes[] =
-    {
-        "m",
-        "m-416",
-        "g",
-        "ELite0_320",
-        "ELite1_416",
-        "ELite2_512",
-        "RepVGG-A0_416"
-    };
+    const char *modeltypes[] =
+            {
+                    "m",
+                    "m-416",
+                    "g",
+                    "ELite0_320",
+                    "ELite1_416",
+                    "ELite2_512",
+                    "RepVGG-A0_416"
+            };
 
     const int target_sizes[] =
-    {
-        320,
-        416,
-        416,
-        320,
-        416,
-        512,
-        416
-    };
+            {
+                    320,
+                    416,
+                    416,
+                    320,
+                    416,
+                    512,
+                    416
+            };
 
     const float mean_vals[][3] =
-    {
-        {103.53f, 116.28f, 123.675f},
-        {103.53f, 116.28f, 123.675f},
-        {103.53f, 116.28f, 123.675f},
-        {127.f, 127.f, 127.f},
-        {127.f, 127.f, 127.f},
-        {127.f, 127.f, 127.f},
-        {103.53f, 116.28f, 123.675f}
-    };
+            {
+                    {103.53f, 116.28f, 123.675f},
+                    {103.53f, 116.28f, 123.675f},
+                    {103.53f, 116.28f, 123.675f},
+                    {127.f,   127.f,   127.f},
+                    {127.f,   127.f,   127.f},
+                    {127.f,   127.f,   127.f},
+                    {103.53f, 116.28f, 123.675f}
+            };
 
     const float norm_vals[][3] =
-    {
-        {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
-        {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
-        {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
-        {1.f / 128.f, 1.f / 128.f, 1.f / 128.f},
-        {1.f / 128.f, 1.f / 128.f, 1.f / 128.f},
-        {1.f / 128.f, 1.f / 128.f, 1.f / 128.f},
-        {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f}
-    };
+            {
+                    {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
+                    {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
+                    {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
+                    {1.f / 128.f,   1.f / 128.f,  1.f / 128.f},
+                    {1.f / 128.f,   1.f / 128.f,  1.f / 128.f},
+                    {1.f / 128.f,   1.f / 128.f,  1.f / 128.f},
+                    {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f}
+            };
 
-    const char* modeltype = modeltypes[(int)modelid];
-    int target_size = target_sizes[(int)modelid];
-    bool use_gpu = (int)cpugpu == 1;
+    const char *modeltype = modeltypes[(int) modelid];
+    int target_size = target_sizes[(int) modelid];
+    bool use_gpu = (int) cpugpu == 1;
 
     // reload
     {
         ncnn::MutexLockGuard g(lock);
 
-        if (use_gpu && ncnn::get_gpu_count() == 0)
-        {
+        if (use_gpu && ncnn::get_gpu_count() == 0) {
             // no gpu
             delete g_nanodet;
             g_nanodet = 0;
-        }
-        else
-        {
+        } else {
             if (!g_nanodet)
                 g_nanodet = new NanoDet;
-            g_nanodet->load(mgr, modeltype, target_size, mean_vals[(int)modelid], norm_vals[(int)modelid], use_gpu);
+            g_nanodet->load(mgr, modeltype, target_size, mean_vals[(int) modelid],
+                            norm_vals[(int) modelid], use_gpu);
         }
     }
 
@@ -301,8 +289,8 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadMod
 }
 
 // public native boolean openCamera(int facing);
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCamera(JNIEnv* env, jobject thiz, jint facing)
-{
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCamera(JNIEnv *env, jobject thiz, jint facing) {
 
 
     if (facing < 0 || facing > 1)
@@ -310,15 +298,15 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCam
 
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "openCamera %d", facing);
 
-    g_camera->open((int)facing);
+    g_camera->open((int) facing);
 
     return JNI_TRUE;
 }
 
 // public native boolean closeCamera();
 
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_closeCamera(JNIEnv* env, jobject thiz)
-{
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_closeCamera(JNIEnv *env, jobject thiz) {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "closeCamera");
 
     g_camera->close();
@@ -327,9 +315,10 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_closeCa
 }
 
 // public native boolean setOutputWindow(Surface surface);
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutputWindow(JNIEnv* env, jobject thiz, jobject surface)
-{
-    ANativeWindow* win = ANativeWindow_fromSurface(env, surface);
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutputWindow(JNIEnv *env, jobject thiz,
+                                                              jobject surface) {
+    ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
 
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setOutputWindow %p", win);
 
@@ -338,8 +327,9 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutp
     return JNI_TRUE;
 }
 
-JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
-                                                                                                    jobject fragment_nanodet_object) {
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
+                                                    jobject fragment_nanodet_object) {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
 
     MainActivityNanodetNCNNObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
@@ -347,9 +337,9 @@ JNIEXPORT jboolean JNICALL Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObje
     return JNI_TRUE;
 }
 
-JNIEXPORT jboolean JNICALL Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env,
-                                                                                                      jobject thiz,
-                                                                                                      jobject terminalFragment) {
+JNIEXPORT jboolean JNICALL
+Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
+                                                          jobject terminalFragment) {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
 
     TerminalFragmentObject = (jobject) env->NewGlobalRef(terminalFragment);
@@ -357,7 +347,6 @@ JNIEXPORT jboolean JNICALL Java_simple_bluetooth_terminal_TerminalFragment_setOb
     return JNI_TRUE;
 
 }
-
 
 
 }

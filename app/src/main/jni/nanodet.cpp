@@ -647,21 +647,6 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
 
         char text[256];
 
-/*
-        char *plant = "potted plant";
-        char *vase = "vase";
-        char *either_plant_or_vase = "either_plant_or_vase";
-
-        int isPlantIfZero = strcmp(class_names[obj.label],
-
-                                   plant); // built-in function to compare char
-        int isVaseIfZero = strcmp(class_names[obj.label], vase);
-
-
-        if (isPlantIfZero == 0 || isVaseIfZero == 0) {
-          //  invoke_class(either_plant_or_vase);
-        }
-*/
 
         sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
 
