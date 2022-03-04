@@ -3,7 +3,9 @@ package li.garteroboter.pren.nanodet;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 import android.Manifest;
+
 import androidx.fragment.app.FragmentActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,39 +23,31 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import java.util.Map;
-
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.nanodet.image.ImageCopyRequest;
-import li.garteroboter.pren.nanodet.image.ImageProcessor;
 import li.garteroboter.pren.qrcode.QrCodeActivity;
+import li.garteroboter.pren.settings.container.CustomSettingsBundle;
+import li.garteroboter.pren.settings.container.SettingsBundle;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.VibrationListener;
-
-import li.garteroboter.pren.R;
-import simple.bluetooth.terminal.DevicesFragment;
 
 public class MainActivityNanodetNCNN extends FragmentActivity implements SurfaceHolder.Callback,
         VibrationListener, PlaySoundListener {
 
+    public static final int REQUEST_CAMERA = 100;
     private static final String TAG = "MainActivityNanodetNCNN";
-    private final Context mContext = MainActivityNanodetNCNN.this;
-
     public static boolean TOGGLE_VIBRATE = false;
     public static boolean TOGGLE_RINGTONE = true;
 
-    final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid spamming)
-
+    final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid
+    // spamming)
+    private final Context mContext = MainActivityNanodetNCNN.this;
     long lastTime = 0;
-
-    public static final int REQUEST_CAMERA = 100;
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
     private int facing = 1;
 
@@ -65,14 +59,17 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private SurfaceView cameraView;
     private Ringtone ringtone;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_nanodet_activity);
-
+        // create a reference to the object of this class in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
+        Log.d(TAG, "onCreate has fired");
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cameraView = (SurfaceView) findViewById(R.id.cameraview);
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
@@ -82,39 +79,35 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         spinnerModel = (Spinner) findViewById(R.id.spinnerModel);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
-            {
-                if (position != current_model)
-                {
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+                if (position != current_model) {
                     current_model = position;
                     reload();
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> arg0)
-            {
+            public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
         spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPU);
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
-            {
-                if (position != current_cpugpu)
-                {
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+                if (position != current_cpugpu) {
                     current_cpugpu = position;
                     reload();
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> arg0)
-            {
+            public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
         // Initialize a little menu at the edge of the screen, to connect to a Bluetooth Device.
+        // interesting: based on whether we want to automatically connect to ESP,
+        // I could pass in a Parameter into devices Fragment to do this.
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
                     new DevicesFragment(), "devices").commit();
@@ -123,42 +116,31 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
-        // Read the preferences
-        Context applicationContext = getApplicationContext();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        Map<String, ?> map = preferences.getAll();
+        SettingsBundle settingsBundle = readCurrentPreferenceState();
 
-        for (Object item : map.entrySet()) {
-            Log.v(TAG, item.toString());
-        }
-        Log.v(TAG, String.format("map.size() = %s", map.size()));
-
+        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
+        nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
         reload();
     }
 
-    private void reload()
-    {
+    private void reload() {
         boolean ret_init = nanodetncnn.loadModel(getAssets(), current_model, current_cpugpu);
-        if (!ret_init)
-        {
+        if (!ret_init) {
             Log.e("MainActivity", "nanodetncnn loadModel failed");
         }
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
-    {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         nanodetncnn.setOutputWindow(holder.getSurface());
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder)
-    {
+    public void surfaceCreated(SurfaceHolder holder) {
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder)
-    {
+    public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
@@ -212,10 +194,43 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         }
     }
 
+    private SettingsBundle readCurrentPreferenceState() {
+        // Read the preferences
+        Context applicationContext = getApplicationContext();
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        boolean useBluetooth = preferences.getBoolean("key_bluetooth", false);
+        boolean drawFps = preferences.getBoolean("key_fps", false);
+
+        CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps);
+
+        Log.d(TAG, "printing SettingsBundle");
+        Log.d(TAG, settingsBundle.toString());
+
+
+    /*
+                Like this you could loop through the preferences
+
+        Map<String, ?> map = preferences.getAll();
+
+        if (map.size() == 0) { // default settings
+            Log.i(TAG, "Using the default Settings");
+            return new DefaultSettingsBundle();
+        }
+
+        for(Map.Entry<String,?> entry : map.entrySet()){
+            Log.d("map values",entry.getKey() + ": " +
+                    entry.getValue().toString());
+        }
+
+      */
+
+        return settingsBundle;
+    }
+
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         nanodetncnn.closeCamera();
     }

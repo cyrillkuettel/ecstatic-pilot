@@ -19,7 +19,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.Surface;
 
-public class NanoDetNcnn implements Parcelable
+import li.garteroboter.pren.settings.container.SettingsBundle;
+
+public class NanoDetNcnn
 
 {
     public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
@@ -28,38 +30,11 @@ public class NanoDetNcnn implements Parcelable
     public native boolean setOutputWindow(Surface surface);
     public native boolean setObjectReferenceAsGlobal(MainActivityNanodetNCNN mainActivityNanodetNCNN);
 
-    public native boolean injectPreferences();
+    public native boolean injectFPSPreferences(boolean showFPS);
+    public native boolean injectBluetoothSettings(boolean useBluetooth);
 
 
 
-
-    public NanoDetNcnn() {
-        // empty constructor. ( There wasnt even one )
-    }
-    protected NanoDetNcnn(Parcel in) {
-    }
-
-    public static final Creator<NanoDetNcnn> CREATOR = new Creator<NanoDetNcnn>() {
-        @Override
-        public NanoDetNcnn createFromParcel(Parcel in) {
-            return new NanoDetNcnn(in);
-        }
-
-        @Override
-        public NanoDetNcnn[] newArray(int size) {
-            return new NanoDetNcnn[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-
-    }
 
     static {
         System.loadLibrary("nanodetncnn");

@@ -107,106 +107,7 @@ static void nms_sorted_bboxes(const std::vector<Object> &faceobjects, std::vecto
     }
 }
 
-
-static void generate_proposals(const ncnn::Mat& cls_pred, const ncnn::Mat& dis_pred, int stride, const ncnn::Mat& in_pad, float prob_threshold, std::vector<Object>& objects)
-{
-    const int num_grid = cls_pred.h;
-
-    int num_grid_x;
-    int num_grid_y;
-    if (in_pad.w > in_pad.h)
-    {
-        num_grid_x = in_pad.w / stride;
-        num_grid_y = num_grid / num_grid_x;
-    }
-    else
-    {
-        num_grid_y = in_pad.h / stride;
-        num_grid_x = num_grid / num_grid_y;
-    }
-
-    const int num_class = cls_pred.w;
-    const int reg_max_1 = dis_pred.w / 4;
-
-    for (int i = 0; i < num_grid_y; i++)
-    {
-        for (int j = 0; j < num_grid_x; j++)
-        {
-            const int idx = i * num_grid_x + j;
-
-            const float* scores = cls_pred.row(idx);
-
-            // find label with max score
-            int label = -1;
-            float score = -FLT_MAX;
-            for (int k = 0; k < num_class; k++)
-            {
-                if (scores[k] > score)
-                {
-                    label = k;
-                    score = scores[k];
-                }
-            }
-
-            if (score >= prob_threshold)
-            {
-                ncnn::Mat bbox_pred(reg_max_1, 4, (void*)dis_pred.row(idx));
-                {
-                    ncnn::Layer* softmax = ncnn::create_layer("Softmax");
-
-                    ncnn::ParamDict pd;
-                    pd.set(0, 1); // axis
-                    pd.set(1, 1);
-                    softmax->load_param(pd);
-
-                    ncnn::Option opt;
-                    opt.num_threads = 1;
-                    opt.use_packing_layout = false;
-
-                    softmax->create_pipeline(opt);
-
-                    softmax->forward_inplace(bbox_pred, opt);
-
-                    softmax->destroy_pipeline(opt);
-
-                    delete softmax;
-                }
-
-                float pred_ltrb[4];
-                for (int k = 0; k < 4; k++)
-                {
-                    float dis = 0.f;
-                    const float* dis_after_sm = bbox_pred.row(k);
-                    for (int l = 0; l < reg_max_1; l++)
-                    {
-                        dis += l * dis_after_sm[l];
-                    }
-
-                    pred_ltrb[k] = dis * stride;
-                }
-
-                float pb_cx = (j + 0.5f) * stride;
-                float pb_cy = (i + 0.5f) * stride;
-
-                float x0 = pb_cx - pred_ltrb[0];
-                float y0 = pb_cy - pred_ltrb[1];
-                float x1 = pb_cx + pred_ltrb[2];
-                float y1 = pb_cy + pred_ltrb[3];
-
-                Object obj;
-                obj.rect.x = x0;
-                obj.rect.y = y0;
-                obj.rect.width = x1 - x0;
-                obj.rect.height = y1 - y0;
-                obj.label = label;
-                obj.prob = score;
-
-                objects.push_back(obj);
-            }
-        }
-    }
-}
-
+bool toggleBluetooth;
 
 static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
                                const ncnn::Mat &in_pad, float prob_threshold,
@@ -248,10 +149,10 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             }
 
 
-            if (score != -FLT_MAX) {  // not necessary
+            if (score != -FLT_MAX) {
 
                 // Success! Found plant or vase with probability > 0.4
-                NanoDet::invoke_class_from_static("either");
+                NanoDet::invoke_class_from_static("either", toggleBluetooth);
 
 
                 ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));
@@ -391,7 +292,8 @@ NanoDet::load(AAssetManager *mgr, const char *modeltype, int _target_size, const
     return 0;
 }
 
-static const char *class_names[] = {
+static const char *class_names[] =
+        {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
         "traffic light",
         "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse",
@@ -543,12 +445,15 @@ jobject MainActivityNanodetNCNNObject; // to access the object.
 jclass TerminalFragmentClass;
 jobject TerminalFragmentObject;
 
+
 jmethodID staticMethod_CallInJava;
 jmethodID instanceMethod_CallInJava;
 jstring jstrBuf;
 JavaVM *javaVM_global;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
+// DEPRECATED
+
 
 void NanoDet::invoke_class(char *objectLabel) {
     // uncomment the next line to test crashing the native Layer:
@@ -564,6 +469,8 @@ void NanoDet::invoke_class(char *objectLabel) {
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
                                                   "nonStaticDurchstich",
                                                   "(Ljava/lang/String;)V"); // JNI type signature
+
+
     if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
         return;
@@ -580,7 +487,7 @@ void NanoDet::invoke_class(char *objectLabel) {
 
 }
 
-void NanoDet::invoke_class_from_static(char *objectLabel) {
+void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
         // I'm not 100% sure if this is necessary. Does it impact performance?
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
@@ -589,7 +496,29 @@ void NanoDet::invoke_class_from_static(char *objectLabel) {
 
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
                                                   "nonStaticDurchstich",
-                                                  "(Ljava/lang/String;)V"); // JNI type signature
+                                                  "(Ljava/lang/String;)V"); // JNI type signatue
+
+
+    jmethodID instanceMethod_Call_TerminalFragment;
+    if (useBlueooth) {
+        instanceMethod_Call_TerminalFragment = env2->GetMethodID(TerminalFragmentClass,
+                                                      "nonStaticDurchstich",
+                                                      "(Ljava/lang/String;)V"); // JNI type signature
+    }
+
+    if (instanceMethod_Call_TerminalFragment == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
+        return;
+    } else {
+        jstrBuf = env2->NewStringUTF(objectLabel);
+        if (!jstrBuf) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jstring.");
+            return;
+        }
+        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
+    }
+
+
     if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
         return;
@@ -675,6 +604,11 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
 }
 
 
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectBluetoothSettings(JNIEnv *env, jobject thiz,
+                                                                      jboolean use_bluetooth) {
+   toggleBluetooth = use_bluetooth;
 
-
-
+   return JNI_TRUE;
+}

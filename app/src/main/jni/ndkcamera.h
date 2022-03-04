@@ -43,6 +43,7 @@ public:
     int camera_facing;
     int camera_orientation;
 
+
 private:
     ACameraManager* camera_manager;
     ACameraDevice* camera_device;

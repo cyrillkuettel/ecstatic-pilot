@@ -32,6 +32,7 @@ extern jobject MainActivityNanodetNCNNObject;
 extern jclass TerminalFragmentClass;
 extern jobject TerminalFragmentObject;
 
+
 class NanoDet{
 
     public:
@@ -48,7 +49,7 @@ class NanoDet{
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
 
-    static void invoke_class_from_static(char *objectLabel);
+    static void invoke_class_from_static(char *objectLabel, bool useBlueooth);
 
 private:
     ncnn::Net nanodet;

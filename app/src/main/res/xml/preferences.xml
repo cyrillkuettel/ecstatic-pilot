@@ -12,19 +12,12 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="fps_key"
+            android:key="key_fps"
             android:summary="@string/show_an_approximation_of_fps"
             android:title="@string/show_fps" />
 
 
-        <ListPreference
-            android:defaultValue="0"
-            android:dialogTitle="@string/set_camera_reader_resolution"
-            android:entries="@array/camera_resolution_entries"
-            android:entryValues="@array/camera_resolution_values"
-            android:key="@string/key_camera_reader_resolution"
-            android:summary="@string/default_resolution_value"
-            android:title="@string/camera_resolution_title" />
+
 
 
     </PreferenceCategory>

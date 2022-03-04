@@ -80,6 +80,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         /* We need this. This allows accessing the instance object of TerminalFragment from the C++ Layer */
         Log.i(TAG, "setting Global reference for JNI ");
+        // Very important: this ensures the c++ Layer knows TerminalFragment
         setObjectReferenceAsGlobal(this);
     }
 

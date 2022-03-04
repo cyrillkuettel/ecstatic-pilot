@@ -104,17 +104,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         });
 
         /*
-        SharedPreferences sharedPreferences =
-                PreferenceManager.
-
-        String name = sharedPreferences.getString("key_show_an_approximation_of_fps", "");
-
-        Log.v(TAG, String.format("Printing fps on off value: %s", name));
-        */
 
         Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
         startActivity(myIntent);
-
+ */
 
     }
 

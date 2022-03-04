@@ -39,7 +39,7 @@ public class ReadLogcatTest {
             = new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void testLoggingNotEmpty() throws IOException {
+    public void testLoggingNotEmpty()  {
 
         onView(withId(R.id.btnOpenConnection)).perform(click());
         onView(withId(R.id.btnSendMessageToWebSocket)).perform(click());

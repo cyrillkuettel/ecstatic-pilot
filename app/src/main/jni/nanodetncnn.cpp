@@ -39,6 +39,10 @@
 #include <arm_neon.h>
 #endif // __ARM_NEON
 
+
+bool toggleDrawFps;
+
+
 static int draw_unsupported(cv::Mat &rgb) {
     const char text[] = "unsupported";
 
@@ -124,16 +128,15 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
 
         if (g_nanodet) {
             std::vector<Object> objects;
-            // toggle one of the two functions on the next line, but not both
             g_nanodet->detect_plant_vase(rgb, objects);
-
             g_nanodet->draw(rgb, objects);
         } else {
             draw_unsupported(rgb);
         }
     }
-
-    draw_fps(rgb);
+    if (toggleDrawFps) {
+        draw_fps(rgb);
+    }
 }
 
 JNIEnv *env;
@@ -201,6 +204,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
 
     env->DeleteGlobalRef(MainActivityNanodetNCNNClass);
     env->DeleteGlobalRef(MainActivityNanodetNCNNObject);
+    env->DeleteGlobalRef(TerminalFragmentClass);
+    env->DeleteGlobalRef(TerminalFragmentObject);
     // ... repeat for any other global references
 
     delete g_camera;
@@ -296,7 +301,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCamera(JNIEnv *env, jobject th
     if (facing < 0 || facing > 1)
         return JNI_FALSE;
 
-    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "openCamera %d", facing);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "openCamera %d", facing);
 
     g_camera->open((int) facing);
 
@@ -307,7 +312,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_openCamera(JNIEnv *env, jobject th
 
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_closeCamera(JNIEnv *env, jobject thiz) {
-    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "closeCamera");
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "closeCamera");
 
     g_camera->close();
 
@@ -320,7 +325,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutputWindow(JNIEnv *env, jobje
                                                               jobject surface) {
     ANativeWindow *win = ANativeWindow_fromSurface(env, surface);
 
-    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setOutputWindow %p", win);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setOutputWindow %p", win);
 
     g_camera->set_window(win);
 
@@ -330,7 +335,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutputWindow(JNIEnv *env, jobje
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
                                                     jobject fragment_nanodet_object) {
-    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setObjectReferenceAsGlobal");
 
     MainActivityNanodetNCNNObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
 
@@ -340,7 +345,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv 
 JNIEXPORT jboolean JNICALL
 Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
                                                           jobject terminalFragment) {
-    __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "setObjectReferenceAsGlobal");
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setObjectReferenceAsGlobal");
 
     TerminalFragmentObject = (jobject) env->NewGlobalRef(terminalFragment);
 
@@ -349,6 +354,16 @@ Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEn
 }
 
 
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectFPSPreferences(JNIEnv *env, jobject thiz,
+                                                                   jboolean show_fps) {
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "injectPreferences");
+
+    toggleDrawFps = show_fps; // field in this file
+
+    return JNI_TRUE;
+
 }
 
 
+}
