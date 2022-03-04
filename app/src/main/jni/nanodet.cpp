@@ -107,7 +107,7 @@ static void nms_sorted_bboxes(const std::vector<Object> &faceobjects, std::vecto
     }
 }
 
-bool toggleBluetooth;
+static bool toggleBluetooth;
 
 static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
                                const ncnn::Mat &in_pad, float prob_threshold,
@@ -507,7 +507,7 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
                                                       "(Ljava/lang/String;)V"); // JNI type signature
     }
 
-    if (instanceMethod_Call_TerminalFragment == nullptr) {
+    if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
         return;
     } else {
