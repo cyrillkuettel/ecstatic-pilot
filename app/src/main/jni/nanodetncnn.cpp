@@ -39,9 +39,7 @@
 #include <arm_neon.h>
 #endif // __ARM_NEON
 
-
-bool toggleDrawFps;
-
+bool drawFps;
 
 static int draw_unsupported(cv::Mat &rgb) {
     const char text[] = "unsupported";
@@ -116,6 +114,7 @@ static int draw_fps(cv::Mat &rgb) {
 static NanoDet *g_nanodet = 0;
 static ncnn::Mutex lock;
 
+
 class MyNdkCamera : public NdkCameraWindow {
 public:
     virtual void on_image_render(cv::Mat &rgb) const;
@@ -134,9 +133,21 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
             draw_unsupported(rgb);
         }
     }
-    if (toggleDrawFps) {
+
+// not optimal, because it checks multiple times per seond, which might reduce performance.
+// better: provide a custom implementation of g_camera. One without draw_fps. Then switch them out according to the preferences.
+// I'd like to do that, but it's a lot of effort....
+// to write this clean, probably requires quite a time investment.
+// That doesn't really make sense for such a simple task.
+// UPDATE: doesn't work. Disabling it for now.
+/*
+    if (drawFps) {
         draw_fps(rgb);
+    } else {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "toggleDrawFPS false");
     }
+    */
+    draw_fps(rgb);
 }
 
 JNIEnv *env;
@@ -357,12 +368,16 @@ Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEn
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectFPSPreferences(JNIEnv *env, jobject thiz,
                                                                    jboolean show_fps) {
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "injectPreferences");
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Call over JNI: injectPreferences");
 
-    toggleDrawFps = show_fps; // field in this file
-
-    return JNI_TRUE;
-
+    if (g_camera) {
+        drawFps = show_fps;
+        return JNI_TRUE;
+    } else {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME," g_camera is null."
+                                                       " Cannot inject fps preferences");
+        return JNI_FALSE;
+    }
 }
 
 

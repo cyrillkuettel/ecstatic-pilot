@@ -51,6 +51,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
     private int facing = 1;
 
+
     private Spinner spinnerModel;
     private Spinner spinnerCPUGPU;
     private int current_model = 0;
@@ -58,6 +59,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     private SurfaceView cameraView;
     private Ringtone ringtone;
+
+    private SettingsBundle settingsBundle;
 
     /**
      * Called when the activity is first created.
@@ -68,7 +71,11 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         setContentView(R.layout.main_nanodet_activity);
         // create a reference to the object of this class in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
-        Log.d(TAG, "onCreate has fired");
+
+        settingsBundle = readCurrentPreferenceState();
+        Log.d(TAG, "injecting preferences");
+        nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
+        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cameraView = (SurfaceView) findViewById(R.id.cameraview);
@@ -116,10 +123,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
-        SettingsBundle settingsBundle = readCurrentPreferenceState();
 
-        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
-        nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
         reload();
     }
 
@@ -161,6 +165,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
                     REQUEST_CAMERA);
         }
+        // could also here
         nanodetncnn.openCamera(facing);
     }
 
@@ -201,6 +206,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
                 PreferenceManager.getDefaultSharedPreferences(applicationContext);
         boolean useBluetooth = preferences.getBoolean("key_bluetooth", false);
         boolean drawFps = preferences.getBoolean("key_fps", false);
+        Log.v(TAG, "useBluetooth = " + useBluetooth);
+        Log.v(TAG, "drawFps = " + drawFps);
 
         CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps);
 

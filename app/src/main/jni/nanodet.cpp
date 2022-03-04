@@ -437,7 +437,8 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
 }
 
 // variables to cache
-// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter? Never change a running system /s
+// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter?
+// Never change a running system /s
 JNIEnv *env2;
 jclass MainActivityNanodetNCNNClass;
 jobject MainActivityNanodetNCNNObject; // to access the object.
@@ -608,7 +609,9 @@ extern "C"
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectBluetoothSettings(JNIEnv *env, jobject thiz,
                                                                       jboolean use_bluetooth) {
-   toggleBluetooth = use_bluetooth;
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Call over JNI: injectBluetoothSettings");
+
+    toggleBluetooth = use_bluetooth;
 
    return JNI_TRUE;
 }

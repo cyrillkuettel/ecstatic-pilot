@@ -25,6 +25,9 @@
 
 #include <opencv2/core/core.hpp>
 
+extern bool drawFps;
+
+
 class NdkCamera
 {
 public:
@@ -42,7 +45,6 @@ public:
 public:
     int camera_facing;
     int camera_orientation;
-
 
 private:
     ACameraManager* camera_manager;
