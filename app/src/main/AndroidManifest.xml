@@ -39,6 +39,7 @@
         android:theme="@style/Theme.PIlot">
         <activity
             android:name=".qrcode.QrCodeActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_activity_qrcode"
             android:theme="@style/Theme.PIlot.NoActionBar" />
@@ -48,7 +49,6 @@
             android:theme="@style/splashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
