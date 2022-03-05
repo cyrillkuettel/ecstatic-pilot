@@ -39,7 +39,12 @@
 #include <arm_neon.h>
 #endif // __ARM_NEON
 
+// Values loaded from Settings in onCreate of MainActivityNanodetNCNN
+
 bool drawFps;
+
+
+
 
 static int draw_unsupported(cv::Mat &rgb) {
     const char text[] = "unsupported";
@@ -127,7 +132,7 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
 
         if (g_nanodet) {
             std::vector<Object> objects;
-            g_nanodet->detect_plant_vase(rgb, objects);
+            g_nanodet->detect_plant_vase(rgb, objects, 0.4, 0.5);
             g_nanodet->draw(rgb, objects);
         } else {
             draw_unsupported(rgb);
