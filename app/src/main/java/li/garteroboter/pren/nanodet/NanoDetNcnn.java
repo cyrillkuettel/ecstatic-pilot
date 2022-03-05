@@ -32,6 +32,7 @@ public class NanoDetNcnn
 
     public native boolean injectFPSPreferences(boolean showFPS);
     public native boolean injectBluetoothSettings(boolean useBluetooth);
+    public native boolean injectProbThresholdSettings(float prob_threshold_from_settings);
 
 
 

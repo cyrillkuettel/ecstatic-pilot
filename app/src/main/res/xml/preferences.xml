@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="General">
 
@@ -15,6 +15,15 @@
             android:key="key_fps"
             android:summary="@string/show_an_approximation_of_fps"
             android:title="@string/show_fps" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:key="@string/key_prob_threshold"
+            android:title="@string/title_prob_threshold"
+            android:dialogTitle="@string/change_probability_for_plant_dialog_title"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/threshold_probability_entries"
+            android:entryValues="@array/threshold_probability_values" />
 
     </PreferenceCategory>
 

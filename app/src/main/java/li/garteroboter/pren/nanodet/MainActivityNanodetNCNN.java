@@ -76,14 +76,15 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
         nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
+        nanodetncnn.injectProbThresholdSettings(settingsBundle.getProb_threshold());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        cameraView = (SurfaceView) findViewById(R.id.cameraview);
+        cameraView = findViewById(R.id.cameraview);
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
 
-        spinnerModel = (Spinner) findViewById(R.id.spinnerModel);
+        spinnerModel = findViewById(R.id.spinnerModel);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
@@ -204,9 +205,12 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Context applicationContext = getApplicationContext();
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(applicationContext);
+
         boolean useBluetooth = preferences.getBoolean("key_bluetooth", false);
         boolean drawFps = preferences.getBoolean("key_fps", false);
-        CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps);
+        String _value = preferences.getString("key_prob_threshold", "0.40");
+        float probThreshold = Float.parseFloat(_value);
+        CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
 
         return settingsBundle;
 

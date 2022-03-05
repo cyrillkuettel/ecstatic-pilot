@@ -53,9 +53,42 @@
     <string name="key_bluetooth">key_bluetooth</string>
     <string name="disable_for_testing_without_esp">Disable for testing without ESP</string>
     <string name="send_bluetooth_commands">Send Bluetooth Commands</string>
+
     <string name="key_show_an_approximation_of_fps">draw_fps</string>
     <string name="show_an_approximation_of_fps">Show an approximation of FPS</string>
     <string name="show_fps">Show FPS</string>
+
+    <string name="key_prob_threshold">key_prob_threshold</string>
+    <string name="change_probability_for_plant_dialog_title">0.4 means the model predicts a 40% probability that the object is a plant or vase. </string>
+    <string name="title_prob_threshold">Probability threshold for halting</string>
+    <string name="summary_for_prob_threshold">Sensible default is 0.4.</string>
+
+    <string-array name="threshold_probability_entries">
+        <item>0.40</item>
+        <item>0.45</item>
+        <item>0.50</item>
+        <item>0.55</item>
+        <item>0.60</item>
+        <item>0.65</item>
+        <item>0.70</item>
+        <item>0.75</item>
+        <item>0.80</item>
+    </string-array>
+
+    <string-array name="threshold_probability_values">
+        <item>0.40</item>
+        <item>0.45</item>
+        <item>0.50</item>
+        <item>0.55</item>
+        <item>0.60</item>
+        <item>0.65</item>
+        <item>0.70</item>
+        <item>0.75</item>
+        <item>0.80</item>
+    </string-array>
+
+
+
 
 
     <string-array name="camera_resolution_entries">

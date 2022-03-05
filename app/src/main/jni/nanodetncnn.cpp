@@ -42,6 +42,8 @@
 // Values loaded from Settings in onCreate of MainActivityNanodetNCNN
 
 bool drawFps;
+float modifiable_prob_threshold = 0.4f;
+float modifiable_nms_threshold = modifiable_prob_threshold + 0.1f;
 
 
 
@@ -132,19 +134,21 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
 
         if (g_nanodet) {
             std::vector<Object> objects;
-            g_nanodet->detect_plant_vase(rgb, objects, 0.4, 0.5);
+            // would be interesting to time this. How long does it take for this two functions to execute?
+            g_nanodet->detect_plant_vase(rgb, objects, modifiable_prob_threshold, modifiable_nms_threshold);
+
             g_nanodet->draw(rgb, objects);
         } else {
             draw_unsupported(rgb);
         }
     }
 
-// not optimal, because it checks multiple times per seond, which might reduce performance.
+// Checking the drawFps every time is not optimal, because it checks multiple times per second, which might impact performance.
 // better: provide a custom implementation of g_camera. One without draw_fps. Then switch them out according to the preferences.
 // I'd like to do that, but it's a lot of effort....
-// to write this clean, probably requires quite a time investment.
+// to write this clean, probably requires a significant investment of time.
+// I have an idea: encapsulate the draw_fps in a Class, and provide a different implementation of the class based on preferences.
 // That doesn't really make sense for such a simple task.
-// UPDATE: doesn't work. Disabling it for now.
 
     if (drawFps) {
         draw_fps(rgb);
@@ -346,7 +350,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setOutputWindow(JNIEnv *env, jobje
 
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
-                                                    jobject fragment_nanodet_object) {
+                                                                         jobject fragment_nanodet_object) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setObjectReferenceAsGlobal");
 
     MainActivityNanodetNCNNObject = (jobject) env->NewGlobalRef(fragment_nanodet_object);
@@ -355,8 +359,9 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_setObjectReferenceAsGlobal(JNIEnv 
 }
 
 JNIEXPORT jboolean JNICALL
-Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env, jobject thiz,
-                                                          jobject terminalFragment) {
+Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEnv *env,
+                                                                           jobject thiz,
+                                                                           jobject terminalFragment) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setObjectReferenceAsGlobal");
 
     TerminalFragmentObject = (jobject) env->NewGlobalRef(terminalFragment);
@@ -369,16 +374,29 @@ Java_simple_bluetooth_terminal_TerminalFragment_setObjectReferenceAsGlobal(JNIEn
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectFPSPreferences(JNIEnv *env, jobject thiz,
                                                                    jboolean show_fps) {
-    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Call over JNI: injectPreferences");
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Call over JNI: injectFPSPreferences");
 
     if (g_camera) {
         drawFps = show_fps;
         return JNI_TRUE;
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME," g_camera is null."
-                                                       " Cannot inject fps preferences");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " g_camera is null."" Cannot inject fps preferences");
         return JNI_FALSE;
     }
+}
+
+JNIEXPORT jboolean JNICALL
+Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectProbThresholdSettings(JNIEnv *env,
+                                                                          jobject thiz,
+                                                                          jfloat prob_threshold_from_settings) {
+
+
+    modifiable_prob_threshold = (float) prob_threshold_from_settings;
+
+    __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Current modifiable_prob_threshold = %f", modifiable_prob_threshold);
+
+    return JNI_TRUE;
+
 }
 
 

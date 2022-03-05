@@ -8,13 +8,20 @@ public final class CustomSettingsBundle implements SettingsBundle {
 
     private boolean usingBluetooth;
     private boolean showFPS;
+    private float prob_threshold = 0.4f;
     
     public CustomSettingsBundle(boolean usingBluetooth, boolean showFPS) {
         this.usingBluetooth = usingBluetooth;
         this.showFPS = showFPS;
     }
+
+    public CustomSettingsBundle(boolean usingBluetooth, boolean showFPS, float prob_threshold) {
+        this.usingBluetooth = usingBluetooth;
+        this.showFPS = showFPS;
+        this.prob_threshold = prob_threshold;
+    }
     
-    public CustomSettingsBundle() {}
+
 
     @Override
     public boolean isUsingBluetooth() {
@@ -24,6 +31,11 @@ public final class CustomSettingsBundle implements SettingsBundle {
     @Override
     public boolean isShowFPS() {
         return showFPS;
+    }
+
+    @Override
+    public float getProb_threshold() {
+       return prob_threshold;
     }
 
     public void setUsingBluetooth(boolean usingBluetooth) {

@@ -393,7 +393,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     // sort all proposals by score from highest to lowest
     qsort_descent_inplace(proposals);
 
-    // apply nms with nms_threshold
+    // apply nms with modifiable_nms_threshold
     std::vector<int> picked;
     nms_sorted_bboxes(proposals, picked, nms_threshold);
 

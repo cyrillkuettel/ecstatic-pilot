@@ -1,5 +1,6 @@
 package li.garteroboter.pren.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -47,5 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT).show();
         super.onBackPressed();
     }
+
+
 }
 
