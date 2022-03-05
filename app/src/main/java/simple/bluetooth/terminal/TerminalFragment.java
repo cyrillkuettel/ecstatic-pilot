@@ -156,6 +156,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
         receiveText = view.findViewById(R.id.receive_text);                          // TextView performance decreases with number of spans
         receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
@@ -243,6 +244,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         Log.d(TAG, "Durchstich");
         if(connected != Connected.True) {
+            Log.wtf(TAG, "Tried to send message but not connected!!");
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }

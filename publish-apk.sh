@@ -1,3 +1,3 @@
 #!/bin/bash
 
-scp ~/ecstatic-pilot/app/debug/app-debug.apk cyrill@pren.garteroboter.li:~/rover/app/upload
+scp ~/ecstatic-pilot/app/release/app-release.apk cyrill@pren.garteroboter.li:~/rover/app/upload

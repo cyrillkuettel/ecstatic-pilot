@@ -1,10 +1,8 @@
 package li.garteroboter.pren;
 
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,10 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -36,8 +32,6 @@ import simple.bluetooth.terminal.DevicesFragment;
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
     private static final String TAG = "MainActivity";
 
-    private static final String ABSOLUTE_APK_PATH = "https://github.com/cyrillkuettel/ecstatic" +
-            "-pilot/blob/master/app/build/intermediates/apk/debug/app-debug.apk?raw=true";
 
     private WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
@@ -88,9 +82,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             Log.i(TAG, "tabLayout  or viewPager == null");
         }
 
-        Button updateApp = findViewById(R.id.updateApp);
-        updateApp.setVisibility(View.INVISIBLE);
-        // updateApp.setOnClickListener(v -> showUpdateMessageBox());
+        Button btnSTART = findViewById(R.id.START);
+        btnSTART.setBackgroundColor(getResources().getColor(R.color.purple_500));
+        btnSTART.setOnClickListener(v ->
+
+                startMainActivityNanodetNCNN());
 
 
         Button settingsBtn = findViewById(R.id.idBtnSettings);
@@ -103,12 +99,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             }
         });
 
-    /*
-        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
-        startActivity(myIntent);
-
-
-        */
+        //startMainActivityNanodetNCNN();
     }
 
 
@@ -117,6 +108,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.mainpagemenu, menu);
         return true;
+    }
+
+    public void startMainActivityNanodetNCNN() {
+        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
+        startActivity(myIntent);
     }
 
     /**
@@ -143,34 +139,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
 
-    public final void showUpdateMessageBox() {
-
-        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Update Vorgehensweise");
-        final TextView messageForUpdateProcedure = new TextView(this);
-        final String defaultMessage = "Du wirst jetzt weitergeleitet, um die neuste Version des " +
-                "Apps als apk herunterzuladen. \n *Wichtig* Zuerst dieses App deinstallieren, bevor " +
-                "das " +
-                "neue App installiert wird! Wenn die Meldung \"App nicht installiert\" kommt, " +
-                "hilft " +
-                "meistens ein Neustart des Geräts. ";
-        messageForUpdateProcedure.setText(defaultMessage);
-        alert.setView(messageForUpdateProcedure);
-
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ABSOLUTE_APK_PATH));
-                startActivity(browserIntent);
-            }
-        });
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                dialog.cancel();
-            }
-        });
-        alert.show();
-
-    }
 
 
     @Override

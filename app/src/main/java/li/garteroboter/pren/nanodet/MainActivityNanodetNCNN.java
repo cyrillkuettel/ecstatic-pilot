@@ -73,6 +73,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         settingsBundle = readCurrentPreferenceState();
+        boolean useBluetooth = settingsBundle.isUsingBluetooth();
 
         nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
@@ -117,8 +118,17 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         // interesting: based on whether we want to automatically connect to ESP,
         // I could pass in a Parameter into devices Fragment to do this.
         if (savedInstanceState == null) {
+            Bundle args = new Bundle();
+            if (useBluetooth) {
+                args.putString("autoConnect", "true");
+            } else {
+                args.putString("autoConnect", "false");
+            }
+            DevicesFragment devicesFragment = new DevicesFragment();
+            devicesFragment.setArguments(args);
+
             getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
-                    new DevicesFragment(), "devices").commit();
+                    devicesFragment, "devices").commit();
         }
 
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -148,13 +158,25 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
+    long count = 0;
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        startRingtone();
+        count++;
+        if (count >= 9) { // number of confirmations. The lower, the faster
+            Log.d(TAG, String.valueOf(count));
+            count = 0;
+            startRingtone();
+        }
+
+
+        /*
+
         startVibrating(100);
         // plant detection, so we switch to the QR Activity
         Intent myIntent = new Intent(this, QrCodeActivity.class);
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
+         */
+
     }
 
 
@@ -190,13 +212,13 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     @Override
     public void startRingtone() {
         if (TOGGLE_RINGTONE && System.currentTimeMillis() - lastTime > waitingTime) {
-
             try {
                 ringtone.play();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             lastTime = System.currentTimeMillis();
+            Log.d(TAG, String.valueOf(count));
         }
     }
 
@@ -210,9 +232,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         boolean drawFps = preferences.getBoolean("key_fps", false);
         String _value = preferences.getString("key_prob_threshold", "0.40");
         float probThreshold = Float.parseFloat(_value);
-        CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
 
-        return settingsBundle;
+        return new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
 
     /*
                 Like this you could loop through the preferences
