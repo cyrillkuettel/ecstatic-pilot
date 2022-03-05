@@ -10,8 +10,8 @@ public final class CustomSettingsBundle implements SettingsBundle {
     private boolean showFPS;
     
     public CustomSettingsBundle(boolean usingBluetooth, boolean showFPS) {
-        usingBluetooth = usingBluetooth;
-        showFPS = showFPS;
+        this.usingBluetooth = usingBluetooth;
+        this.showFPS = showFPS;
     }
     
     public CustomSettingsBundle() {}

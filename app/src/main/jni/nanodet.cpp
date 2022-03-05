@@ -489,6 +489,7 @@ void NanoDet::invoke_class(char *objectLabel) {
 }
 
 void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
+
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
         // I'm not 100% sure if this is necessary. Does it impact performance?
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
@@ -609,9 +610,9 @@ extern "C"
 JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectBluetoothSettings(JNIEnv *env, jobject thiz,
                                                                       jboolean use_bluetooth) {
-    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "Call over JNI: injectBluetoothSettings");
+    __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Call over JNI: injectBluetoothSettings");
 
-    toggleBluetooth = use_bluetooth;
+    toggleBluetooth = (bool) use_bluetooth;
 
-   return JNI_TRUE;
+    return JNI_TRUE;
 }

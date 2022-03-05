@@ -73,7 +73,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         settingsBundle = readCurrentPreferenceState();
-        Log.d(TAG, "injecting preferences");
+
         nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
 
@@ -206,14 +206,9 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
                 PreferenceManager.getDefaultSharedPreferences(applicationContext);
         boolean useBluetooth = preferences.getBoolean("key_bluetooth", false);
         boolean drawFps = preferences.getBoolean("key_fps", false);
-        Log.v(TAG, "useBluetooth = " + useBluetooth);
-        Log.v(TAG, "drawFps = " + drawFps);
-
         CustomSettingsBundle settingsBundle = new CustomSettingsBundle(useBluetooth, drawFps);
 
-        Log.d(TAG, "printing SettingsBundle");
-        Log.d(TAG, settingsBundle.toString());
-
+        return settingsBundle;
 
     /*
                 Like this you could loop through the preferences
@@ -232,7 +227,6 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
       */
 
-        return settingsBundle;
     }
 
 

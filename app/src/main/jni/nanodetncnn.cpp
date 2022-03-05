@@ -140,14 +140,10 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
 // to write this clean, probably requires quite a time investment.
 // That doesn't really make sense for such a simple task.
 // UPDATE: doesn't work. Disabling it for now.
-/*
+
     if (drawFps) {
         draw_fps(rgb);
-    } else {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "toggleDrawFPS false");
     }
-    */
-    draw_fps(rgb);
 }
 
 JNIEnv *env;
