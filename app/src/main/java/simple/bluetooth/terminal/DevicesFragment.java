@@ -46,14 +46,14 @@ public class DevicesFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setHasOptionsMenu(true);
 
+        // In some situations, we might not want to automatically connect to ESP. For example,
+        // if there is no device at hand and we just want to test.
         if (getArguments() != null) {
             try {
                 String autoConnect = getArguments().getString("autoConnect");
                 if (autoConnect != null && autoConnect.equals("true")) {
                     Log.d(TAG, "autoConnectToESP32  == true");
-
                     autoConnectToESP32 = true;
                 } else {
                     Log.e(TAG, "autoConnectToESP32  == false");
@@ -114,7 +114,7 @@ public class DevicesFragment extends ListFragment {
             setEmptyText("<bluetooth is disabled>");
 
         }else if (!autoConnectToESP32) {
-            setEmptyText("Bluetooh disabled in Pilot settings");
+            setEmptyText("Bluetooth disabled in Pilot settings. Enable in Home Screen -> Settings");
             return; // don't scan if we don't use bluetooth
         } else {
             setEmptyText("<no bluetooth devices found>");
@@ -140,10 +140,11 @@ public class DevicesFragment extends ListFragment {
 
         if (autoConnectToESP32) {
             Log.d(TAG, "autoConnectToESP ");
-            if (listItems.size() == 1) {
+            if (listItems.size() == 1) { /* There i one device called ESP32. */
                 BluetoothDevice ESP32_Device = listItems.get(0);
                 initializeTerminalFragment(ESP32_Device);;
             } else {
+                // there may be multiple devices with the name "ESP32"
                 // here I can check for the MAC Address.
                 // This will be useful when there will be multiple ESP32 devices.
             }
