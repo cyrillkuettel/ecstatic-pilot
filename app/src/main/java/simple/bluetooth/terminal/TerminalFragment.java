@@ -72,14 +72,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         setRetainInstance(true);
         deviceAddress = getArguments().getString("device");
         Log.d(TAG, String.format("Found device address: %s" , deviceAddress));
         //deviceAddress = "58:BF:25:81:CC:C8";
 
-        /* We need this. This allows accessing the instance object of TerminalFragment from the C++ Layer */
         Log.i(TAG, "setting Global reference for JNI ");
+        /* We need this. This allows accessing the instance of TerminalFragment from the C++ Layer */
         // Very important: this ensures the c++ Layer knows TerminalFragment
         setObjectReferenceAsGlobal(this);
     }
@@ -116,7 +115,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         try {
             vibrationListener = (VibrationListener) activity;
         } catch (ClassCastException castException) {
-            /** The activity does not implement the listener. */
             Log.e(TAG, "Failed to cast VibrationListener in onAttach()");
         }
     }
@@ -180,42 +178,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     }
 
 
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_terminal, menu);
-        menu.findItem(R.id.hex).setChecked(hexEnabled);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.clear) {
-            receiveText.setText("");
-            return true;
-        } else if (id == R.id.newline) {
-            String[] newlineNames = getResources().getStringArray(R.array.newline_names);
-            String[] newlineValues = getResources().getStringArray(R.array.newline_values);
-            int pos = java.util.Arrays.asList(newlineValues).indexOf(newline);
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Newline");
-            builder.setSingleChoiceItems(newlineNames, pos, (dialog, item1) -> {
-                newline = newlineValues[item1];
-                dialog.dismiss();
-            });
-            builder.create().show();
-            return true;
-        } else if (id == R.id.hex) {
-            hexEnabled = !hexEnabled;
-            sendText.setText("");
-            hexWatcher.enable(hexEnabled);
-            sendText.setHint(hexEnabled ? "HEX mode" : "");
-            item.setChecked(hexEnabled);
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
 
     /*
      * Serial + UI
