@@ -115,7 +115,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         try {
             vibrationListener = (VibrationListener) activity;
         } catch (ClassCastException castException) {
-            Log.e(TAG, "Failed to cast VibrationListener in onAttach()");
+            Log.e(TAG, "Failed to cast VibrationListener in onAttach(). ");
         }
     }
 

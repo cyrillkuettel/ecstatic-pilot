@@ -148,7 +148,6 @@ public class DevicesFragment extends ListFragment {
                 // This will be useful when there will be multiple ESP32 devices.
             }
         }
-
     }
 
 
