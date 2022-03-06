@@ -104,8 +104,9 @@ public class DevicesFragment extends ListFragment {
 
     @Override
     public void onResume() {
-        Log.i(TAG, "onResume()");
         super.onResume();
+        Log.i(TAG, "onResume()");
+
         if (bluetoothAdapter == null) {
             setEmptyText("<bluetooth not supported>");
 
@@ -138,21 +139,18 @@ public class DevicesFragment extends ListFragment {
         listAdapter.notifyDataSetChanged();
 
         if (autoConnectToESP32) {
-            autoConnectToESP();
+            Log.d(TAG, "autoConnectToESP ");
+            if (listItems.size() == 1) {
+                BluetoothDevice ESP32_Device = listItems.get(0);
+                initializeTerminalFragment(ESP32_Device);;
+            } else {
+                // here I can check for the MAC Address.
+                // This will be useful when there will be multiple ESP32 devices.
+            }
         }
 
     }
 
-    private void autoConnectToESP() {
-        Log.d(TAG, "autoConnectToESP ");
-        if (listItems.size() == 1) {
-            BluetoothDevice ESP32_Device = listItems.get(0);
-            initializeTerminalFragment(ESP32_Device);;
-        } else {
-            // here I can check for the MAC Address.
-            // This will be useful when there will be multiple ESP32 devices.
-        }
-    }
 
     @Override
     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
