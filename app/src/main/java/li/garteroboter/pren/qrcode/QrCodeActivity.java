@@ -148,6 +148,7 @@ public class QrCodeActivity extends AppCompatActivity implements PlaySoundListen
                         Log.i(TAG, "onQRCodeFound");
                         qrCode = _qrCode;
                         // TODO: save QR String to database
+                        // TODO: Send start command in TerminalFragment
                         startVibrating(100);
                         Log.i(TAG, "QRCodeListener fired. Resume to plant object detection mode. ");
                         exitActivity();
@@ -156,11 +157,12 @@ public class QrCodeActivity extends AppCompatActivity implements PlaySoundListen
                     @Override
                     public void qrCodeNotFound() {
                         if (System.currentTimeMillis() - lastTimeNoQRCodeWasFound > MaximumActivityLifetime) {
-                            final long MaximumActivityLifetimeSECONDS =
-                                    TimeUnit.MILLISECONDS.toSeconds(MaximumActivityLifetime);
+                            final long MaximumActivityLifetime =
+                                    TimeUnit.MILLISECONDS.toSeconds(QrCodeActivity.this.MaximumActivityLifetime);
                             Log.i(TAG, String.format("QRCodeListener has not fired for %d " +
                                     "seconds. Assuming false positive. The driving break is finished!",
-                                    MaximumActivityLifetimeSECONDS));
+                                    MaximumActivityLifetime));
+                            // TODO: Send start command in TerminalFragment
                             exitActivity();
                         }
                     }

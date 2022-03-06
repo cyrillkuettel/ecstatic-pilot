@@ -160,8 +160,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     long count = 0;
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        count++;
-        if (count >= 9) { // number of confirmations. The lower, the faster
+        if (count++ >= 9) { // number of confirmations. The lower, the faster
             Log.d(TAG, String.valueOf(count));
             count = 0;
             startRingtone();
