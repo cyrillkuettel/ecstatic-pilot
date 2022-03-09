@@ -160,7 +160,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     long count = 0;
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        if (count++ >= 9) { // number of confirmations. The lower, the faster
+        if (count++ >= 1) { // number of confirmations. The lower, the faster
             Log.d(TAG, String.valueOf(count));
             count = 0;
             startRingtone();
@@ -170,11 +170,11 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         /*
 
         startVibrating(100);
-        // plant detection, so we switch to the QR Activity
+        // plant detection, so we switch to the QR Activity     */
         Intent myIntent = new Intent(this, QrCodeActivity.class);
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
-         */
+
 
     }
 
