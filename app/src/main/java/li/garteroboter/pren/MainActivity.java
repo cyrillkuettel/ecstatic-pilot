@@ -1,7 +1,9 @@
 package li.garteroboter.pren;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -101,6 +104,20 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         //startMainActivityNanodetNCNN();
     }
+
+    public void createSharedPreferences() {
+        // Read the preferences
+        // https://stackoverflow.com/questions/7057845/save-arraylist-to-sharedpreferences
+        // https://developer.android.com/guide/topics/ui/settings/use-saved-values
+
+        Context applicationContext = getApplicationContext();
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("test", "value");
+        editor.commit();
+    }
+
 
 
     @Override

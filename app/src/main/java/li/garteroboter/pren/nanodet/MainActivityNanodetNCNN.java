@@ -29,6 +29,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import java.util.Set;
+
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.qrcode.QrCodeActivity;
 import li.garteroboter.pren.settings.container.CustomSettingsBundle;
@@ -133,6 +135,9 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+
+
+       // Set<String> set = myScores.getStringSet("key", null);
 
 
         reload();
