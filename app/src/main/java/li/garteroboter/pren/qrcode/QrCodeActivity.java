@@ -171,6 +171,7 @@ public class QrCodeActivity extends AppCompatActivity implements PlaySoundListen
         Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector,
                 imageAnalysis, preview);
 
+
     }
 
     @Override

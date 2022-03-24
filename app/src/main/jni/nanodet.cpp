@@ -520,18 +520,6 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
         env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
     }
 
-
-    if (instanceMethod_CallInJava == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
-        return;
-    } else {
-        jstrBuf = env2->NewStringUTF(objectLabel);
-        if (!jstrBuf) {
-            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jstring.");
-            return;
-        }
-        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
-    }
 }
 
 

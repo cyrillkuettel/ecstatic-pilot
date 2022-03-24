@@ -242,7 +242,7 @@ public class WebSocketManager extends AppCompatActivity {
      * Under the assumption that there exists an open connection
      * Run createAndOpenWebSocketConnection before this !
      */
-    public boolean sendText(String message) {
+    public boolean sendText(String message ) {
         WebSocket ws = sockets.get(SocketType.Text);
 
         if (message.equals("") || ws == null) {
