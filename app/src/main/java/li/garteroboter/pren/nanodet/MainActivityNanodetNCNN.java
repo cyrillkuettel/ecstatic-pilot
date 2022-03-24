@@ -48,21 +48,16 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid
     // spamming)
-    private final Context mContext = MainActivityNanodetNCNN.this;
     long lastTime = 0;
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
     private int facing = 1;
 
 
-    private Spinner spinnerModel;
-    private Spinner spinnerCPUGPU;
     private int current_model = 0;
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
     private Ringtone ringtone;
-
-    private SettingsBundle settingsBundle;
 
     /**
      * Called when the activity is first created.
@@ -74,7 +69,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         // create a reference to the object of this class in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
-        settingsBundle = readCurrentPreferenceState();
+        SettingsBundle settingsBundle = readCurrentPreferenceState();
         boolean useBluetooth = settingsBundle.isUsingBluetooth();
 
         nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
@@ -87,7 +82,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         cameraView.getHolder().addCallback(this);
 
 
-        spinnerModel = findViewById(R.id.spinnerModel);
+        Spinner spinnerModel = findViewById(R.id.spinnerModel);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
@@ -102,7 +97,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             }
         });
 
-        spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPU);
+        Spinner spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPU);
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
