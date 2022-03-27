@@ -59,9 +59,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private SurfaceView cameraView;
     private Ringtone ringtone;
 
-    /**
-     * Called when the activity is first created.
-     */
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,11 +158,11 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
     long count = 0;
     public void nonStaticDurchstich(String helloFromTheOtherSide) {
-        if (count++ >= 1) { // number of confirmations. The lower, the faster
-            Log.d(TAG, String.valueOf(count));
+        count++;
+        if (count >= 1) { // number of confirmations. The lower, the faster
             count = 0;
-            startRingtone();
-        }
+            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
+            // startRingtone();
 
 
         /*
@@ -175,7 +173,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
 
-
+        }
     }
 
 

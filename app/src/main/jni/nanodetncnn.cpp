@@ -137,7 +137,7 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
             // would be interesting to time this. How long does it take for this two functions to execute?
             g_nanodet->detect_plant_vase(rgb, objects, modifiable_prob_threshold, modifiable_nms_threshold);
 
-            g_nanodet->draw(rgb, objects);
+            // g_nanodet->draw(rgb, objects);
         } else {
             draw_unsupported(rgb);
         }
