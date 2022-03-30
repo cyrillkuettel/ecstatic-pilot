@@ -75,6 +75,7 @@ public class LoggingFragment extends Fragment {
         Button btnStartStopTimer = view.findViewById(R.id.btnStartStop);
         btnStartStopTimer.setEnabled(false);
         btnStartStopTimer.setOnClickListener(v -> {
+            btnStartStopTimer.setEnabled((false));
             sendStartSignalToWebServer();
 
         });
@@ -116,7 +117,7 @@ public class LoggingFragment extends Fragment {
         btnRootShell.setVisibility(View.INVISIBLE);
         btnRootShell.setOnClickListener(v -> {
             // This is an attempt to turn the the flashlight on using the kernel interface.
-            // Somehow did not work. I have no idea why.
+            // Somehow it did not work. I have no idea why.
             try {
                 Log.i(TAG, "creating Rootshell Class");
                 String availableDevices = RootShell.sudoForResult("ls -lah /sys/class/leds/");

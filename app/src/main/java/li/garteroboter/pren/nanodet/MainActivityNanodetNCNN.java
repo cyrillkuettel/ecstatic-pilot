@@ -64,7 +64,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_nanodet_activity);
-        // create a reference to the object of this class in the C++ layer
+        // create a reference to the currently active instance of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         SettingsBundle settingsBundle = readCurrentPreferenceState();
