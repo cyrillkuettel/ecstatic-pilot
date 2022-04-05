@@ -17,10 +17,13 @@
 └───shell: Running UNIX commands as root on the Android operating system. (Works on rooted phones.)
 │   
 └───settings: Android Preferences
+│   
+└───simple.bluetooth.terminal This sends commands to stop / start the engine. It essentially acts as a remote-control of a [ESP32](https://en.wikipedia.org/wiki/ESP32) microcontroller.
+
+
 ```
 
 
-- simple.bluetooth.terminal This sends commands to stop / start the engine. It essentially acts as a remote-control of a [ESP32](https://en.wikipedia.org/wiki/ESP32) microcontroller.
 # This project uses code from the following open-source projects:
 
 
