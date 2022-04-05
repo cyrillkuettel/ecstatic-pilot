@@ -1,6 +1,7 @@
 # ecstatic-pilot
-## The brain behind a autonomous robot
 
+## The brain behind an autonomous robot
+![](app/src/main/res/drawable/rover_transparent_30.png)
 # Project architecture (Java)
 
 ```
