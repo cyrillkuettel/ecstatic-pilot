@@ -32,6 +32,7 @@ import androidx.preference.PreferenceManager;
 import java.util.Set;
 
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
 import li.garteroboter.pren.qrcode.QrCodeActivity;
 import li.garteroboter.pren.settings.container.CustomSettingsBundle;
 import li.garteroboter.pren.settings.container.SettingsBundle;
@@ -59,11 +60,16 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private SurfaceView cameraView;
     private Ringtone ringtone;
 
+    private MainNanodetActivityBinding binding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_nanodet_activity);
+        // setContentView(R.layout.main_nanodet_activity);
+        binding = MainNanodetActivityBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
         // creates a reference to the currently active instance of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
@@ -75,12 +81,12 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         nanodetncnn.injectProbThresholdSettings(settingsBundle.getProb_threshold());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        cameraView = findViewById(R.id.cameraview);
+        cameraView = binding.cameraview;
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
 
-        Spinner spinnerModel = findViewById(R.id.spinnerModel);
+        Spinner spinnerModel = binding.spinnerModel;
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
@@ -95,7 +101,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             }
         });
 
-        Spinner spinnerCPUGPU = findViewById(R.id.spinnerCPUGPU);
+        Spinner spinnerCPUGPU = binding.spinnerCPUGPU;
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
@@ -160,6 +166,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         count++;
         if (count >= 5) { // number of confirmations. The lower, the faster
+
             count = 0;
             Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
             // startRingtone();
@@ -230,23 +237,6 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         float probThreshold = Float.parseFloat(_value);
 
         return new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
-
-    /*
-                Like this you could loop through the preferences
-
-        Map<String, ?> map = preferences.getAll();
-
-        if (map.size() == 0) { // default settings
-            Log.i(TAG, "Using the default Settings");
-            return new DefaultSettingsBundle();
-        }
-
-        for(Map.Entry<String,?> entry : map.entrySet()){
-            Log.d("map values",entry.getKey() + ": " +
-                    entry.getValue().toString());
-        }
-
-      */
 
     }
 

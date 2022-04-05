@@ -73,9 +73,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         //deviceAddress = "58:BF:25:81:CC:C8";
 
         Log.i(TAG, "setting Global reference for JNI ");
-        /* We need this. This allows accessing the instance of TerminalFragment from the C++ Layer */
-        // Very important: this ensures the c++ Layer knows TerminalFragment
-        setObjectReferenceAsGlobal(this);
+
+
+        setObjectReferenceAsGlobal(this); /*This allows accessing the instance of TerminalFragment
+                                            from the C++ Layer */
     }
 
     @Override
@@ -92,7 +93,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         if(service != null)
             service.attach(this);
         else
-            getActivity().startService(new Intent(getActivity(), SerialService.class)); // prevents service destroy on unbind from recreated activity caused by orientation change
+            getActivity().startService(new Intent(getActivity(), SerialService.class));
+        // prevents service destroy on unbind from recreated activity caused by orientation change
     }
 
     @Override
@@ -222,6 +224,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
             receiveText.append(spn);
             service.write(data);
         } catch (Exception e) {
+            Log.d(TAG, "exception while sending Text in method send(String str)");
             onSerialIoError(e);
         }
     }

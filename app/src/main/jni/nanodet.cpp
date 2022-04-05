@@ -500,7 +500,10 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
                                                   "plantVaseDetectedCallback",
                                                   "(Ljava/lang/String;)V"); // JNI type signatue
 
-
+/*
+ * I could directly access the TerminalFragment form there.
+ * This might improve performance slightly, but introduces too much complexity for the benefit.
+ *
     jmethodID instanceMethod_Call_TerminalFragment;
     if (useBlueooth) {
         instanceMethod_Call_TerminalFragment = env2->GetMethodID(TerminalFragmentClass,
@@ -508,6 +511,7 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
                                                       "(Ljava/lang/String;)V"); // JNI type signature
 
     }
+    */
 
     if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
