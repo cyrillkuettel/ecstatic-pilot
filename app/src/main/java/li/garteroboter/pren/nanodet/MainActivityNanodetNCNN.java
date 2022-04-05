@@ -64,7 +64,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_nanodet_activity);
-        // create a reference to the currently active instance of MainActivityNanodetNCNN in the C++ layer
+        // creates a reference to the currently active instance of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         SettingsBundle settingsBundle = readCurrentPreferenceState();
@@ -95,7 +95,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             }
         });
 
-        Spinner spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPU);
+        Spinner spinnerCPUGPU = findViewById(R.id.spinnerCPUGPU);
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
@@ -157,13 +157,12 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     }
 
     long count = 0;
-    public void nonStaticDurchstich(String helloFromTheOtherSide) {
+    public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         count++;
-        if (count >= 1) { // number of confirmations. The lower, the faster
+        if (count >= 5) { // number of confirmations. The lower, the faster
             count = 0;
             Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
             // startRingtone();
-
 
         /*
 
@@ -220,7 +219,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     }
 
     private SettingsBundle readCurrentPreferenceState() {
-        // Read the preferences
+        // Read the preferences ( Wraps everything in a package, which is then transferred to the native layer)
         Context applicationContext = getApplicationContext();
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(applicationContext);

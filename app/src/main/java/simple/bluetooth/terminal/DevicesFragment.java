@@ -39,9 +39,7 @@ public class DevicesFragment extends ListFragment {
         return fragment;
     }
 
-    public DevicesFragment() {
-        // required empty constructor
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,7 +59,8 @@ public class DevicesFragment extends ListFragment {
                 }
 
             } catch (Exception e) {
-                Log.e(TAG, "failed to get autoConnect key");
+                Log.e(TAG, "Attempted to get Arguments in Fragment startup. " +
+                        "The autoConnectToESP32 Property was not found.");
                 e.printStackTrace();
             }
         }
@@ -114,7 +113,7 @@ public class DevicesFragment extends ListFragment {
             setEmptyText("<bluetooth is disabled>");
 
         }else if (!autoConnectToESP32) {
-            setEmptyText("Bluetooth disabled in Pilot settings. Enable in Home Screen -> Settings");
+            setEmptyText("Enable Bluetooth in Settings. ");
             return; // don't scan if we don't use bluetooth
         } else {
             setEmptyText("<no bluetooth devices found>");
@@ -188,5 +187,9 @@ public class DevicesFragment extends ListFragment {
         if (aValid) return -1;
         if (bValid) return +1;
         return a.getAddress().compareTo(b.getAddress());
+    }
+
+    public DevicesFragment() {
+        // required empty constructor
     }
 }

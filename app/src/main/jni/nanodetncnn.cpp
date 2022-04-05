@@ -380,7 +380,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_injectFPSPreferences(JNIEnv *env, 
         drawFps = show_fps;
         return JNI_TRUE;
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " g_camera is null."" Cannot inject fps preferences");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " g_camera is null. Cannot inject fps preferences");
         return JNI_FALSE;
     }
 }

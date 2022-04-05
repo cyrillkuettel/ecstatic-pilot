@@ -1,7 +1,6 @@
 package simple.bluetooth.terminal;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -17,14 +16,10 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -63,7 +58,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     }
 
     public TerminalFragment() {
-
+        // empty constructor
     }
 
     /*
@@ -204,7 +199,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void send(String str) {
 
 
-        Log.d(TAG, "Durchstich");
         if(connected != Connected.True) {
             Log.wtf(TAG, "Tried to send message but not connected!!");
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();

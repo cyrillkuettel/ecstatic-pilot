@@ -137,7 +137,7 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             const float *scores = cls_pred.row(idx);
             // find label with max score,
             // which is object 'potted_plant' or 'vase'
-            // Check condition of the label to match potted_plant or vase!
+            // Check condition of the label to match either one of those two objects
             int label = -1;
             float score = -FLT_MAX;
             if (scores[potted_plant_label] >= prob_threshold) {
@@ -468,7 +468,7 @@ void NanoDet::invoke_class(char *objectLabel) {
     }
 
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
-                                                  "nonStaticDurchstich",
+                                                  "plantVaseDetectedCallback",
                                                   "(Ljava/lang/String;)V"); // JNI type signature
 
 
@@ -497,15 +497,16 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
     }
 
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
-                                                  "nonStaticDurchstich",
+                                                  "plantVaseDetectedCallback",
                                                   "(Ljava/lang/String;)V"); // JNI type signatue
 
 
     jmethodID instanceMethod_Call_TerminalFragment;
     if (useBlueooth) {
         instanceMethod_Call_TerminalFragment = env2->GetMethodID(TerminalFragmentClass,
-                                                      "nonStaticDurchstich",
+                                                      "plantVaseDetectedCallback",
                                                       "(Ljava/lang/String;)V"); // JNI type signature
+
     }
 
     if (instanceMethod_CallInJava == nullptr) {
