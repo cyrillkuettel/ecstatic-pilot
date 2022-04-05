@@ -1,11 +1,8 @@
 package li.garteroboter.pren.nanodet;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-
 import android.Manifest;
-
 import androidx.fragment.app.FragmentActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,19 +21,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-
-import java.util.Set;
-
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
 import li.garteroboter.pren.qrcode.QrCodeActivity;
 import li.garteroboter.pren.settings.container.CustomSettingsBundle;
 import li.garteroboter.pren.settings.container.SettingsBundle;
 import simple.bluetooth.terminal.DevicesFragment;
+import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.VibrationListener;
 
 public class MainActivityNanodetNCNN extends FragmentActivity implements SurfaceHolder.Callback,
@@ -53,30 +47,29 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
     private int facing = 1;
 
-
+    private boolean useBluetooth;
     private int current_model = 0;
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
     private Ringtone ringtone;
-
-    private MainNanodetActivityBinding binding;
+    private TerminalFragment terminalFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.main_nanodet_activity);
-        binding = MainNanodetActivityBinding.inflate(getLayoutInflater());
+        li.garteroboter.pren.databinding.MainNanodetActivityBinding binding =
+                MainNanodetActivityBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
-        // creates a reference to the currently active instance of MainActivityNanodetNCNN in the C++ layer
+        // creates a reference to the currently active instance
+        // of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
         SettingsBundle settingsBundle = readCurrentPreferenceState();
-        boolean useBluetooth = settingsBundle.isUsingBluetooth();
-
-        nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth());
+        useBluetooth = settingsBundle.isUsingBluetooth();
+        nanodetncnn.injectBluetoothSettings(useBluetooth);
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
         nanodetncnn.injectProbThresholdSettings(settingsBundle.getProb_threshold());
 
@@ -136,7 +129,6 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
 
-       // Set<String> set = myScores.getStringSet("key", null);
 
 
         reload();
@@ -162,6 +154,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
+    /** This method is called by the native layer. */
     long count = 0;
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         count++;
@@ -169,16 +162,31 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
             count = 0;
             Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
-            // startRingtone();
 
+            if (terminalFragment != null) {
+                terminalFragment.send("stop");
+            }
         /*
-
+        startRingtone();
         startVibrating(100);
-        // plant detection, so we switch to the QR Activity     */
+        /**plant detection, so we switch to the QR Activity     */
+
+            startQRActivity();
+
+        }
+    }
+
+    public void startQRActivity() {
         Intent myIntent = new Intent(this, QrCodeActivity.class);
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
+    }
 
+    public void receiveTerminalFragmentReference(TerminalFragment terminalFragment) {
+        if (terminalFragment != null && useBluetooth) {
+            this.terminalFragment = terminalFragment;
+        } else {
+            Log.e(TAG, "terminalFragment == null in method receiveTerminalFragmentReference");
         }
     }
 
@@ -191,7 +199,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
                     REQUEST_CAMERA);
         }
-        // could also here
+
         nanodetncnn.openCamera(facing);
     }
 

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -26,8 +27,9 @@ import androidx.fragment.app.Fragment;
 
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
 
-public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
+public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
     private static final String TAG = "TerminalFragment";
     private enum Connected { False, Pending, True }
 
@@ -47,7 +49,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private VibrationListener vibrationListener;
 
 
-    public native boolean setObjectReferenceAsGlobal(TerminalFragment mainActivityQRCodeNCNN);
+    public native boolean setObjectReferenceAsGlobal(TerminalFragment terminalFragment);
 
 
     public static TerminalFragment newInstance() {
@@ -77,6 +79,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
         setObjectReferenceAsGlobal(this); /*This allows accessing the instance of TerminalFragment
                                             from the C++ Layer */
+
     }
 
     @Override
@@ -174,6 +177,17 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         return view;
     }
 
+    public void onViewCreated( View view , Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        try {
+            ((MainActivityNanodetNCNN)getActivity()).receiveTerminalFragmentReference(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Attempted to call public method on MainActivityNanodetNCNN, failed");
+            e.printStackTrace();
+        }
+
+    }
 
 
     /*
@@ -199,8 +213,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 
     public void send(String str) {
-
-
         if(connected != Connected.True) {
             Log.wtf(TAG, "Tried to send message but not connected!!");
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
@@ -282,6 +294,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         status("connection lost: " + e.getMessage());
         disconnect();
     }
+
 
 
     static {
