@@ -1,6 +1,8 @@
 package li.garteroboter.pren.nanodet;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static li.garteroboter.pren.Constants.START_COMMAND_ESP32;
+
 import android.Manifest;
 import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
@@ -164,10 +166,11 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
 
             if (terminalFragment != null) {
-                terminalFragment.send("stop");
+                terminalFragment.send(START_COMMAND_ESP32);
             }
+            startRingtone();
         /*
-        startRingtone();
+
         startVibrating(100);
         /**plant detection, so we switch to the QR Activity     */
 
