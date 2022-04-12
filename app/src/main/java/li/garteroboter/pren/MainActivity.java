@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -39,17 +38,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     private WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
 
-    private static final int PIXEL_CAMERA_WIDTH = 3036;  // default values when taking pictures
-    private static final int PIXEL_CAMERA_HEIGHT = 4048;
 
 
     // You have to change viewPager.setOffscreenPageLimit as well.
     private static final int NUM_PAGES = 3;
 
-    /**
-     * The pager adapter, which provides the pages to the view pager widget.
-     */
-    private FragmentStateAdapter pagerAdapter;
     TabLayout tabLayout;
     String[] tabNames = new String[NUM_PAGES];
 
@@ -67,7 +60,9 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
          * and next wizard steps.
          */
         ViewPager2 viewPager = findViewById(R.id.pager);
-        pagerAdapter = new ScreenSlidePagerAdapter(this);
+
+        /* The pager adapter, which provides the pages to the view pager widget. */
+        FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout = findViewById(R.id.tabLayout);
@@ -82,24 +77,18 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                     }
             ).attach();
         } else {
-            Log.i(TAG, "tabLayout  or viewPager == null");
+            Log.e(TAG, "tabLayout or viewPager == null");
         }
 
         Button btnSTART = findViewById(R.id.START);
-        btnSTART.setBackgroundColor(getResources().getColor(R.color.purple_500));
+        // btnSTART.setBackgroundColor(getResources().ContextCompat.getColor(R.color.purple_500));
         btnSTART.setOnClickListener(v ->
-
                 startMainActivityNanodetNCNN());
 
-
         Button settingsBtn = findViewById(R.id.idBtnSettings);
-        settingsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // opening a new intent to open settings activity.
-                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(i);
-            }
+        settingsBtn.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
         });
 
         //startMainActivityNanodetNCNN();
@@ -138,18 +127,15 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
-        switch (item.getItemId()) {
-            case R.id.websocket:
-                intent = new Intent(this, MainActivity.class);
-                break;
-            case R.id.nanodet:
-                intent = new Intent(this, MainActivityNanodetNCNN.class);
-                break;
-            case R.id.qrCodeactivity:
-                intent = new Intent(this, QrCodeActivity.class);
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == R.id.websocket) {
+            intent = new Intent(this, MainActivity.class);
+        } else if (itemId == R.id.nanodet) {
+            intent = new Intent(this, MainActivityNanodetNCNN.class);
+        } else if (itemId == R.id.qrCodeactivity) {
+            intent = new Intent(this, QrCodeActivity.class);
+        } else {
+            return super.onOptionsItemSelected(item);
         }
         startActivity(intent);
         return true;
@@ -197,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             super(fa);
         }
 
+        @NonNull
         @Override
         public Fragment createFragment(int position) {
 

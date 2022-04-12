@@ -161,9 +161,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         count++;
         if (count >= 5) { // number of confirmations. The lower, the faster
-
-            count = 0;
             Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
+            count = 0;
 
             if (terminalFragment != null) {
                 terminalFragment.send(START_COMMAND_ESP32);
@@ -246,7 +245,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         boolean drawFps = preferences.getBoolean("key_fps", false);
         String _value = preferences.getString("key_prob_threshold", "0.40");
         float probThreshold = Float.parseFloat(_value);
-
+        Log.d(TAG, String.valueOf(probThreshold));
         return new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
 
     }

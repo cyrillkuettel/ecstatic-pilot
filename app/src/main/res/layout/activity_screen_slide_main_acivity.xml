@@ -78,25 +78,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_marginBottom="10dp"
             android:orientation="horizontal"
             tools:context=".MainActivity">
 
-        <Button
-            android:id="@+id/START"
-            android:text="LET'S GO"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="false" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/START"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@color/purple_500"
+                android:text="START"
+                android:textColor="@color/white"
+                android:textAllCaps="false" />
 
             <View
                 android:id="@+id/view"
                 android:layout_width="40dp"
                 android:layout_height="1dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/idBtnSettings"
+                android:textSize="20sp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:background="@color/purple_500"
+                android:textColor="@color/white"
                 android:text="Settings"
                 android:textAllCaps="false" />
 

@@ -1,5 +1,7 @@
 package li.garteroboter.pren.settings.container;
 
+import androidx.annotation.NonNull;
+
 /**
  * this is a simple Dataclass
  * Store all the Settings. Main purpose: for testing 
@@ -46,6 +48,7 @@ public final class CustomSettingsBundle implements SettingsBundle {
         this.showFPS = showFPS;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "CustomSettingsBundle{" +
