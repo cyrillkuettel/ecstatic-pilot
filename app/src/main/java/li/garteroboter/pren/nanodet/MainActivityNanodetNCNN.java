@@ -26,6 +26,12 @@ import android.widget.Spinner;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
 import li.garteroboter.pren.qrcode.QrCodeActivity;
@@ -46,6 +52,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid
     // spamming)
     long lastTime = 0;
+    private final AtomicInteger atomicCounter = new AtomicInteger(0);
+
     private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
     private int facing = 1;
 
@@ -130,7 +138,21 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
-
+        // To be absolutely certain we have a plant detected, and not a false positive, I
+        // implemented a little extra check.
+        // It will watch for a fast burst of plantVaseDetectedCallback.
+        // To detect that burst of callbacks in a short period of time, I use an atomicCounter.
+        // This atomicCounter tracks the number of plantVaseDetectedCallback in a given interval.
+        // After the interval has passed, simply reset the atomicCounter back to zero.
+        Runnable resetAtomicCounterEveryNSeconds = () -> {
+            Log.v(TAG, "RESETTING COUNTER");
+            atomicCounter.incrementAndGet();
+        };
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(resetAtomicCounterEveryNSeconds,
+                0,
+                3,
+                TimeUnit.SECONDS);
 
 
         reload();
@@ -157,17 +179,19 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     }
 
     /** This method is called by the native layer. */
-    long count = 0;
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
-        count++;
-        if (count >= 5) { // number of confirmations. The lower, the faster
-            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", count));
-            count = 0;
+        int _count = atomicCounter.incrementAndGet();
+        if (_count != 0) {
+            Log.v(TAG,String.format("CURRENT NUMBER OF CONFIRMATIONS = %d", _count));
+        }
+        if ( _count >= 5) { // number of confirmations. The lower, the faster
+            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
+            atomicCounter.set(0);
 
             if (terminalFragment != null) {
                 terminalFragment.send(START_COMMAND_ESP32);
             }
-            startRingtone();
+           // startRingtone();
         /*
 
         startVibrating(100);
@@ -177,6 +201,9 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
         }
     }
+
+
+
 
     public void startQRActivity() {
         Intent myIntent = new Intent(this, QrCodeActivity.class);
@@ -231,7 +258,6 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
                 e.printStackTrace();
             }
             lastTime = System.currentTimeMillis();
-            Log.d(TAG, String.valueOf(count));
         }
     }
 
@@ -256,6 +282,4 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         super.onPause();
         nanodetncnn.closeCamera();
     }
-
-
 }
