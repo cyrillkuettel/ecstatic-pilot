@@ -9,7 +9,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -70,6 +72,8 @@ public class SendImagesFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_websocket_send_images, container, false);
+        generateDropDownItems(view);
+
         Log.d(TAG, "onCreateView");
 
         Button btnSelectImageAndSend = view.findViewById(R.id.btnSelectImageAndSend);
@@ -90,21 +94,40 @@ public class SendImagesFragment extends Fragment {
         Button btnOpenByteSocketConnection =
                 view.findViewById(R.id.btnOpenByteSocketConnection);
         btnOpenByteSocketConnection.setOnClickListener(v -> {
-            if (manager != null) {
-                manager.disconnectAll();
-            } else {
-                Log.d(TAG, "Opening new Socket connection");
-            }
+            Spinner hostnameDropdown = view.findViewById(R.id.dropdown_menu_byte);
+            reOpenSocket(hostnameDropdown.getSelectedItem().toString());
 
-            manager = new WebSocketManager(getActivity(), "wss://pren.garteroboter.li:443/ws/");
-
-            // TODO: change this so be more optimal
-            new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Bytes)).start();
             btnSelectImageAndSend.setEnabled(true);
             btnSendImagesFromDisk.setEnabled(true);
         });
 
         return view;
+    }
+
+    public void reOpenSocket(final String hostname) {
+        if (manager != null) {
+            manager.disconnectAll();
+        } else {
+            Log.i(TAG, "Opening new Socket connection");
+        }
+        manager = new WebSocketManager(getContext(), hostname);
+        // TODO: change this so be more optimal
+        new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Binary)).start();
+    }
+
+    public final void generateDropDownItems(View view) {
+        Spinner spinnerHostname = view.findViewById(R.id.dropdown_menu_byte);
+
+        ArrayAdapter<CharSequence> adapter = null;
+        try {
+            adapter = ArrayAdapter.createFromResource(
+                    getContext(), R.array.uri, android.R.layout.simple_spinner_item);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerHostname.setAdapter(adapter);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed creating spinner items");
+            e.printStackTrace();
+        }
     }
 
     public void testSendArrayOfPlants() {

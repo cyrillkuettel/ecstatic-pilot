@@ -94,7 +94,7 @@ public class WebSocketManager extends AppCompatActivity {
             typeOfSocketConnection = "999";  // I define these special client ID's on the server
 
         }
-        if (socket.equals(SocketType.Bytes)) {
+        if (socket.equals(SocketType.Binary)) {
             typeOfSocketConnection = "888";
         }
 
@@ -268,7 +268,7 @@ public class WebSocketManager extends AppCompatActivity {
      */
     public boolean sendBytes(byte[] bytes) {
         Log.i(TAG, "sending Bytes");
-        WebSocket ws = sockets.get(SocketType.Bytes);
+        WebSocket ws = sockets.get(SocketType.Binary);
 
         if (ws == null) {
             Log.i(TAG, "Websocket == Null in method sendBytes");

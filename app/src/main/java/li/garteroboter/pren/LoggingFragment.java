@@ -139,19 +139,6 @@ public class LoggingFragment extends Fragment {
         });
 
 
-        /*
-        Button btnInternetTime =  view.findViewById(R.id.btnInternetTime);
-        btnInternetTime.setEnabled(false);
-        btnInternetTime.setOnClickListener(v -> {
-            Spinner hostnameDropdown = view.findViewById(R.id.dropdown_menu);
-            reOpenSocket(hostnameDropdown.getSelectedItem().toString());
-            String time = manager.getInternetTime();
-
-            Log.d(TAG, String.format("getInternetTime() == %s", time));
-        });
-
-         */
-
         return view;
     }
 
