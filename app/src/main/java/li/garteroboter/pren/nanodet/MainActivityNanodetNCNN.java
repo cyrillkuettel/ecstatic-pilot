@@ -191,7 +191,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             if (terminalFragment != null) {
                 terminalFragment.send(START_COMMAND_ESP32);
             }
-           // startRingtone();
+            startRingtone();
         /*
 
         startVibrating(100);
