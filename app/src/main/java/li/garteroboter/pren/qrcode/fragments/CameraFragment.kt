@@ -20,7 +20,9 @@ import androidx.window.layout.WindowInfoTracker
  import android.annotation.SuppressLint
  import android.content.Context
  import android.content.Intent
- import android.content.res.Configuration
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.content.res.Configuration
  import android.graphics.Color
  import android.graphics.ImageFormat
 import android.graphics.Rect
@@ -151,6 +153,15 @@ class CameraFragment : Fragment() {
             )
         }
     }
+
+    private fun getAPIKey() : String {
+        val applicationInfo: ApplicationInfo = requireActivity().applicationContext.packageManager
+            .getApplicationInfo(requireActivity().applicationContext.packageName, PackageManager.GET_META_DATA)
+        val key = applicationInfo.metaData["plantapi"]
+        return key.toString()
+    }
+
+
 
     override fun onDestroyView() {
         _fragmentCameraBinding = null
@@ -572,13 +583,12 @@ class CameraFragment : Fragment() {
             }
         }
 
-        // Listener for button used to capture photo
-        // disabled for now. I don't need it.
-        /*
+
+
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-            takePhotoOnce()
+
         }
-        */
+
 
 
         // Listener for button used to view the most recent photo

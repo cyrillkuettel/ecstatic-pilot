@@ -24,15 +24,16 @@
 
     <!-- Camera control and gallery buttons -->
 
-
+    <!-- android:background="@drawable/ic_shutter"-->
     <ImageButton
-        android:visibility="invisible"
+
+        android:visibility="visible"
         android:id="@+id/camera_capture_button"
         android:layout_width="@dimen/round_button_large"
         android:layout_height="@dimen/round_button_large"
         android:layout_marginBottom="@dimen/shutter_button_margin"
         android:scaleType="fitCenter"
-        android:background="@drawable/ic_shutter"
+        android:background="@drawable/api"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
