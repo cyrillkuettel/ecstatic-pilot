@@ -67,6 +67,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private Ringtone ringtone;
     private TerminalFragment terminalFragment;
 
+    boolean transitionToQRActivityEnabled = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +139,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
                     devicesFragment, "devices").commit();
         }
 
+        initializePreferences();
+
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
@@ -194,24 +198,21 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
             if (terminalFragment != null) {
                 terminalFragment.send(START_COMMAND_ESP32);
             }
-            startRingtone();
-        /*
 
-        startVibrating(100);
-        /**plant detection, so we switch to the QR Activity     */
+            startRingtone();
+
 
             startQRActivity();
 
         }
     }
 
-
-
-
     public void startQRActivity() {
-        Intent myIntent = new Intent(this, QrcodeActivity.class);
-        myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(myIntent);
+        if (transitionToQRActivityEnabled) {
+            Intent myIntent = new Intent(this, QrcodeActivity.class);
+            myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(myIntent);
+        }
     }
 
     public void receiveTerminalFragmentReference(TerminalFragment terminalFragment) {
@@ -269,9 +270,8 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     // passed to the native layer)
     private SettingsBundle generatePreferenceBundle() {
 
-        Context applicationContext = getApplicationContext();
         SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(applicationContext);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         boolean useBluetooth = preferences.getBoolean("key_bluetooth", false);
         boolean drawFps = preferences.getBoolean("key_fps", false);
@@ -282,6 +282,14 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         Log.d(TAG, String.format("number_picker_preference == %s" , plantCount));
 
         return new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
+
+    }
+
+    private void initializePreferences() {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // load preferences ot local variable
+        transitionToQRActivityEnabled = preferences.getBoolean("key_start_transition", false);
 
     }
 

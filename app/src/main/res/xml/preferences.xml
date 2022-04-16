@@ -30,10 +30,14 @@
             android:summary="pick_a_number"
             android:title="Pick the number of plants" />
 
-        <li.garteroboter.pren.preferences.NumberPickerPreference
-            android:key="number_picker_preference"
-            android:summary="pick_a_number"
-            android:title="Pick the number of plants" />
+
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_start_transition"
+            android:summary="If disabled, will keep looking for plants"
+            android:title="Just detect plants Qr-Code as well?" />
+
 
 
     </PreferenceCategory>
