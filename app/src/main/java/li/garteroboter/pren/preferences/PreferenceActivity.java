@@ -1,6 +1,5 @@
-package li.garteroboter.pren.settings;
+package li.garteroboter.pren.preferences;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
