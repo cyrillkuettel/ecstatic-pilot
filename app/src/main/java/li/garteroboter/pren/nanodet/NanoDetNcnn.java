@@ -15,11 +15,7 @@
 package li.garteroboter.pren.nanodet;
 
 import android.content.res.AssetManager;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.Surface;
-
-import li.garteroboter.pren.settings.container.SettingsBundle;
 
 public class NanoDetNcnn
 

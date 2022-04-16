@@ -4,6 +4,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static li.garteroboter.pren.Constants.START_COMMAND_ESP32;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,8 +37,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
 import li.garteroboter.pren.qrcode.QrcodeActivity;
-import li.garteroboter.pren.settings.container.CustomSettingsBundle;
-import li.garteroboter.pren.settings.container.SettingsBundle;
+import li.garteroboter.pren.preferences.container.CustomSettingsBundle;
+import li.garteroboter.pren.preferences.container.SettingsBundle;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.VibrationListener;
@@ -78,7 +79,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         // of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
 
-        SettingsBundle settingsBundle = readCurrentPreferenceState();
+        SettingsBundle settingsBundle = generatePreferenceBundle();
         useBluetooth = settingsBundle.isUsingBluetooth();
         nanodetncnn.injectBluetoothSettings(useBluetooth);
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
@@ -180,6 +181,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     }
 
     /** This method is called by the native layer. */
+    @SuppressWarnings("unused")
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         int _count = atomicCounter.incrementAndGet();
         if (_count != 0) {
@@ -233,6 +235,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         nanodetncnn.openCamera(facing);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void startVibrating(final int millis) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -262,8 +265,10 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         }
     }
 
-    private SettingsBundle readCurrentPreferenceState() {
-        // Read the preferences ( Wraps everything in a package, which is then transferred to the native layer)
+    // creates an object, which is a container for some preferences. This bundle object is then
+    // passed to the native layer)
+    private SettingsBundle generatePreferenceBundle() {
+
         Context applicationContext = getApplicationContext();
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(applicationContext);
@@ -272,7 +277,10 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         boolean drawFps = preferences.getBoolean("key_fps", false);
         String _value = preferences.getString("key_prob_threshold", "0.40");
         float probThreshold = Float.parseFloat(_value);
-        Log.d(TAG, String.valueOf(probThreshold));
+        Log.d(TAG, String.format("prob_threshold == %s" , probThreshold));
+        int plantCount = preferences.getInt("number_picker_preference", 4);
+        Log.d(TAG, String.format("number_picker_preference == %s" , plantCount));
+
         return new CustomSettingsBundle(useBluetooth, drawFps, probThreshold);
 
     }

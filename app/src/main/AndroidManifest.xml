@@ -55,7 +55,7 @@
         </activity>
         <service android:name="simple.bluetooth.terminal.SerialService" />
         <activity
-            android:name=".settings.SettingsActivity"
+            android:name=".preferences.PreferenceActivity"
             android:screenOrientation="user">
 
         </activity>
@@ -70,7 +70,8 @@
             android:rotationAnimation="seamless"
             android:resizeableActivity="true"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            tools:targetApi="O">
+            tools:targetApi="O"
+            android:exported="true">
 
             <!-- Main app intent filter -->
 <!--            alt + c then alt + l (holding alt ) for toggle comment-->

@@ -117,6 +117,7 @@
         <item>3</item>
     </string-array>
     <string name="title_activity_qrcode">QRCodeActivity</string>
+    <string name="time_limit_pref">test</string>
 
 
 </resources>

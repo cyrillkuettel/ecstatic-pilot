@@ -10,10 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import li.garteroboter.pren.R;
 
 
-public class SettingsActivity extends AppCompatActivity {
+public class PreferenceActivity extends AppCompatActivity {
 
     private final String TAG = "SettingsActivity";
-    private SettingsFragment settingsFragment;
+    private PreferenceFragment preferenceFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +28,10 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
 
-            settingsFragment = new SettingsFragment();
+            preferenceFragment = new PreferenceFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.idFrameLayout, settingsFragment)
+                    .replace(R.id.idFrameLayout, preferenceFragment)
                     .commit();
 
             Button btnApply = findViewById(R.id.btnApply);

@@ -1,4 +1,4 @@
-package com.example.android.testingandroidxpreferences;
+package li.garteroboter.pren.preferences;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.NumberPicker;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDialogFragmentCompat;
+
+import li.garteroboter.pren.R;
 
 /*
 created this based on the implementation in the library here:

@@ -24,6 +24,18 @@
             android:entries="@array/threshold_probability_entries"
             android:entryValues="@array/threshold_probability_values" />
 
+
+        <li.garteroboter.pren.preferences.NumberPickerPreference
+            android:key="number_picker_preference"
+            android:summary="pick_a_number"
+            android:title="Pick the number of plants" />
+
+        <li.garteroboter.pren.preferences.NumberPickerPreference
+            android:key="number_picker_preference"
+            android:summary="pick_a_number"
+            android:title="Pick the number of plants" />
+
+
     </PreferenceCategory>
 
 </PreferenceScreen>

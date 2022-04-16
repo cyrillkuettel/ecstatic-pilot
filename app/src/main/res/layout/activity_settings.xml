@@ -1,29 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".settings.SettingsActivity">
+    android:orientation="vertical">
 
-    <!--frame layout for displaying
-        our preference fragment-->
-    <FrameLayout
-        android:id="@+id/idFrameLayout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="10dp">
 
-    <Button
-        android:id="@+id/btnApply"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Apply"
-        app:layout_constraintBottom_toBottomOf="@+id/idFrameLayout"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp" />
+        <!--frame layout for displaying our preference fragment-->
+        <FrameLayout
+            android:id="@+id/idFrameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnApply"
+            android:layout_width="300dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="10dp"
+            android:background="@color/launcher_green"
+            android:text="Apply" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</ScrollView>

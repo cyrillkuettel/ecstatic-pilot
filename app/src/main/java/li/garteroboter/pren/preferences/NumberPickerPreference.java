@@ -1,4 +1,4 @@
-package com.example.android.testingandroidxpreferences;
+package li.garteroboter.pren.preferences;
 
 /*
 created this based on the implementation in the library here:
@@ -12,15 +12,19 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+
 import androidx.annotation.NonNull;
 import androidx.preference.DialogPreference;
+
+import li.garteroboter.pren.R;
 
 public class NumberPickerPreference extends DialogPreference {
     // the values to use for the NumberPicker
     private int mValue = 0;
     private int mDefaultValue = 5;
-    private int mMaxValue = 7;
     private int mMinValue = 1;
+    private int mMaxValue = 11;
+
     private boolean mWrapSelectorWheel = false; // enable or disable the 'circular behavior' - set on false
 
     public NumberPickerPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -55,7 +59,7 @@ public class NumberPickerPreference extends DialogPreference {
     }
 
     public void setValue(int value) {
-        final boolean wasBlocking = shouldDisableDependents();
+        final boolean wasBlocking = shouldDisableDependents(    );
         mValue = value;
         persistInt(value);
         final boolean isBlocking = shouldDisableDependents();
@@ -153,7 +157,7 @@ public class NumberPickerPreference extends DialogPreference {
             dest.writeInt(value);
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);

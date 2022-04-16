@@ -25,7 +25,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
 import li.garteroboter.pren.qrcode.QrcodeActivity;
-import li.garteroboter.pren.settings.SettingsActivity;
+import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
 import simple.bluetooth.terminal.DevicesFragment;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         Button settingsBtn = findViewById(R.id.idBtnSettings);
         settingsBtn.setOnClickListener(v -> {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            Intent i = new Intent(MainActivity.this, PreferenceActivity.class);
             startActivity(i);
         });
 

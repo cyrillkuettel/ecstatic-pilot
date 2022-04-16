@@ -15,7 +15,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import li.garteroboter.pren.R;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+public class PreferenceFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 
     private static final String TAG = "SettingsFragment";
     private static final String SHARED_PREFERENCES = "testandroidxpreferences";

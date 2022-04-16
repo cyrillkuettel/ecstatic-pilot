@@ -16,65 +16,65 @@
 
 package li.garteroboter.pren.qrcode.fragments
 
-
-
-// import androidx.window.WindowManager
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.ImageFormat
+import androidx.window.layout.WindowInfoTracker
+ import android.annotation.SuppressLint
+ import android.content.Context
+ import android.content.Intent
+ import android.content.res.Configuration
+ import android.graphics.Color
+ import android.graphics.ImageFormat
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
-import android.hardware.display.DisplayManager
-import android.media.MediaScannerConnection
-import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.util.Log
-import android.util.Size
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.webkit.MimeTypeMap
-import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.camera.core.*
-import androidx.camera.core.ImageCapture.Metadata
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
-import androidx.core.view.setPadding
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.Navigation
+ import android.hardware.display.DisplayManager
+ import android.media.MediaScannerConnection
+ import android.net.Uri
+ import android.os.Build
+ import android.os.Bundle
+ import android.util.Log
+ import android.util.Size
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
+ import android.webkit.MimeTypeMap
+ import android.widget.Toast
+ import androidx.annotation.RequiresApi
+ import androidx.camera.core.*
+ import androidx.camera.core.ImageCapture.Metadata
+ import androidx.camera.lifecycle.ProcessCameraProvider
+ import androidx.core.content.ContextCompat
+ import androidx.core.net.toFile
+ import androidx.core.view.setPadding
+ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.lifecycleScope
+ import androidx.localbroadcastmanager.content.LocalBroadcastManager
+ import androidx.navigation.Navigation
+import androidx.window.layout.WindowMetricsCalculator
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.PlanarYUVLuminanceSource
-import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.qrcode.QRCodeReader
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import li.garteroboter.pren.R
-import li.garteroboter.pren.databinding.CameraUiContainerBinding
-import li.garteroboter.pren.databinding.FragmentCameraBinding
-import li.garteroboter.pren.qrcode.QrcodeActivity
-import li.garteroboter.pren.qrcode.database.Plant
-import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
-import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
-import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
-import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
+ import com.bumptech.glide.request.RequestOptions
+ import com.google.zxing.BinaryBitmap
+ import com.google.zxing.PlanarYUVLuminanceSource
+ import com.google.zxing.common.HybridBinarizer
+ import com.google.zxing.qrcode.QRCodeReader
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.launch
+ import li.garteroboter.pren.R
+ import li.garteroboter.pren.databinding.CameraUiContainerBinding
+ import li.garteroboter.pren.databinding.FragmentCameraBinding
+ import li.garteroboter.pren.qrcode.QrcodeActivity
+ import li.garteroboter.pren.qrcode.database.Plant
+ import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
+ import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
+ import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
+ import java.io.File
+ import java.text.SimpleDateFormat
+ import java.util.*
+ import java.util.concurrent.ExecutorService
+ import java.util.concurrent.Executors
+ import java.util.concurrent.LinkedBlockingQueue
+ import kotlin.math.abs
+ import kotlin.math.max
+ import kotlin.math.min
+ import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
 
 
 /**
@@ -110,7 +110,9 @@ class CameraFragment : Fragment() {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    // private lateinit var windowManager: WindowManager
+
+
+    private lateinit var windowInfoTracker: WindowInfoTracker
 
 
 
@@ -217,6 +219,9 @@ class CameraFragment : Fragment() {
 
         //Initialize WindowManager to retrieve display metrics
         // windowManager = WindowManager(view.context)
+        windowInfoTracker =  WindowInfoTracker.getOrCreate(requireActivity())
+
+
 
         // Determine the output directory
         outputDirectory = QrcodeActivity.getOutputDirectory(requireContext())
@@ -279,13 +284,14 @@ class CameraFragment : Fragment() {
     private fun bindCameraUseCases() {
 
         // Get screen metrics used to setup camera for full screen resolution
-       // val metrics = windowManager.getCurrentWindowMetrics().bounds
-       // Log.d(TAG, "Screen metrics: ${metrics.width()} x ${metrics.height()}")
+        val wmc = WindowMetricsCalculator.getOrCreate()
+
+        val metricsRect: Rect = wmc.computeMaximumWindowMetrics(requireActivity()).bounds
+        val maxWidth = metricsRect.width()
+        val maxHeight = metricsRect.height()
 
 
-            // quick fix:
-        // "Screen metrics: ${metrics.width()} x ${metrics.height()}") : 1440 x 2560
-        val screenAspectRatio = aspectRatio(1440, 2560)
+        val screenAspectRatio = aspectRatio(maxWidth, maxHeight)
         Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
 
         val rotation = fragmentCameraBinding.viewFinder.display.rotation
