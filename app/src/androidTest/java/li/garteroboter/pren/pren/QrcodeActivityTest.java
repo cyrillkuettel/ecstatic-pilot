@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4ClassRunner.class)
 @SmallTest
-public class MainActivityTest {
+public class QrcodeActivityTest {
     private static final String TAG = "MainActivityTest";
 // IT FINALLY WORKS THANKS TO THIS:
     // https://github.com/android/testing-samples/tree/main/unit/BasicUnitAndroidTest/app/src/androidTest/java/com/example/android/testing/unittesting/basicunitandroidtest

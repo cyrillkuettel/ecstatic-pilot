@@ -4,7 +4,6 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static li.garteroboter.pren.Constants.START_COMMAND_ESP32;
 
 import android.Manifest;
-import androidx.fragment.app.FragmentActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,8 +22,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 
 import java.util.concurrent.Executors;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
-import li.garteroboter.pren.qrcode.QrCodeActivity;
+import li.garteroboter.pren.qrcode.QrcodeActivity;
 import li.garteroboter.pren.settings.container.CustomSettingsBundle;
 import li.garteroboter.pren.settings.container.SettingsBundle;
 import simple.bluetooth.terminal.DevicesFragment;
@@ -206,7 +207,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
 
     public void startQRActivity() {
-        Intent myIntent = new Intent(this, QrCodeActivity.class);
+        Intent myIntent = new Intent(this, QrcodeActivity.class);
         myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
     }
