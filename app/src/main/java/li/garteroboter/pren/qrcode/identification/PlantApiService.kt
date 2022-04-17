@@ -4,11 +4,11 @@ package li.garteroboter.pren.qrcode.identification
 
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Path
+
 
 
 /*
-notes:
+note:
     GET for using URLS:
     POST for local files
 */
@@ -16,17 +16,13 @@ notes:
 
 interface PlantApiService {
 
-    @GET("v2/identify/all/{images}")
-    fun getSpeciesWithMoreParameters(@Path("images") imageUrl: String?,
-                                     @Path("organs") organs: String? = "auto",
-                                     @Path("include-related-images") include: Boolean? = false,
-                                     @Path("no-reject") no_Reject: Boolean? = false,
-                                     @Path("lang") lang: String? = "de",
-                                     @Path("api-key") key: String?): Call<JsonObject>
-
-    @GET("v2/identify/all")
-    fun singlePlantRequest(@retrofit2.http.Query("api-key") key: String?,
-                           @retrofit2.http.Query("images") imageUrl: String?): Call<JsonObject>
+    @GET("v2/identify/weurope")
+    fun singlePlantRequest(@retrofit2.http.Query("images") imageUrl: String?,
+                           @retrofit2.http.Query("organs") organs: String?,
+                           @retrofit2.http.Query("include-related-images") include: Boolean?,
+                           @retrofit2.http.Query("no-reject") no_Reject: Boolean?,
+                           @retrofit2.http.Query("lang") lang: String?,
+                           @retrofit2.http.Query("api-key") key: String?): Call<JsonObject>
 
 
 

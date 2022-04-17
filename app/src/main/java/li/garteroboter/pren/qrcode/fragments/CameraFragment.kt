@@ -16,67 +16,64 @@
 
 package li.garteroboter.pren.qrcode.fragments
 
-import androidx.window.layout.WindowInfoTracker
- import android.annotation.SuppressLint
- import android.content.Context
- import android.content.Intent
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
- import android.graphics.Color
- import android.graphics.ImageFormat
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
- import android.hardware.display.DisplayManager
- import android.media.MediaScannerConnection
- import android.net.Uri
- import android.os.Build
- import android.os.Bundle
- import android.util.Log
- import android.util.Size
- import android.view.LayoutInflater
- import android.view.View
- import android.view.ViewGroup
- import android.webkit.MimeTypeMap
- import android.widget.Toast
- import androidx.annotation.RequiresApi
- import androidx.camera.core.*
- import androidx.camera.core.ImageCapture.Metadata
- import androidx.camera.lifecycle.ProcessCameraProvider
- import androidx.core.content.ContextCompat
- import androidx.core.net.toFile
- import androidx.core.view.setPadding
- import androidx.fragment.app.Fragment
- import androidx.lifecycle.lifecycleScope
- import androidx.localbroadcastmanager.content.LocalBroadcastManager
- import androidx.navigation.Navigation
+import android.hardware.display.DisplayManager
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import android.util.Size
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.MimeTypeMap
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.camera.core.*
+import androidx.camera.core.ImageCapture.Metadata
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
+import androidx.core.view.setPadding
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.Navigation
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
 import com.bumptech.glide.Glide
- import com.bumptech.glide.request.RequestOptions
- import com.google.zxing.BinaryBitmap
- import com.google.zxing.PlanarYUVLuminanceSource
- import com.google.zxing.common.HybridBinarizer
- import com.google.zxing.qrcode.QRCodeReader
- import kotlinx.coroutines.Dispatchers
- import kotlinx.coroutines.launch
- import li.garteroboter.pren.R
- import li.garteroboter.pren.databinding.CameraUiContainerBinding
- import li.garteroboter.pren.databinding.FragmentCameraBinding
- import li.garteroboter.pren.qrcode.QrcodeActivity
- import li.garteroboter.pren.qrcode.database.Plant
- import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
- import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
- import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
- import java.io.File
- import java.text.SimpleDateFormat
- import java.util.*
- import java.util.concurrent.ExecutorService
- import java.util.concurrent.Executors
- import java.util.concurrent.LinkedBlockingQueue
- import kotlin.math.abs
- import kotlin.math.max
- import kotlin.math.min
- import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
+import com.bumptech.glide.request.RequestOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import li.garteroboter.pren.R
+import li.garteroboter.pren.databinding.CameraUiContainerBinding
+import li.garteroboter.pren.databinding.FragmentCameraBinding
+import li.garteroboter.pren.qrcode.QrcodeActivity
+import li.garteroboter.pren.qrcode.database.Plant
+import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
+import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
+import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
+import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
+import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
 
 
 /**
@@ -296,7 +293,6 @@ class CameraFragment : Fragment() {
 
         // Get screen metrics used to setup camera for full screen resolution
         val wmc = WindowMetricsCalculator.getOrCreate()
-
         val metricsRect: Rect = wmc.computeMaximumWindowMetrics(requireActivity()).bounds
         val maxWidth = metricsRect.width()
         val maxHeight = metricsRect.height()
@@ -360,7 +356,8 @@ class CameraFragment : Fragment() {
                             override fun qrCodeNotFound() {
                                 // nope
                             }
-                        }))
+                        })
+                    )
                 }
 
         // Must unbind the use-cases before rebinding them
@@ -587,6 +584,10 @@ class CameraFragment : Fragment() {
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
 
+           // val retroFitWrapper = RetroFitWrapper(getAPIKey())
+            val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+
+            retroFitWrapper.testRequestPlantIdentification()
         }
 
 
@@ -715,34 +716,6 @@ class CameraFragment : Fragment() {
 
 
 
-    private class QRCodeImageAnalyzer(private val listener: QRCodeFoundListener1? = null) : ImageAnalysis.Analyzer {
-
-        override fun analyze(image: ImageProxy) {
-
-            if (image.format == ImageFormat.YUV_420_888 || image.format == ImageFormat.YUV_422_888 || image.format == ImageFormat.YUV_444_888) {
-                val byteBuffer = image.planes[0].buffer
-                val imageData = ByteArray(byteBuffer.capacity())
-                byteBuffer[imageData]
-                val source = PlanarYUVLuminanceSource(
-                    imageData,
-                    image.width, image.height,
-                    0, 0,
-                    image.width, image.height,
-                    false
-                )
-
-                val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-                try {
-                    val result = QRCodeReader().decode(binaryBitmap)
-                    listener?.onQRCodeFound(result.text)
-                } catch (e: Exception ) {
-                    listener?.qrCodeNotFound()
-                }
-            }
-            image.close()
-        }
-
-    }
 
     companion object {
 

@@ -18,11 +18,7 @@ package li.garteroboter.pren.qrcode
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -31,7 +27,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityQrcodeBinding
-import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import java.io.File
 
 const val KEY_EVENT_ACTION = "key_event_action"
@@ -50,20 +45,6 @@ class QrcodeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         activityQrcodeBinding = ActivityQrcodeBinding.inflate(layoutInflater)
         setContentView(activityQrcodeBinding.root)
-
-
-        val api = RetroFitWrapper(getAPIKey())
-        // api.requestPlantIdentification()
-
-        // Log.v(TAG,"api key = ${getAPIKey()}")
-
-    }
-
-    private fun getAPIKey() : String {
-        val applicationInfo: ApplicationInfo = applicationContext.packageManager
-            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
-        val key = applicationInfo.metaData["plantapi"]
-        return key.toString()
     }
 
 
