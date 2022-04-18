@@ -1,4 +1,4 @@
-package li.garteroboter.pren.preferences;
+package li.garteroboter.pren.preferences.plantnumber;
 
 import android.app.Activity;
 import android.content.Context;

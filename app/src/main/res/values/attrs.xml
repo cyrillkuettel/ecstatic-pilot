@@ -6,7 +6,11 @@
         <attr name="np_defaultValue" format="integer"/>
         <attr name="np_wrapSelector" format="boolean"/>
     </declare-styleable>
+
     <declare-styleable name="Auto_Complete_attrs">
         <attr name="ac_defaultValue" format="string"/>
     </declare-styleable>
+
+
+
 </resources>

@@ -1,4 +1,4 @@
-package li.garteroboter.pren.preferences;
+package li.garteroboter.pren.preferences.plantnumber;
 
 /*
 created this based on the implementation in the library here:

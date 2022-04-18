@@ -2,7 +2,6 @@ package li.garteroboter.pren.nanodet;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static li.garteroboter.pren.Constants.START_COMMAND_ESP32;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,22 +27,20 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.databinding.MainNanodetActivityBinding;
+import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding;
 import li.garteroboter.pren.qrcode.QrcodeActivity;
-import li.garteroboter.pren.preferences.container.CustomSettingsBundle;
-import li.garteroboter.pren.preferences.container.SettingsBundle;
+import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle;
+import li.garteroboter.pren.preferences.bundle.SettingsBundle;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.VibrationListener;
 
-public class MainActivityNanodetNCNN extends FragmentActivity implements SurfaceHolder.Callback,
+public class NanodetncnnActivity extends FragmentActivity implements SurfaceHolder.Callback,
         VibrationListener, PlaySoundListener {
 
     public static final int REQUEST_CAMERA = 100;
@@ -56,8 +53,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     long lastTime = 0;
     private final AtomicInteger atomicCounter = new AtomicInteger(0);
 
-    private NanoDetNcnn nanodetncnn = new NanoDetNcnn();
-    private int facing = 1;
+    private final NanoDetNcnn nanodetncnn = new NanoDetNcnn();
 
     private boolean useBluetooth;
     private int current_model = 0;
@@ -68,14 +64,13 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     private TerminalFragment terminalFragment;
 
     boolean transitionToQRActivityEnabled = true;
+    private ActivityNanodetncnnBinding binding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        li.garteroboter.pren.databinding.MainNanodetActivityBinding binding =
-                MainNanodetActivityBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
-        setContentView(view);
+        binding = ActivityNanodetncnnBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         // creates a reference to the currently active instance
         // of MainActivityNanodetNCNN in the C++ layer
@@ -141,6 +136,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
 
         initializePreferences();
 
+
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
@@ -151,7 +147,7 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         // This atomicCounter tracks the number of plantVaseDetectedCallback in a given interval.
         // After the interval has passed, simply reset the atomicCounter back to zero.
         Runnable resetAtomicCounterEveryNSeconds = () -> {
-            Log.v(TAG, "RESETTING COUNTER");
+            Log.v(TAG, "resetting counter");
             atomicCounter.incrementAndGet();
         };
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
@@ -184,27 +180,44 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
-    /** This method is called by the native layer. */
+    /** This method is called by the native layer.
+     * It is in a sense the most important part of this application.
+     * Note that this is effectively called by a different thread.
+     * It _is_ a different thread. that also means you cannot change the UI from this method directly*/
     @SuppressWarnings("unused")
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         int _count = atomicCounter.incrementAndGet();
         if (_count != 0) {
-            Log.v(TAG,String.format("CURRENT NUMBER OF CONFIRMATIONS = %d", _count));
+            Log.v(TAG,String.format("current number of confirmations = %d", _count));
         }
         if ( _count >= 5) { // number of confirmations. The lower, the faster
-            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
-            atomicCounter.set(0);
 
-            if (terminalFragment != null) {
+
+            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
+            atomicCounter.set(0); // reset the counter back
+
+            if (bluetoothCheck(terminalFragment)) {
                 terminalFragment.send(START_COMMAND_ESP32);
             }
 
             startRingtone();
 
 
+
+
             startQRActivity();
 
         }
+    }
+
+    private boolean bluetoothCheck(TerminalFragment terminalFragment) {
+        if (useBluetooth && terminalFragment != null)  {
+            return true;
+        }
+        if (terminalFragment== null) {
+            Log.d(TAG, "bluetoothCheck failed, terminalFragment == null ");
+        }
+        return false;
     }
 
     public void startQRActivity() {
@@ -215,11 +228,10 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
         }
     }
 
+    /** Called from terminal Fragment */
     public void receiveTerminalFragmentReference(TerminalFragment terminalFragment) {
-        if (terminalFragment != null && useBluetooth) {
+        if (bluetoothCheck(terminalFragment)) {
             this.terminalFragment = terminalFragment;
-        } else {
-            Log.e(TAG, "terminalFragment == null in method receiveTerminalFragmentReference");
         }
     }
 
@@ -233,10 +245,9 @@ public class MainActivityNanodetNCNN extends FragmentActivity implements Surface
                     REQUEST_CAMERA);
         }
 
-        nanodetncnn.openCamera(facing);
+        nanodetncnn.openCamera(1); // open front always
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void startVibrating(final int millis) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);

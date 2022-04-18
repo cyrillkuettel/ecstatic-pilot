@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -27,7 +26,7 @@ import androidx.fragment.app.Fragment;
 
 import li.garteroboter.pren.Constants;
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
+import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener {
     private static final String TAG = "TerminalFragment";
@@ -177,11 +176,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         return view;
     }
 
-    public void onViewCreated( View view , Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view , Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         try {
-            ((MainActivityNanodetNCNN)getActivity()).receiveTerminalFragmentReference(this);
+            ((NanodetncnnActivity)getActivity()).receiveTerminalFragmentReference(this);
         } catch (Exception e) {
             Log.e(TAG, "Attempted to call public method on MainActivityNanodetNCNN, failed");
             e.printStackTrace();

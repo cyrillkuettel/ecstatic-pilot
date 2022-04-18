@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".nanodet.MainActivityNanodetNCNN"
+            android:name=".nanodet.NanodetncnnActivity"
             android:screenOrientation="portrait">
         </activity>
         <service android:name="simple.bluetooth.terminal.SerialService" />

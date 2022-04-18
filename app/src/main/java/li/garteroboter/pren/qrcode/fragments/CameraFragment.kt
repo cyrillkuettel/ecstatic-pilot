@@ -37,7 +37,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -45,6 +44,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.Navigation
@@ -54,12 +54,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
+import li.garteroboter.pren.qrcode.identification.Results
 import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
@@ -99,6 +101,9 @@ class CameraFragment : Fragment() {
     // TODO:
     // remove this in the final act. This is just for debugging.
     private var dataBaseThread: Thread = clearAllTablesThread()
+
+    private var qrCodeInsertionThread: Thread? = null
+
 
     val queue = LinkedBlockingQueue<Long>()
 
@@ -267,7 +272,6 @@ class CameraFragment : Fragment() {
     }
 
     /** Initialize CameraX, and prepare to bind the camera use cases  */
-    @RequiresApi(Build.VERSION_CODES.R)
     private fun setUpCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener(Runnable {
@@ -348,8 +352,12 @@ class CameraFragment : Fragment() {
                             override fun onQRCodeFound(qrCode: String?) {
                                 Log.i(TAG, "onQRCodeFound")
                                 if (waitingTimeOver()) {
-                                    createQRCodeInsertionThread(qrCode).start()
-                                    takePhotoOnce()
+                                    qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
+                                    qrCodeInsertionThread!!.join()
+
+                                    takePhotoOnceAndSaveUri()
+
+
                                 }
                             }
 
@@ -584,10 +592,13 @@ class CameraFragment : Fragment() {
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
 
-           // val retroFitWrapper = RetroFitWrapper(getAPIKey())
+          /*
             val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+            retroFitWrapper.requestRemotePlantIdentification()
+            */
 
-            retroFitWrapper.testRequestPlantIdentification()
+            takePhotoOnceAndSaveUri()
+
         }
 
 
@@ -607,7 +618,7 @@ class CameraFragment : Fragment() {
 
 
 
-    fun takePhotoOnce() {
+    fun takePhotoOnceAndSaveUri() {
         // Get a stable reference of the modifiable image capture use case
         imageCapture?.let { imageCapture ->
             Log.d(TAG , "starting capture process")
@@ -636,6 +647,8 @@ class CameraFragment : Fragment() {
                     override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                         val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
                         Log.d(TAG, "Photo capture succeeded: $savedUri")
+
+                        // save the picture to database
 
                         savePictureUriToPlantObject(savedUri.toString()).start()
 
@@ -686,14 +699,21 @@ class CameraFragment : Fragment() {
         return object : Thread("savePictureUriToPlantObject") {
             override fun run() {
                 try {
+                    val ID_currentPlantObject = queue.take()
+
+
+                    val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+                    retroFitWrapper.requestRemotePlantIdentification()
+
                     val db = context?.let { it -> getDatabase(it) }
                     val plantDao = db?.plantDataAccessObject()
-                    val ID_currentPlantObject = queue.take()
+
 
                     if (ID_currentPlantObject == -1L) {
                         Log.e(TAG, "ID_currentPlantObject == -1")
                     }
                     plantDao?.update(ID_currentPlantObject, savedUri)
+
 
                 } catch (e: InterruptedException) {
                     Log.d(TAG, "caught Interrupted exception!")
@@ -701,6 +721,8 @@ class CameraFragment : Fragment() {
             }
         }
     }
+
+
 
 
     /** Returns true if the device has an available back camera. False otherwise */

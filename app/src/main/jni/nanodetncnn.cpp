@@ -179,7 +179,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     jclass tempLocalClassRef;
     jclass tempLocalClassRef2;
 
-    tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/MainActivityNanodetNCNN");
+    tempLocalClassRef = env->FindClass("li/garteroboter/pren/nanodet/NanodetncnnActivity");
     tempLocalClassRef2 = env->FindClass("simple/bluetooth/terminal/TerminalFragment");
 
 

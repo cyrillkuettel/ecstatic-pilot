@@ -9,11 +9,12 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import li.garteroboter.pren.R;
+import li.garteroboter.pren.preferences.plantnumber.NumberPickerPreference;
+import li.garteroboter.pren.preferences.plantnumber.NumberPickerPreferenceDialogFragment;
 
 public class PreferenceFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 

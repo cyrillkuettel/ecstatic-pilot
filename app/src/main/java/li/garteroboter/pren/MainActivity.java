@@ -23,7 +23,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import li.garteroboter.pren.nanodet.MainActivityNanodetNCNN;
+import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.qrcode.QrcodeActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.socket.WebSocketManager;
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
     public void startMainActivityNanodetNCNN() {
-        Intent myIntent = new Intent(this, MainActivityNanodetNCNN.class);
+        Intent myIntent = new Intent(this, NanodetncnnActivity.class);
         startActivity(myIntent);
     }
 
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         if (itemId == R.id.websocket) {
             intent = new Intent(this, MainActivity.class);
         } else if (itemId == R.id.nanodet) {
-            intent = new Intent(this, MainActivityNanodetNCNN.class);
+            intent = new Intent(this, NanodetncnnActivity.class);
         } else if (itemId == R.id.qrCodeactivity) {
            intent = new Intent(this, QrcodeActivity.class);
         } else {

@@ -24,7 +24,7 @@ public class NanoDetNcnn
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
     public native boolean setOutputWindow(Surface surface);
-    public native boolean setObjectReferenceAsGlobal(MainActivityNanodetNCNN mainActivityNanodetNCNN);
+    public native boolean setObjectReferenceAsGlobal(NanodetncnnActivity nanodetncnnActivity);
 
     public native boolean injectFPSPreferences(boolean showFPS);
     public native boolean injectBluetoothSettings(boolean useBluetooth);

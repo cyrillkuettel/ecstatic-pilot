@@ -49,7 +49,12 @@ data class Results (
     val score: Double,
     val species: Species,
     val gbif: Gbif
-)
+):Comparable<Results> {
+    override fun compareTo(other: Results): Int {
+       return score.compareTo(other.score)
+    }
+
+}
 
 data class Gbif (
     val id: String

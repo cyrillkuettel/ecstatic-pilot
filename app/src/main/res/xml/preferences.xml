@@ -25,11 +25,10 @@
             android:entryValues="@array/threshold_probability_values" />
 
 
-        <li.garteroboter.pren.preferences.NumberPickerPreference
+        <li.garteroboter.pren.preferences.plantnumber.NumberPickerPreference
             android:key="number_picker_preference"
             android:summary="pick_a_number"
             android:title="Pick the number of plants" />
-
 
 
         <SwitchPreference
@@ -39,6 +38,10 @@
             android:title="Just detect plants Qr-Code as well?" />
 
 
+        <li.garteroboter.pren.preferences.confirmations.ConfirmationNumberPickerPreference
+            android:key="key_confirmation_number_picker"
+            android:summary="pick_a_number"
+            android:title="Pick the number of confirmations" />
 
     </PreferenceCategory>
 

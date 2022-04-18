@@ -152,7 +152,12 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             if (score != -FLT_MAX) {
 
                 // Success! Found plant or vase with probability > 0.4
-                NanoDet::invoke_class_from_static("either", toggleBluetooth);
+                if (label==vase_label) {
+                    NanoDet::invoke_class_from_static("vase", toggleBluetooth);
+                } else if (label == potted_plant_label) {
+                    NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth);
+
+                }
 
 
                 ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));

@@ -1,4 +1,4 @@
-package li.garteroboter.pren.preferences.container;
+package li.garteroboter.pren.preferences.bundle;
 
 public interface SettingsBundle {
 
