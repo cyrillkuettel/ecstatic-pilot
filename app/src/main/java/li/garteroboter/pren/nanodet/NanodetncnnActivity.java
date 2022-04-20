@@ -1,7 +1,8 @@
 package li.garteroboter.pren.nanodet;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static li.garteroboter.pren.Constants.START_COMMAND_ESP32;
+import static li.garteroboter.pren.Constants.STOP_COMMAND_ESP32;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,19 +24,22 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding;
-import li.garteroboter.pren.qrcode.QrcodeActivity;
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle;
 import li.garteroboter.pren.preferences.bundle.SettingsBundle;
+import li.garteroboter.pren.qrcode.QrcodeActivity;
 import simple.bluetooth.terminal.DevicesFragment;
 import simple.bluetooth.terminal.TerminalFragment;
 import simple.bluetooth.terminal.VibrationListener;
@@ -51,7 +55,12 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     final int waitingTime = 1000; // wait x milliseconds before vibrate / ringtone again (avoid
     // spamming)
     long lastTime = 0;
+
+    long lastTimePlantCallback = 0;
+    final int waitingTimePlantCallback = 6000;
+
     private final AtomicInteger atomicCounter = new AtomicInteger(0);
+    private static final int REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11;
 
     private final NanoDetNcnn nanodetncnn = new NanoDetNcnn();
 
@@ -118,20 +127,30 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
             }
         });
         // Initialize a little menu at the edge of the screen, to connect to a Bluetooth Device.
-        // interesting: based on whether we want to automatically connect to ESP,
-        // I could pass in a Parameter into devices Fragment to do this.
+
         if (savedInstanceState == null) {
             Bundle args = new Bundle();
             if (useBluetooth) {
-                args.putString("autoConnect", "true");
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG," != PackageManager.PERMISSION_GRANTED" );
+                    requestPermissions(new String[]
+                                    {Manifest.permission.BLUETOOTH_CONNECT},
+                                    REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT);
+
+                } else {
+                    args.putString("autoConnect", "true");
+                }
             } else {
                 args.putString("autoConnect", "false");
             }
-            DevicesFragment devicesFragment = new DevicesFragment();
+            DevicesFragment devicesFragment = DevicesFragment.newInstance();
             devicesFragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
                     devicesFragment, "devices").commit();
+        } else {
+            Log.d(TAG, "savedInstanceState != NULL");
         }
 
         initializePreferences();
@@ -158,6 +177,19 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
 
 
         reload();
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT) {
+            Bundle args = new Bundle();
+            args.putString("autoConnect", "true");
+            DevicesFragment devicesFragment = DevicesFragment.newInstance();
+            devicesFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
+                    devicesFragment, "devices").commit();
+        }
     }
 
     private void reload() {
@@ -190,24 +222,28 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         if (_count != 0) {
             Log.v(TAG,String.format("current number of confirmations = %d", _count));
         }
-        if ( _count >= 5) { // number of confirmations. The lower, the faster
-
-
-            Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
+        if ( _count >= 5) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0); // reset the counter back
 
-            if (bluetoothCheck(terminalFragment)) {
-                terminalFragment.send(START_COMMAND_ESP32);
+            if (lastTimeWas6SecondsAGo() ){
+                lastTimePlantCallback = System.currentTimeMillis();
+
+                Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
+
+                synchronized (this) {
+                    if (bluetoothCheck(terminalFragment)) {
+                        terminalFragment.send(STOP_COMMAND_ESP32);
+                    }
+                }
+                startRingtone();
+
+                startQRActivityIfEnabled();
             }
-
-            startRingtone();
-
-
-
-
-            startQRActivity();
-
         }
+    }
+
+    private boolean lastTimeWas6SecondsAGo() {
+        return  System.currentTimeMillis() - lastTimePlantCallback > waitingTimePlantCallback;
     }
 
     private boolean bluetoothCheck(TerminalFragment terminalFragment) {
@@ -220,7 +256,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         return false;
     }
 
-    public void startQRActivity() {
+    public void startQRActivityIfEnabled() {
         if (transitionToQRActivityEnabled) {
             Intent myIntent = new Intent(this, QrcodeActivity.class);
             myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
@@ -232,6 +268,8 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     public void receiveTerminalFragmentReference(TerminalFragment terminalFragment) {
         if (bluetoothCheck(terminalFragment)) {
             this.terminalFragment = terminalFragment;
+        } else {
+         Log.e(TAG, "receiveTerminalFragmentReference failed to get reference to terminalFragment");
         }
     }
 
@@ -248,6 +286,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         nanodetncnn.openCamera(1); // open front always
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void startVibrating(final int millis) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -267,13 +306,12 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
 
     @Override
     public void startRingtone() {
-        if (TOGGLE_RINGTONE && System.currentTimeMillis() - lastTime > waitingTime) {
+        if (TOGGLE_RINGTONE ) {
             try {
                 ringtone.play();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            lastTime = System.currentTimeMillis();
         }
     }
 

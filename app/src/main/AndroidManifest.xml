@@ -22,7 +22,7 @@
         android:usesPermissionFlags="neverForLocation" />
 
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />  <!-- If your app communicates with already-paired Bluetooth devices, -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" /> -->
+     <!-- <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" /> -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" /> <!-- Required to be able to advertise to nearby Bluetooth devices -->
 
     <uses-permission android:name="android.permission.INTERNET" />

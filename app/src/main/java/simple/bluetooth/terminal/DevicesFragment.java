@@ -110,7 +110,7 @@ public class DevicesFragment extends ListFragment {
             setEmptyText("<bluetooth not supported>");
 
         } else if (!bluetoothAdapter.isEnabled()) {
-            setEmptyText("<bluetooth is disabled>");
+            setEmptyText("<bluetoothAdapter is disabled>");
 
         }else if (!autoConnectToESP32) {
             setEmptyText("Enable Bluetooth in Settings. ");

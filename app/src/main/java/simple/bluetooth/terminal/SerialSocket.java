@@ -1,5 +1,8 @@
 package simple.bluetooth.terminal;
 
+import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
+
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -7,10 +10,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.util.Log;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -30,8 +43,12 @@ class SerialSocket implements Runnable {
     SerialSocket(Context context, BluetoothDevice device) {
         if (context instanceof Activity)
             throw new InvalidParameterException("expected non UI context");
+
         this.context = context;
         this.device = device;
+
+
+
         disconnectBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -42,7 +59,10 @@ class SerialSocket implements Runnable {
         };
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     String getName() {
+
+
         return device.getName() != null ? device.getName() : device.getAddress();
     }
 
