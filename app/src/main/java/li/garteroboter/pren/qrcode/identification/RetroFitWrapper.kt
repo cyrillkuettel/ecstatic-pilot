@@ -2,9 +2,7 @@ package li.garteroboter.pren.qrcode.identification
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import okhttp3.OkHttpClient
 import org.apache.commons.lang3.NotImplementedException
 import retrofit2.Call
@@ -23,8 +21,6 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
     private val BASE_URL: String = "https://my-api.plantnet.org/"
 
     private val liveDataResult = MutableLiveData<Results>()
-
-
     private val retrofit = Retrofit.Builder()
         .client(
             OkHttpClient()
@@ -37,7 +33,32 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
 
     private val plantService = retrofit.create(PlantApiService::class.java)
 
-    fun requestRemotePlantIdentification() {
+
+    fun requestRemotePlantIdentificationSynchronously() : String {
+        val synchronousCall = plantService.singlePlantRequest(testUrl, "auto", include=false, no_Reject=false, "en", apiKey)
+        try {
+            val response: Response<JsonObject> = synchronousCall.execute()
+            Log.d(TAG, response.toString())
+            if (response.code() == HttpURLConnection.HTTP_OK) {
+                val plantNetApiResult: JsonObject? = response.body()
+                val res: List<Results>  = plantNetApiResult?.results ?: Collections.emptyList()
+                Log.d(TAG, res.toString())
+
+              return extractBestResult(res)?.species?.scientificName ?: "failed";
+
+
+
+            }
+        } catch (ex: Exception) {
+            Log.e(TAG, "Api Call requestRemotePlantIdentificationSynchronously failed ");
+            ex.printStackTrace()
+        }
+
+        return "failed";
+    }
+
+    // Not optimal for my use case
+    fun requestRemotePlantIdentificationAsynchronously() {
         val call = plantService.singlePlantRequest(testUrl, "auto", include=false, no_Reject=false, "en", apiKey)
         call.enqueue(object : Callback<JsonObject> {
             override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {

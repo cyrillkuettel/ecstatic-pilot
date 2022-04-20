@@ -1,7 +1,6 @@
 package li.garteroboter.pren.qrcode.database
 
 
-import android.net.Uri
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -21,4 +20,7 @@ interface PlantDao {
 
     @Query("UPDATE plant_table SET imageUri=:imageUri WHERE id == :id")
     fun update(id: Long, imageUri: String)
+
+    @Query("UPDATE plant_table SET imageUri=:imageUri, species=:species WHERE id == :id")
+    fun updateUriAndSpecies(id: Long, imageUri: String, species: String)
 }

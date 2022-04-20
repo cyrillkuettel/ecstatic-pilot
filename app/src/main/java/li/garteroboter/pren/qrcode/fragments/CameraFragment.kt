@@ -44,7 +44,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.Navigation
@@ -54,14 +53,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
-import li.garteroboter.pren.qrcode.identification.Results
 import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
@@ -98,7 +95,7 @@ class CameraFragment : Fragment() {
     private var QRCodeWaitingTime: Int = 5000
     private var lastTime: Long = 0
 
-    // TODO:
+    //TODO:
     // remove this in the final act. This is just for debugging.
     private var dataBaseThread: Thread = clearAllTablesThread()
 
@@ -417,7 +414,7 @@ class CameraFragment : Fragment() {
         // that value can then be used to create the Plant Object, instead of 'not-populated'
         // This seems to be a much cleaner solution, but it's probably blocking
 
-        val plant = qrCode?.let { it1 -> Plant(it1, "not-populated") }
+        val plant = qrCode?.let { it1 -> Plant(it1, "not-populated", "no-species-yet") }
 
         val insert = plantDao?.insert(plant)
         val _id = if (insert != null) { insert }
@@ -592,12 +589,10 @@ class CameraFragment : Fragment() {
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
 
-          /*
-            val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
-            retroFitWrapper.requestRemotePlantIdentification()
-            */
 
-            takePhotoOnceAndSaveUri()
+            takePhotoAndCallApi() // for testing
+
+           //  takePhotoOnceAndSaveUri()
 
         }
 
@@ -615,10 +610,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-
-
-
-    fun takePhotoOnceAndSaveUri() {
+    private fun takePhotoOnceAndSaveUri() {
         // Get a stable reference of the modifiable image capture use case
         imageCapture?.let { imageCapture ->
             Log.d(TAG , "starting capture process")
@@ -649,9 +641,91 @@ class CameraFragment : Fragment() {
                         Log.d(TAG, "Photo capture succeeded: $savedUri")
 
                         // save the picture to database
+                        //TODO: somehow retrieve the result from the api call
+                        savePictureUriToPlantObjectAndStartApiCall(savedUri.toString()).start()
 
-                        savePictureUriToPlantObject(savedUri.toString()).start()
+                        // We can only change the foreground Drawable using API level 23+ API
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            // Update the gallery thumbnail with latest picture taken
+                            setGalleryThumbnail(savedUri)
+                        }
 
+                        // Implicit broadcasts will be ignored for devices running API level >= 24
+                        // so if you only target API level 24+ you can remove this statement
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                            requireActivity().sendBroadcast(
+                                Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
+                            )
+                        }
+
+                        // If the folder selected is an external media directory, this is
+                        // unnecessary but otherwise other apps will not be able to access our
+                        // images unless we scan them using [MediaScannerConnection]
+                        val mimeType = MimeTypeMap.getSingleton()
+                            .getMimeTypeFromExtension(savedUri.toFile().extension)
+                        MediaScannerConnection.scanFile(
+                            context,
+                            arrayOf(savedUri.toFile().absolutePath),
+                            arrayOf(mimeType)
+                        ) { _, uri ->
+                            Log.d(TAG, "Image capture scanned into media store: $uri")
+                        }
+                    }
+                })
+
+            // We can only change the foreground Drawable using API level 23+ API
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                // Display flash animation to indicate that photo was captured
+                fragmentCameraBinding.root.postDelayed({
+                    fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
+                    fragmentCameraBinding.root.postDelayed(
+                        { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
+                }, ANIMATION_SLOW_MILLIS)
+            }
+        }
+
+    }
+
+// only for testing
+    fun takePhotoAndCallApi() {
+        // Get a stable reference of the modifiable image capture use case
+        imageCapture?.let { imageCapture ->
+            Log.d(TAG , "starting capture process")
+            // Create output file to hold the image
+            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+
+            // Setup image capture metadata
+            val metadata = Metadata().apply {
+
+                // Mirror image when using the front camera
+                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            }
+
+            // Create output options object which contains file + metadata
+            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+                .setMetadata(metadata)
+                .build()
+
+            // Setup image capture listener which is triggered after photo has been taken
+            imageCapture.takePicture(
+                outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                    override fun onError(exc: ImageCaptureException) {
+                        Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    }
+
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                        Log.d(TAG, "Photo capture succeeded: $savedUri")
+
+                        // save the picture to database
+                        //TODO: somehow retrieve the result from the api call
+                        val scientificName = startApiCall(savedUri.toString())
+
+                        activity?.runOnUiThread {
+                            Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
+                                .show()
+                        }
                         // We can only change the foreground Drawable using API level 23+ API
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             // Update the gallery thumbnail with latest picture taken
@@ -694,25 +768,34 @@ class CameraFragment : Fragment() {
         }
     }
 
-    fun savePictureUriToPlantObject(savedUri: String) : Thread {
-        Log.i(TAG, "savePictureUriToPlantObject")
-        return object : Thread("savePictureUriToPlantObject") {
+    fun savePictureUriToPlantObjectAndStartApiCall(savedUri: String) : Thread {
+        Log.i(TAG, "savePictureUriToPlantObjectAndStartApiCall")
+        return object : Thread("savePictureUriToPlantObjectAndStartApiCall") {
             override fun run() {
                 try {
                     val ID_currentPlantObject = queue.take()
 
 
                     val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
-                    retroFitWrapper.requestRemotePlantIdentification()
+                    Log.v(TAG, "starting retroFitWrapper")
+
+                    val scientificName = retroFitWrapper.requestRemotePlantIdentificationSynchronously()
 
                     val db = context?.let { it -> getDatabase(it) }
                     val plantDao = db?.plantDataAccessObject()
+                    if (scientificName != "failed" && ID_currentPlantObject != -1L) {
+                        Log.v(TAG, "updating database with scientific name $scientificName")
+                        plantDao?.updateUriAndSpecies(ID_currentPlantObject, savedUri, scientificName)
+                    } else {
+                        if (scientificName == "failed") run {
+                            Log.e(TAG, "scientificName == failed")
+                            // TODO: error handling
 
 
-                    if (ID_currentPlantObject == -1L) {
-                        Log.e(TAG, "ID_currentPlantObject == -1")
+                        }
                     }
-                    plantDao?.update(ID_currentPlantObject, savedUri)
+
+
 
 
                 } catch (e: InterruptedException) {
@@ -720,6 +803,14 @@ class CameraFragment : Fragment() {
                 }
             }
         }
+    }
+
+    fun startApiCall(savedUri: String)  :String  {
+        Log.i(TAG, "startApiCall")
+        val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+        val scientificName = retroFitWrapper.requestRemotePlantIdentificationSynchronously()
+        return scientificName;
+
     }
 
 
