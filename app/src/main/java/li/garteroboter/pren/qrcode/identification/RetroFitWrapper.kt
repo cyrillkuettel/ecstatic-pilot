@@ -14,15 +14,7 @@ import java.net.HttpURLConnection
 import java.util.*
 
 class RetroFitWrapper(private val apiKey: String, val context: Context?) {
-    /*
-    error
-    D/RetroFitWrapper: Response{protocol=http/1.1, code=415, message=Unsupported Media Type,
-     url=https://my-api.plantnet.org/v2/identify/weurope?include-related-i2mages=false&no-reject=false&lang=en&api-key=2b10rYOrxC0HDiZzccuFce&images=%2Fstorage%2Femulated%2F0%2FAndroid%2Fmedia%2Fli.garteroboter.pren%2FPilot%2F2022-04-21-10-23-54-624.jpg&organs=auto}
 
-
-    correct url form website:
-     https://my-api.plantnet.org/v2/identify/all?include-related-images=false&no-reject=false&lang=en&api-key=2b10rYOrxC0HDiZzccuFce
-     */
     private val TAG = "RetroFitWrapper"
     private val testUrl = "https://pren.garteroboter.li/static/img/plant1.jpg"
 
@@ -41,11 +33,9 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
     private val plantService = retrofit.create(PlantApiService::class.java)
 
 
-
-
     fun requestLocalPlantIdentification(uri: String) : String {
 
-        val processedUri =  processUri(uri)
+        val processedUri =  removeFilePrefixFromURI(uri)
         Log.d(TAG, "starting request with uri = $processedUri")
 
         val file = File(processedUri)
@@ -101,20 +91,16 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
             Log.e(TAG, "Api Call requestRemotePlantIdentificationSynchronously failed ");
             ex.printStackTrace()
         }
-
         return "failed"
     }
 
 
-
-
-    private fun processUri(input: String) : String {
+    private fun removeFilePrefixFromURI(input: String) : String {
         val prefixToRemove = "file://"
         val result = input.removePrefix(prefixToRemove)
         return result
 
     }
-
 
 
     private fun extractBestResult(res: List<Results>): Results? {

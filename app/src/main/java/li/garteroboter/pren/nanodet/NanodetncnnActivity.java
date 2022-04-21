@@ -57,7 +57,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     long lastTime = 0;
 
     long lastTimePlantCallback = 0;
-    final int waitingTimePlantCallback = 6000;
+    final int waitingTimePlantCallback = 5000; // 5 seconds till a pant is again detected
 
     private final AtomicInteger atomicCounter = new AtomicInteger(0);
     private static final int REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11;
@@ -225,7 +225,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         if ( _count >= 5) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0); // reset the counter back
 
-            if (lastTimeWas6SecondsAGo() ){
+            if (lastTimeWasNSecondsAGo() ){
                 lastTimePlantCallback = System.currentTimeMillis();
 
                 Log.d(TAG, String.format("Accept potted plant detection with %d confirmations", _count));
@@ -242,7 +242,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         }
     }
 
-    private boolean lastTimeWas6SecondsAGo() {
+    private boolean lastTimeWasNSecondsAGo() {
         return  System.currentTimeMillis() - lastTimePlantCallback > waitingTimePlantCallback;
     }
 
