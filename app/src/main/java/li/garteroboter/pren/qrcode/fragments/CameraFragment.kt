@@ -721,10 +721,9 @@ class CameraFragment : Fragment() {
 
 
 
+                        val scientificName = startLocalApiCall(savedUri.toString())
 
-                      //  val scientificName = startLocalApiCall(savedUri.toString())
-
-                        val scientificName = startRemoteApiCall()
+                       //  val scientificName = startRemoteApiCall()
 
                         activity?.runOnUiThread  {
                             Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)

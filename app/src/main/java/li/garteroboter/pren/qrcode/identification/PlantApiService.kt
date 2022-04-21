@@ -1,19 +1,29 @@
 package li.garteroboter.pren.qrcode.identification
 
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 
-/*
-note:
-    GET for using URLS:
-    POST for local files
-*/
+
 
 
 interface PlantApiService {
+
+    @Multipart
+    @Headers("Accept: application/json")
+    @POST("v2/identify/weurope")
+    fun singlePlantRequestLocal2(
+        @Part image: MultipartBody.Part,
+        @Part("organs") organs: RequestBody,
+        @retrofit2.http.Query("include-related-images") include: Boolean?,
+        @retrofit2.http.Query("no-reject") no_Reject: Boolean?,
+        @retrofit2.http.Query("lang") lang: String?,
+        @retrofit2.http.Query("api-key") key: String?,
+        ): Call<JsonObject>
+
 
     @GET("v2/identify/weurope")
     fun singlePlantRequestRemote(
@@ -25,15 +35,6 @@ interface PlantApiService {
         @retrofit2.http.Query("api-key") key: String?,
     ): Call<JsonObject>
 
-    @POST("v2/identify/weurope")
-    fun singlePlantRequestLocal(
-        @retrofit2.http.Query("include-related-images") include: Boolean?,
-        @retrofit2.http.Query("no-reject") no_Reject: Boolean?,
-        @retrofit2.http.Query("lang") lang: String?,
-        @retrofit2.http.Query("api-key") key: String?,
-        @retrofit2.http.Query("images") imageUrl: String?,
-        @retrofit2.http.Query("organs") organs: String?
-    ): Call<JsonObject>
 
 }
 
