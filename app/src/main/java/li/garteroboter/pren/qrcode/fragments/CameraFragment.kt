@@ -592,7 +592,7 @@ class CameraFragment : Fragment() {
 
             takePhotoAndCallApi() // for testing
 
-           //  takePhotoOnceAndSaveUri()
+           //  takePhotoOnceAndSaveUri() // for production with QR-Code
 
         }
 
@@ -689,6 +689,7 @@ class CameraFragment : Fragment() {
 
 // only for testing
     fun takePhotoAndCallApi() {
+        Log.d(TAG, "takePhotoAndCallApi")
         // Get a stable reference of the modifiable image capture use case
         imageCapture?.let { imageCapture ->
             Log.d(TAG , "starting capture process")
@@ -718,11 +719,14 @@ class CameraFragment : Fragment() {
                         val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
                         Log.d(TAG, "Photo capture succeeded: $savedUri")
 
-                        // save the picture to database
-                        //TODO: somehow retrieve the result from the api call
-                        val scientificName = startApiCall(savedUri.toString())
 
-                        activity?.runOnUiThread {
+
+
+                      //  val scientificName = startLocalApiCall(savedUri.toString())
+
+                        val scientificName = startRemoteApiCall()
+
+                        activity?.runOnUiThread  {
                             Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
                                 .show()
                         }
@@ -775,11 +779,9 @@ class CameraFragment : Fragment() {
                 try {
                     val ID_currentPlantObject = queue.take()
 
-
-                    val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
                     Log.v(TAG, "starting retroFitWrapper")
 
-                    val scientificName = retroFitWrapper.requestRemotePlantIdentificationSynchronously()
+                    val scientificName = startLocalApiCall(savedUri)
 
                     val db = context?.let { it -> getDatabase(it) }
                     val plantDao = db?.plantDataAccessObject()
@@ -795,9 +797,6 @@ class CameraFragment : Fragment() {
                         }
                     }
 
-
-
-
                 } catch (e: InterruptedException) {
                     Log.d(TAG, "caught Interrupted exception!")
                 }
@@ -805,7 +804,15 @@ class CameraFragment : Fragment() {
         }
     }
 
-    fun startApiCall(savedUri: String)  :String  {
+    fun startLocalApiCall(savedUri: String) : String  {
+        Log.i(TAG, "startApiCall")
+        val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+        val scientificName = retroFitWrapper.requestLocalPlantIdentification(savedUri)
+        return scientificName;
+
+    }
+
+    fun startRemoteApiCall() : String  {
         Log.i(TAG, "startApiCall")
         val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
         val scientificName = retroFitWrapper.requestRemotePlantIdentificationSynchronously()
