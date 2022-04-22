@@ -52,7 +52,6 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
-    private static boolean allowMultiplePilots = true;
 
     private final ExecutorService executorService;
 

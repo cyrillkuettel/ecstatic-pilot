@@ -39,7 +39,6 @@ public class RootShell {
     /**
      * run shell command and get result as sudo
      */
-
     public static String sudoForResult(String...strings) {
         String res = "";
         DataOutputStream outputStream = null;

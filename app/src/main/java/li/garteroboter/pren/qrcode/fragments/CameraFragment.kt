@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
+import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
@@ -63,6 +64,7 @@ import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
 import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
+import li.garteroboter.pren.socket.WebSocketManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -82,6 +84,7 @@ import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundList
  * - Image analysis
  */
 class CameraFragment : Fragment() {
+
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -353,8 +356,11 @@ class CameraFragment : Fragment() {
                                     qrCodeInsertionThread!!.join()
 
                                     takePhotoOnceAndSaveUri()
-
-
+                                    /*
+                                    val intent = Intent(requireActivity(), NanodetncnnActivity::class.java)
+                                    intent.putExtra("drive", "1") // start driving again
+                                    startActivity(intent)
+                                    */
                                 }
                             }
 
@@ -642,7 +648,8 @@ class CameraFragment : Fragment() {
 
                         // save the picture to database
                         //TODO: somehow retrieve the result from the api call
-                        savePictureUriToPlantObjectAndStartApiCall(savedUri.toString()).start()
+                        // this could be a preference as well
+                       // savePictureUriToPlantObjectAndStartApiCall(savedUri.toString()).start()
 
                         // We can only change the foreground Drawable using API level 23+ API
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
