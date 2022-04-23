@@ -23,6 +23,7 @@
 #include "simpleocv.h"
 #else
 #include <opencv2/core/core.hpp>
+
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #endif
@@ -350,7 +351,7 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     return 0;
 }
 
-int NanoDetPlus::draw(const cv::Mat& bgr, const std::vector<Object>& objects)
+int NanoDetPlus::draw(cv::Mat& bgr, const std::vector<Object>& objects)
 {
     static const char* class_names[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
@@ -395,8 +396,10 @@ int NanoDetPlus::draw(const cv::Mat& bgr, const std::vector<Object>& objects)
                     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
     }
 
+    /*
     cv::imshow("image", image);
     cv::waitKey(0);
+     */
 }
 
 
@@ -485,27 +488,4 @@ int NanoDetPlus::load(AAssetManager *mgr, const char *modeltype, int _target_siz
 
 
 
-int main(int argc, char** argv)
-{
-    if (argc != 2)
-    {
-        fprintf(stderr, "Usage: %s [imagepath]\n", argv[0]);
-        return -1;
-    }
 
-    const char* imagepath = argv[1];
-
-    cv::Mat m = cv::imread(imagepath, 1);
-    if (m.empty())
-    {
-        fprintf(stderr, "cv::imread %s failed\n", imagepath);
-        return -1;
-    }
-
-    std::vector<Object> objects;
-   // detect_nanodet(m, objects);
-
-   // draw_objects(m, objects);
-
-    return 0;
-}
