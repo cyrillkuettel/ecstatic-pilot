@@ -26,7 +26,7 @@
 #include <platform.h>
 #include <benchmark.h>
 
-#include "nanodet.h"
+#include "nanodetplus.h"
 
 #include "ndkcamera.h"
 
@@ -118,7 +118,7 @@ static int draw_fps(cv::Mat &rgb) {
 }
 
 
-static NanoDet *g_nanodet = 0;
+static NanoDetPlus *g_nanodetplus = 0;
 static ncnn::Mutex lock;
 
 
@@ -132,12 +132,12 @@ void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
     {
         ncnn::MutexLockGuard g(lock);
 
-        if (g_nanodet) {
+        if (g_nanodetplus) {
             std::vector<Object> objects;
             // would be interesting to time this. How long does it take for this two functions to execute?
-            g_nanodet->detect_plant_vase(rgb, objects, modifiable_prob_threshold, modifiable_nms_threshold);
+            g_nanodetplus->detect(rgb, objects, modifiable_prob_threshold, modifiable_nms_threshold);
 
-            g_nanodet->draw(rgb, objects);
+            g_nanodetplus->draw(rgb, objects);
         } else {
             draw_unsupported(rgb);
         }
@@ -208,8 +208,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     {
         ncnn::MutexLockGuard g(lock);
 
-        delete g_nanodet;
-        g_nanodet = 0;
+        delete g_nanodetplus;
+        g_nanodetplus = 0;
     }
 
     // Obtain the JNIEnv from the VM
@@ -300,13 +300,13 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
 
         if (use_gpu && ncnn::get_gpu_count() == 0) {
             // no gpu
-            delete g_nanodet;
-            g_nanodet = 0;
+            delete g_nanodetplus;
+            g_nanodetplus = 0;
         } else {
-            if (!g_nanodet)
-                g_nanodet = new NanoDet;
-            g_nanodet->load(mgr, modeltype, target_size, mean_vals[(int) modelid],
-                            norm_vals[(int) modelid], use_gpu);
+            if (!g_nanodetplus)
+                g_nanodetplus = new NanoDetPlus;
+            g_nanodetplus->load(mgr, modeltype, target_size, mean_vals[(int) modelid],
+                                norm_vals[(int) modelid], use_gpu);
         }
     }
 
