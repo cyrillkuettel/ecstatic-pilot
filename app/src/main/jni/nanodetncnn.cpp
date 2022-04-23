@@ -300,6 +300,8 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
 
         if (use_gpu && ncnn::get_gpu_count() == 0) {
             // no gpu
+            __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "no gpu");
+
             delete g_nanodetplus;
             g_nanodetplus = 0;
         } else {

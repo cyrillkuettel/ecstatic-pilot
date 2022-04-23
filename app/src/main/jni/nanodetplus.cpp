@@ -234,7 +234,7 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     int height = bgr.rows;
 
     //     const int target_size = 320;
-   // const int target_size = 416;
+    const int target_size = 416;
 
 
     // pad to multiple of 32
@@ -261,7 +261,8 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     int wpad = (w + 31) / 32 * 32 - w;
     int hpad = (h + 31) / 32 * 32 - h;
     ncnn::Mat in_pad;
-    ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2, ncnn::BORDER_CONSTANT, 0.f);
+    ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2,
+                           ncnn::BORDER_CONSTANT, 0.f);
 
     const float mean_vals[3] = {103.53f, 116.28f, 123.675f};
     const float norm_vals[3] = {0.017429f, 0.017507f, 0.017125f};
@@ -435,6 +436,8 @@ NanoDetPlus::NanoDetPlus() {
 
 int NanoDetPlus::load(const char *modeltype, int _target_size, const float *_mean_vals,
                   const float *_norm_vals, bool use_gpu) {
+
+
     nanodet.clear();
     blob_pool_allocator.clear();
     workspace_pool_allocator.clear();
@@ -457,7 +460,7 @@ int NanoDetPlus::load(const char *modeltype, int _target_size, const float *_mea
     sprintf(parampath, "nanodet-%s.param", modeltype);
     sprintf(modelpath, "nanodet-%s.bin", modeltype);
 
-
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "random log");
     nanodet.load_param(parampath);
     nanodet.load_model(modelpath);
 
@@ -476,6 +479,8 @@ int NanoDetPlus::load(const char *modeltype, int _target_size, const float *_mea
 
 int NanoDetPlus::load(AAssetManager *mgr, const char *modeltype, int _target_size, const float *_mean_vals,
               const float *_norm_vals, bool use_gpu) {
+
+
     nanodet.clear();
     blob_pool_allocator.clear();
     workspace_pool_allocator.clear();
@@ -485,21 +490,21 @@ int NanoDetPlus::load(AAssetManager *mgr, const char *modeltype, int _target_siz
 
     nanodet.opt = ncnn::Option();
 
-#if NCNN_VULKAN
-    nanodet.opt.use_vulkan_compute = use_gpu;
-#endif
 
     nanodet.opt.num_threads = ncnn::get_big_cpu_count();
     nanodet.opt.blob_allocator = &blob_pool_allocator;
     nanodet.opt.workspace_allocator = &workspace_pool_allocator;
 
+    /*
     char parampath[256];
     char modelpath[256];
     sprintf(parampath, "nanodet-%s.param", modeltype);
     sprintf(modelpath, "nanodet-%s.bin", modeltype);
+*/
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "parampath = %s", "parampath");
 
-    nanodet.load_param(mgr, parampath);
-    nanodet.load_model(mgr, modelpath);
+    nanodet.load_param("nanodet-plus-m_416.torchscript.ncnn.param");
+    nanodet.load_model("nanodet-plus-m_416.torchscript.ncnn.bin");
 
     target_size = _target_size;
     mean_vals[0] = _mean_vals[0];

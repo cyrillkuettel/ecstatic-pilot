@@ -196,9 +196,10 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     }
 
     private void reload() {
+        Log.d(TAG, "reload");
         boolean ret_init = nanodetncnn.loadModel(getAssets(), current_model, current_cpugpu);
         if (!ret_init) {
-            Log.e("MainActivity", "nanodetncnn loadModel failed");
+            Log.e(TAG, "nanodetncnn loadModel failed");
         }
     }
 
