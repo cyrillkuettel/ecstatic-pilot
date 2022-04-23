@@ -218,6 +218,7 @@ static void generate_proposals(const ncnn::Mat& pred, int stride, const ncnn::Ma
 int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float prob_threshold,
                        float nms_threshold)
 {
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "detect");
 
     nanodet.opt.use_vulkan_compute = true;
     // nanodet.opt.use_bf16_storage = true;
@@ -254,6 +255,7 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     }
 
     ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, width, height, w, h);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "from_pixels_resize");
 
     // pad to target_size rectangle
     int wpad = (w + 31) / 32 * 32 - w;
@@ -267,14 +269,19 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
 
     ncnn::Extractor ex = nanodet.create_extractor();
 
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "nanodet.create_extractor");
+
     ex.input("in0", in_pad);
+
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "    ex.input(\"in0\", in_pad);");
 
     std::vector<Object> proposals;
 
     // stride 8
     {
-        ncnn::Mat pred;
+        ncnn::Mat pred; // here it fails
         ex.extract("231", pred);
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "         ex.extract(\"231\", pred);");
 
         std::vector<Object> objects8;
         generate_proposals(pred, 8, in_pad, prob_threshold, objects8);
@@ -350,6 +357,25 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     return 0;
 }
 
+
+// variables to cache
+// my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter?
+// Never change a running system /s
+JNIEnv *env2;
+jclass MainActivityNanodetNCNNClass;
+jobject MainActivityNanodetNCNNObject; // to access the object.
+
+jclass TerminalFragmentClass;
+jobject TerminalFragmentObject;
+
+
+jmethodID staticMethod_CallInJava;
+jmethodID instanceMethod_CallInJava;
+jstring jstrBuf;
+JavaVM *javaVM_global;
+
+static jint JNI_VERSION = JNI_VERSION_1_4;
+
 int NanoDetPlus::draw(cv::Mat& bgr, const std::vector<Object>& objects)
 {
     static const char* class_names[] = {
@@ -400,8 +426,6 @@ int NanoDetPlus::draw(cv::Mat& bgr, const std::vector<Object>& objects)
     cv::waitKey(0);
      */
 }
-
-
 
 
 NanoDetPlus::NanoDetPlus() {

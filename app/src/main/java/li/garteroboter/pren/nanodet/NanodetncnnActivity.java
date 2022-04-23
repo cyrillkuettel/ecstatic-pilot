@@ -81,9 +81,12 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         binding = ActivityNanodetncnnBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Log.v(TAG, "called setContentView");
+
         // creates a reference to the currently active instance
         // of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this);
+        Log.v(TAG, "called setObjectReferenceAsGlobal");
 
         SettingsBundle settingsBundle = generatePreferenceBundle();
         useBluetooth = settingsBundle.isUsingBluetooth();
@@ -96,7 +99,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
-
+        Log.v(TAG, "Setting up spiner");
         Spinner spinnerModel = binding.spinnerModel;
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

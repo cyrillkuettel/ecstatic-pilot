@@ -155,9 +155,9 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
 
                 // Success! Found plant or vase with probability > 0.4
                 if (label==vase_label) {
-                    NanoDet::invoke_class_from_static("vase", toggleBluetooth);
+                    // NanoDet::invoke_class_from_static("vase", toggleBluetooth);
                 } else if (label == potted_plant_label) {
-                    NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth);
+                   // NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth);
 
                 }
 
@@ -448,6 +448,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     return 0;
 }
 
+/*
 // variables to cache
 // my intuition say that I should use the same *env variable as in nanodetncnn. But does it really matter?
 // Never change a running system /s
@@ -491,7 +492,7 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
                                                       "(Ljava/lang/String;)V"); // JNI type signature
 
     }
-    */
+
 
     if (instanceMethod_CallInJava == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
@@ -510,6 +511,8 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
 
 }
 
+
+*/
 
 
 int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
