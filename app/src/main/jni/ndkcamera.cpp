@@ -473,6 +473,9 @@ void NdkCameraWindow::set_window(ANativeWindow* _win)
 
     win = _win;
     ANativeWindow_acquire(win);
+
+    __android_log_print(ANDROID_LOG_WARN, "ndkcamera","NdkCameraWindow::set_window" );
+
 }
 
 void NdkCameraWindow::on_image_render(cv::Mat& rgb) const

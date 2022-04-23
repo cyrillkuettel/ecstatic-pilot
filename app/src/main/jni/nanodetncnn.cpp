@@ -234,7 +234,7 @@ JNIEXPORT jboolean JNICALL
 Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thiz,
                                                         jobject assetManager, jint modelid,
                                                         jint cpugpu) {
-    if (modelid < 0 || modelid > 6 || cpugpu < 0 || cpugpu > 1) {
+    if (modelid < 0 || modelid > 7 || cpugpu < 0 || cpugpu > 1) {
         return JNI_FALSE;
     }
 

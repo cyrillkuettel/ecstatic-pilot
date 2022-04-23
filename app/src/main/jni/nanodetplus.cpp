@@ -218,7 +218,6 @@ static void generate_proposals(const ncnn::Mat& pred, int stride, const ncnn::Ma
 int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float prob_threshold,
                        float nms_threshold)
 {
-    ncnn::Net nanodet;
 
     nanodet.opt.use_vulkan_compute = true;
     // nanodet.opt.use_bf16_storage = true;
@@ -227,14 +226,14 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
     //     nanodet.load_param("nanodet-plus-m_320.torchscript.ncnn.param");
     //     nanodet.load_model("nanodet-plus-m_320.torchscript.ncnn.bin");
-    nanodet.load_param("nanodet-plus-m_416.torchscript.ncnn.param");
-    nanodet.load_model("nanodet-plus-m_416.torchscript.ncnn.bin");
+    // nanodet.load_param("nanodet-plus-m_416.torchscript.ncnn.param");
+    // nanodet.load_model("nanodet-plus-m_416.torchscript.ncnn.bin");
 
     int width = bgr.cols;
     int height = bgr.rows;
 
     //     const int target_size = 320;
-    const int target_size = 416;
+   // const int target_size = 416;
 
 
     // pad to multiple of 32
@@ -434,8 +433,11 @@ int NanoDetPlus::load(const char *modeltype, int _target_size, const float *_mea
     sprintf(parampath, "nanodet-%s.param", modeltype);
     sprintf(modelpath, "nanodet-%s.bin", modeltype);
 
+
     nanodet.load_param(parampath);
     nanodet.load_model(modelpath);
+
+      __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "parampath = %s", "parampath");
 
     target_size = _target_size;
     mean_vals[0] = _mean_vals[0];
