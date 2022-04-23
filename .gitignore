@@ -1,5 +1,6 @@
 *.iml
 .gradle
+build
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -10,5 +11,7 @@
 .DS_Store
 /captures
 .externalNativeBuild
+*.apk
+output.json
 .cxx
 local.properties
