@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     // You have to change viewPager.setOffscreenPageLimit as well.
     private static final int NUM_PAGES = 3;
 
-    TabLayout tabLayout;
-    String[] tabNames = new String[NUM_PAGES];
+    private TabLayout tabLayout;
+    private String[] tabNames = new String[NUM_PAGES];
 
 
     @Override
