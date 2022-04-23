@@ -350,7 +350,7 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     return 0;
 }
 
-int NanoDetPlus::draw (const cv::Mat& bgr, const std::vector<Object>& objects)
+int NanoDetPlus::draw(const cv::Mat& bgr, const std::vector<Object>& objects)
 {
     static const char* class_names[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
