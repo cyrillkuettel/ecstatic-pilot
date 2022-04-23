@@ -25,6 +25,8 @@
 #include <jni.h> // adding this to call Java Methods.
 #include <unistd.h>
 #include "cpu.h"
+#include "benchmark.h"
+
 
 const int potted_plant_label = 58;
 const int vase_label = 75;
@@ -56,13 +58,13 @@ static void qsort_descent_inplace(std::vector<Object> &faceobjects, int left, in
         }
     }
 
-    //     #pragma omp parallel sections
+         #pragma omp parallel sections
     {
-        //         #pragma omp section
+               #pragma omp section
         {
             if (left < j) qsort_descent_inplace(faceobjects, left, j);
         }
-        //         #pragma omp section
+                 #pragma omp section
         {
             if (i < right) qsort_descent_inplace(faceobjects, i, right);
         }
@@ -321,6 +323,9 @@ static const char *class_names[] =
 
 int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
                     float nms_threshold) {
+
+    double start_time = ncnn::get_current_time();
+
     int width = rgb.cols;
     int height = rgb.rows;
 
@@ -438,6 +443,9 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     } objects_area_greater;
     std::sort(objects.begin(), objects.end(), objects_area_greater);
 
+    double elasped = ncnn::get_current_time() - start_time;
+     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   detect_plant_vase", elasped);
+
     return 0;
 }
 
@@ -458,43 +466,11 @@ jstring jstrBuf;
 JavaVM *javaVM_global;
 
 static jint JNI_VERSION = JNI_VERSION_1_4;
-// DEPRECATED
 
-
-void NanoDet::invoke_class(char *objectLabel) {
-    // uncomment the next line to test crashing the native Layer:
-    // raise(SIGSEGV);
-
-
-    if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
-        // I'm not 100% sure if this is necessary. Does it impact performance?
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
-        return;
-    }
-
-    instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
-                                                  "plantVaseDetectedCallback",
-                                                  "(Ljava/lang/String;)V"); // JNI type signature
-
-
-    if (instanceMethod_CallInJava == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, " instanceMethod_CallInJava is NUll");
-        return;
-    } else {
-        jstrBuf = env2->NewStringUTF(objectLabel);
-        if (!jstrBuf) {
-            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jstring.");
-            return;
-        }
-
-        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
-
-    }
-
-}
 
 void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
 
+    double start_time = ncnn::get_current_time();
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
         // I'm not 100% sure if this is necessary. Does it impact performance?
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, " JNI_VERSION) != JNI_OK");
@@ -529,6 +505,9 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
         }
         env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
     }
+
+    double elasped = ncnn::get_current_time() - start_time;
+   // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   invoke_class", elasped);
 
 }
 
@@ -599,6 +578,7 @@ int NanoDet::draw(cv::Mat &rgb, const std::vector<Object> &objects) {
         cv::putText(rgb, text, cv::Point(x, y + label_size.height), cv::FONT_HERSHEY_SIMPLEX, 0.5,
                     textcc, 1);
     }
+
 
     return 0;
 }
