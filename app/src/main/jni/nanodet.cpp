@@ -260,8 +260,7 @@ int NanoDet::load(const char *modeltype, int _target_size, const float *_mean_va
     return 0;
 }
 
-int
-NanoDet::load(AAssetManager *mgr, const char *modeltype, int _target_size, const float *_mean_vals,
+int NanoDet::load(AAssetManager *mgr, const char *modeltype, int _target_size, const float *_mean_vals,
               const float *_norm_vals, bool use_gpu) {
     nanodet.clear();
     blob_pool_allocator.clear();
@@ -444,7 +443,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     std::sort(objects.begin(), objects.end(), objects_area_greater);
 
     double elasped = ncnn::get_current_time() - start_time;
-     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   detect_plant_vase", elasped);
+   //  __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   detect_plant_vase", elasped);
 
     return 0;
 }

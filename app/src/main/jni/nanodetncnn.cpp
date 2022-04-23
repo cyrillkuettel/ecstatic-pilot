@@ -244,6 +244,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
 
     const char *modeltypes[] =
             {
+                    "plus-m_416.torchscript.ncnn",
                     "m",
                     "m-416",
                     "g",
@@ -255,6 +256,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
 
     const int target_sizes[] =
             {
+                    416,
                     320,
                     416,
                     416,
@@ -269,6 +271,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
                     {103.53f, 116.28f, 123.675f},
                     {103.53f, 116.28f, 123.675f},
                     {103.53f, 116.28f, 123.675f},
+                    {103.53f, 116.28f, 123.675f},
                     {127.f,   127.f,   127.f},
                     {127.f,   127.f,   127.f},
                     {127.f,   127.f,   127.f},
@@ -277,6 +280,7 @@ Java_li_garteroboter_pren_nanodet_NanoDetNcnn_loadModel(JNIEnv *env, jobject thi
 
     const float norm_vals[][3] =
             {
+                    {0.017429f, 0.017507f, 0.017125f},
                     {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
                     {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},
                     {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f},

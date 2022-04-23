@@ -42,6 +42,7 @@
     <string name="delete_title">Confirm</string>
 
     <string-array name="model_array">
+        <item>plus-m_416.torchscript.ncnn</item>
         <item>m</item>
         <item>m-416</item>
         <item>g</item>
