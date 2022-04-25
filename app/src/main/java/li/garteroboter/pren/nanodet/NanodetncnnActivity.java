@@ -220,7 +220,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     public void plantVaseDetectedCallback(String helloFromTheOtherSide) {
         int _count = atomicCounter.incrementAndGet();
         if (_count != 0) {
-            Log.v(TAG,String.format("current number of confirmations = %d", _count));
+            // Log.v(TAG,String.format("current number of confirmations = %d", _count));
         }
         if ( _count >= 5) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0); // reset the counter back

@@ -17,6 +17,7 @@ Then restart. Android studio will prompt you to update the gradle plugin.
 - Another tip, I'm not quite sure if this is it (use as last resort) , but when you have trouble with ndk version:
   File -> project structure -> SDK Location -> click on download Android NDK
 
+- go to File -> Project Structure, change the Gradle plugin version to the latest. 
 List of the `Exceptions` I have encountered:
 - Invalid revision number
 - no signature of method: build.android is applicable for arguments types ...
