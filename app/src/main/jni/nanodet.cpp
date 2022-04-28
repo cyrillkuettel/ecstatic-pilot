@@ -444,7 +444,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     std::sort(objects.begin(), objects.end(), objects_area_greater);
 
     double elasped = ncnn::get_current_time() - start_time;
-     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   detect_plant_vase", elasped);
+    //  __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   inference", elasped);
 
     return 0;
 }

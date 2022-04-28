@@ -34,7 +34,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
 
 
     fun requestLocalPlantIdentification(uri: String) : String {
-
+        Log.d(TAG, "requestLocalPlantIdentification");
         val processedUri =  removeFilePrefixFromURI(uri)
         Log.d(TAG, "starting request with uri = $processedUri")
 

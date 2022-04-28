@@ -57,7 +57,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
     long lastTime = 0;
 
     long lastTimePlantCallback = 0;
-    final int waitingTimePlantCallback = 5000; // 5 seconds till a pant is again detected
+    final int waitingTimePlantCallback = 5000; // to configure the bluetooth calls
 
     private final AtomicInteger atomicCounter = new AtomicInteger(0);
     private static final int REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11;
@@ -80,6 +80,52 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         super.onCreate(savedInstanceState);
         binding = ActivityNanodetncnnBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        String drive;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                drive= null;
+            } else {
+                drive= extras.getString("drive");
+                if (bluetoothCheck(terminalFragment)) {
+                    terminalFragment.send(drive);
+                } else {
+                    Log.e(TAG, "terminalFragment null");
+                }
+            }
+            Bundle args = new Bundle();
+            if (useBluetooth) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG," != PackageManager.PERMISSION_GRANTED" );
+                    requestPermissions(new String[]
+                                    {Manifest.permission.BLUETOOTH_CONNECT},
+                            REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT);
+
+                } else {
+                    args.putString("autoConnect", "true");
+                }
+            } else {
+                args.putString("autoConnect", "false");
+            }
+            DevicesFragment devicesFragment = DevicesFragment.newInstance();
+            devicesFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
+                    devicesFragment, "devices").commit();
+        } else {
+            Log.d(TAG, "savedInstanceState != NULL");
+
+            drive = (String) savedInstanceState.getSerializable("drive");
+            if (bluetoothCheck(terminalFragment)) {
+                terminalFragment.send(drive);
+            } else {
+                Log.e(TAG, "terminalFragment null");
+            }
+        }
+
+
 
         // creates a reference to the currently active instance
         // of MainActivityNanodetNCNN in the C++ layer
@@ -126,32 +172,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
-        // Initialize a little menu at the edge of the screen, to connect to a Bluetooth Device.
 
-        if (savedInstanceState == null) {
-            Bundle args = new Bundle();
-            if (useBluetooth) {
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG," != PackageManager.PERMISSION_GRANTED" );
-                    requestPermissions(new String[]
-                                    {Manifest.permission.BLUETOOTH_CONNECT},
-                                    REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT);
-
-                } else {
-                    args.putString("autoConnect", "true");
-                }
-            } else {
-                args.putString("autoConnect", "false");
-            }
-            DevicesFragment devicesFragment = DevicesFragment.newInstance();
-            devicesFragment.setArguments(args);
-
-            getSupportFragmentManager().beginTransaction().add(R.id.fragmentBluetoothChain,
-                    devicesFragment, "devices").commit();
-        } else {
-            Log.d(TAG, "savedInstanceState != NULL");
-        }
 
         initializePreferences();
 
@@ -192,6 +213,10 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         }
     }
 
+    public void continueDriving() {
+
+    }
+
     private void reload() {
         boolean ret_init = nanodetncnn.loadModel(getAssets(), current_model, current_cpugpu);
         if (!ret_init) {
@@ -222,7 +247,7 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
         if (_count != 0) {
             // Log.v(TAG,String.format("current number of confirmations = %d", _count));
         }
-        if ( _count >= 5) { // count = number of confirmations. The lower, the faster
+        if ( _count >= 3) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0); // reset the counter back
 
             if (lastTimeWasNSecondsAGo() ){

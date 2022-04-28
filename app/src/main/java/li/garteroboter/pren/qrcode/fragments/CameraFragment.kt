@@ -64,7 +64,6 @@ import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
 import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
-import li.garteroboter.pren.socket.WebSocketManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -356,11 +355,12 @@ class CameraFragment : Fragment() {
                                     qrCodeInsertionThread!!.join()
 
                                     takePhotoOnceAndSaveUri()
-                                    /*
+
                                     val intent = Intent(requireActivity(), NanodetncnnActivity::class.java)
                                     intent.putExtra("drive", "1") // start driving again
+                                    // finish()  //Kill the activity from which you will go to next activity
                                     startActivity(intent)
-                                    */
+
                                 }
                             }
 
@@ -649,22 +649,12 @@ class CameraFragment : Fragment() {
                         // save the picture to database
                         //TODO: somehow retrieve the result from the api call
                         // this could be a preference as well
-                       // savePictureUriToPlantObjectAndStartApiCall(savedUri.toString()).start()
+                        savePictureUriToPlantObjectAndStartApiCall(
+                            savedUri.toString())
+                            .start()
 
-                        // We can only change the foreground Drawable using API level 23+ API
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            // Update the gallery thumbnail with latest picture taken
-                            setGalleryThumbnail(savedUri)
-                        }
 
-                        // Implicit broadcasts will be ignored for devices running API level >= 24
-                        // so if you only target API level 24+ you can remove this statement
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                            requireActivity().sendBroadcast(
-                                Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
-                            )
-                        }
-
+                        setGalleryThumbnail(savedUri)
                         // If the folder selected is an external media directory, this is
                         // unnecessary but otherwise other apps will not be able to access our
                         // images unless we scan them using [MediaScannerConnection]
@@ -736,6 +726,7 @@ class CameraFragment : Fragment() {
                             Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
                                 .show()
                         }
+
                         // We can only change the foreground Drawable using API level 23+ API
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             // Update the gallery thumbnail with latest picture taken
@@ -788,7 +779,10 @@ class CameraFragment : Fragment() {
                     Log.v(TAG, "starting retroFitWrapper")
 
                     val scientificName = startLocalApiCall(savedUri)
-
+                    activity?.runOnUiThread  {
+                        Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
+                            .show()
+                    }
                     val db = context?.let { it -> getDatabase(it) }
                     val plantDao = db?.plantDataAccessObject()
                     if (scientificName != "failed" && ID_currentPlantObject != -1L) {

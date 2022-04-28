@@ -19,7 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -214,7 +214,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void send(String str) {
         if(connected != Connected.True) {
             Log.wtf(TAG, "Tried to send message but not connected!!");
-            Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {

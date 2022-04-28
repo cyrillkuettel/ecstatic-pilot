@@ -10,11 +10,12 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 
 android {
+
     compileSdkVersion 32
     defaultConfig {
         applicationId "li.garteroboter.pren"
         minSdkVersion 30
-        targetSdkVersion 32
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -97,6 +98,8 @@ dependencies {
     implementation "androidx.camera:camera-camera2:$camerax_version"
     // CameraX Lifecycle library
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    // required to avoid crash on Android 12 API 31
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
 
     // QR-Code
