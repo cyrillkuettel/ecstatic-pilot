@@ -324,7 +324,6 @@ static const char *class_names[] =
 int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
                     float nms_threshold) {
 
-    double start_time = ncnn::get_current_time();
 
     int width = rgb.cols;
     int height = rgb.rows;
@@ -443,8 +442,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     } objects_area_greater;
     std::sort(objects.begin(), objects.end(), objects_area_greater);
 
-    double elasped = ncnn::get_current_time() - start_time;
-    //  __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   inference", elasped);
+    //  __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   inference_time", elasped);
 
     return 0;
 }
@@ -510,6 +508,9 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
    // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   invoke_class", elasped);
 
 }
+
+
+
 
 
 

@@ -67,7 +67,30 @@ static int draw_unsupported(cv::Mat &rgb) {
     return 0;
 }
 
-static int draw_fps(cv::Mat &rgb) {
+int draw_inference(cv::Mat &rgb, double elapsed) {
+    float elapsed_time = (float) elapsed;
+
+    char text[32];
+
+    sprintf(text, "%.2f", elapsed_time);
+
+    int baseLine = 0;
+    cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+
+    int y = 0;
+    int x = rgb.cols - label_size.width *2; // more to the left
+
+    cv::rectangle(rgb, cv::Rect(cv::Point(x, y),
+                                cv::Size(label_size.width, label_size.height + baseLine)),
+                  cv::Scalar(255, 255, 255), -1);
+
+    cv::putText(rgb, text, cv::Point(x, y + label_size.height),
+                cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+
+    return 0;
+}
+
+static int draw_fps_and_inference(cv::Mat &rgb, double elapsed) {
     // resolve moving average
     float avg_fps = 0.f;
     {
@@ -98,8 +121,9 @@ static int draw_fps(cv::Mat &rgb) {
         avg_fps /= 10.f;
     }
 
+    float elapsed_time = (float) elapsed;
     char text[32];
-    sprintf(text, "FPS=%.2f", avg_fps);
+    sprintf(text, "inference=%.2f, FPS=%.2f",elapsed_time, avg_fps); // draw inference and fps
 
     int baseLine = 0;
     cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
@@ -129,31 +153,42 @@ public:
 
 void MyNdkCamera::on_image_render(cv::Mat &rgb) const {
     // nanodet
+    double elapsed = 0;
     {
         ncnn::MutexLockGuard g(lock);
 
         if (g_nanodet) {
+            double start_time = ncnn::get_current_time();
+
             std::vector<Object> objects;
+
             // would be interesting to time this. How long does it take for this two functions to execute?
             g_nanodet->detect_plant_vase(rgb, objects, modifiable_prob_threshold, modifiable_nms_threshold);
 
+             elapsed = ncnn::get_current_time() - start_time;
+
             g_nanodet->draw(rgb, objects);
+
+
         } else {
             draw_unsupported(rgb);
         }
     }
 
 // Checking the drawFps every time is not optimal, because it checks multiple times per second, which might impact performance.
-// better: provide a custom implementation of g_camera. One without draw_fps. Then switch them out according to the preferences.
+// better: provide a custom implementation of g_camera. One without draw_fps_and_inference. Then switch them out according to the preferences.
 // I'd like to do that, but it's a lot of effort....
 // to write this clean, probably requires a significant investment of time.
-// I have an idea: encapsulate the draw_fps in a Class, and provide a different implementation of the class based on preferences.
+// I have an idea: encapsulate the draw_fps_and_inference in a Class, and provide a different implementation of the class based on preferences.
 // That doesn't really make sense for such a simple task.
 
     if (drawFps) {
-        draw_fps(rgb);
+        draw_fps_and_inference(rgb, elapsed);
     }
 }
+
+
+
 
 JNIEnv *env;
 
