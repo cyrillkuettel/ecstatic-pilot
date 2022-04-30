@@ -28,7 +28,6 @@ import li.garteroboter.pren.Constants.STOP_COMMAND_ESP32
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
-import li.garteroboter.pren.preferences.bundle.SettingsBundle
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
 import li.garteroboter.pren.qrcode.fragments.StateViewModel
 import simple.bluetooth.terminal.DevicesFragment
@@ -43,9 +42,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private val viewModel: StateViewModel by viewModels()
 
-
     private var lastTimePlantCallback: Long = 0
-    private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
+
     private val atomicCounter = AtomicInteger(0)
     private val nanodetncnn = NanoDetNcnn()
 
@@ -62,8 +60,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     // preferences
     private var useBluetooth = false
-    private var numerOfConfirmations = 3;
-
+    private var numerOfConfirmations = 3 // accept Plant detection result aftter N confirmations
+    private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
+    private var plantCount = -1
+    private var switchQr = true
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,71 +73,49 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
-        numerOfConfirmations = settingsBundle.confirmations;
-        Log.v(TAG, "numerOfConfirmations = $numerOfConfirmations")
+        numerOfConfirmations = settingsBundle.confirmations
+        plantCount = settingsBundle.plantCount
+        switchQr = settingsBundle.isSwitchToQr
 
-        if (savedInstanceState == null) {
-
-            val devicesFragment = DevicesFragment.newInstance()
-            devicesFragment.arguments = setupBluetoothPermission()
-            supportFragmentManager.beginTransaction().add(
-                R.id.fragmentBluetoothChain,
-                devicesFragment, "devices"
-            ).commit()
-
-        }
+        setupFragmentBluetoothChain()
 
         viewModel.getCurrentState().observe(this, Observer { state ->
             Log.i(TAG, "viewModel.getCurrentState().observe")
             reOpenNanodetCamera()
         })
 
-
-        // creates a reference to the currently active instance
-        // of MainActivityNanodetNCNN in the C++ layer
-        nanodetncnn.setObjectReferenceAsGlobal(this)
-
-        nanodetncnn.injectBluetoothSettings(useBluetooth)
-        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
-        nanodetncnn.injectProbThresholdSettings(settingsBundle.prob_threshold)
+        injectPreferences(settingsBundle)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         cameraView = binding.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
         cameraView!!.holder.addCallback(this)
-
-        val spinnerModel = binding.spinnerModel
-        setupSpinnerOnClick(spinnerModel)
-
-        val spinnerCPUGPU = binding.spinnerCPUGPU
-        setupSpinnerCPUGPUOnClick(spinnerCPUGPU)
-
-        binding.mainButtonSwitchCameraSource.setOnClickListener { closeNanodetCamera() }
-
-
+        setupSpinnerOnClick(binding.spinnerModel)
+        setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
+        binding.mainButtonSwitchCameraSource.setOnClickListener { navigateToQr() }
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
-
-
         setupAtomicCounterInterval()
 
         reload()
+    }
 
+    private fun injectPreferences(settingsBundle: CustomSettingsBundle) {
+        // creates a reference to the currently active instance
+        // of MainActivityNanodetNCNN in the C++ layer
+        nanodetncnn.setObjectReferenceAsGlobal(this)
+        nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth)
+        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
+        nanodetncnn.injectProbThresholdSettings(settingsBundle.prob_threshold)
+    }
 
-        /*
-        // debugging
-        val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
-        navHostFragment.childFragmentManager.addOnBackStackChangedListener {
-            val fragmentsInBackstack = navHostFragment.childFragmentManager.fragments
-            Log.v(TAG, "current backstack : $fragmentsInBackstack with length ${fragmentsInBackstack.size}" )
-        }
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
-            Log.v(TAG, "current destination.id = $destination.id")
-            val currentRoute = navHostFragment.navController.currentBackStackEntry?.destination?.id
-            Log.v(TAG, "currentRoute = $currentRoute")
-        }
-
-         */
+    private fun setupFragmentBluetoothChain() {
+        val devicesFragment = DevicesFragment.newInstance()
+        val autoConnectBluetooth = setupBluetoothPermission()
+        devicesFragment.arguments = autoConnectBluetooth
+        supportFragmentManager.beginTransaction().add(
+            R.id.fragmentBluetoothChain,
+            devicesFragment, "devices"
+        ).commit()
     }
 
     override fun onRequestPermissionsResult(
@@ -161,15 +139,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun setupBluetoothPermission(): Bundle {
         val args = Bundle()
         if (useBluetooth) {
-            if (ActivityCompat.checkSelfPermission(
-                    applicationContext,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
-                // TODO: is it not possible to use ActivityCompat.requestPermissions like in onResume()
-                requestPermissions(
+            if (ActivityCompat.checkSelfPermission( applicationContext, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
                     REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
                 )
@@ -200,10 +173,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
      * It is in a sense the most important part of this application.
      * Note that this is effectively called by a different thread.
      * It _is_ a different thread. that also means you cannot change the UI from this method directly */
+
     fun plantVaseDetectedCallback(helloFromTheOtherSide: String?) {
         val _count = atomicCounter.incrementAndGet()
         if (_count != 0) {
-             Log.v(TAG,String.format("current number of confirmations = %d", _count));
+             Log.v(TAG,String.format("current number of confirmations = %d", _count))
         }
         if (_count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0) // reset the counter back
@@ -220,6 +194,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 }
                 startRingtone()
 
+                runOnUiThread(Runnable {
+                    navigateToQr()
+                })
             }
         }
     }
@@ -253,19 +230,15 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
         val executor = Executors.newScheduledThreadPool(1)
         executor.scheduleAtFixedRate(
-            resetAtomicCounterEveryNSeconds,
-            0,
-            3,
-            TimeUnit.SECONDS
-        )
+            resetAtomicCounterEveryNSeconds, 0, 3, TimeUnit.SECONDS)
     }
 
-    private fun closeNanodetCamera() {
+    private fun navigateToQr() {
         nanodetncnn.closeCamera()
 
         shrinkSufaceView()
 
-        // the following block is probably not optional.
+        // TODO: the following block is probably not optional.
         // It may be better to make use of shared viewmodel aswell,
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
         val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
@@ -274,6 +247,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     }
 
+    /** This is a little trick I use so that the CameraFragment gets displayed. */
     private fun shrinkSufaceView() {
         currentSurfaceViewWidth = cameraView!!.layoutParams.width // save to restore later
         currentSurfaceViewHeight = cameraView!!.layoutParams.height
@@ -286,7 +260,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun reOpenNanodetCamera() {
         Log.i(TAG, "reOpenNanodetCamera")
         unShrinkSufaceView()
-        nanodetncnn.openCamera(1)
+        nanodetncnn.openCamera(CAMERA_ORIENTATION)
     }
 
     private fun unShrinkSufaceView() {
@@ -312,6 +286,30 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
 
 
+    public override fun onResume() {
+        super.onResume()
+        if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CAMERA
+            )
+        }
+        nanodetncnn.openCamera(CAMERA_ORIENTATION)
+    }
+
+    override fun startRingtone() {
+        if (TOGGLE_RINGTONE) {
+            try {
+                ringtone!!.play()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     private fun setupSpinnerCPUGPUOnClick(spinnerCPUGPU: Spinner) {
         spinnerCPUGPU.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -349,35 +347,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
-    public override fun onResume() {
-        super.onResume()
-        if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_DENIED
-        ) {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.CAMERA),
-                REQUEST_CAMERA
-            )
-        }
-        nanodetncnn.openCamera(1) // always open front camera
-    }
-
-
-    override fun startRingtone() {
-        if (TOGGLE_RINGTONE) {
-            try {
-                ringtone!!.play()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     // creates an object, which is a container for some preferences. This bundle object is then
     // passed to the native layer)
-    private fun generatePreferenceBundle(): SettingsBundle {
+    private fun generatePreferenceBundle(): CustomSettingsBundle {
         val preferences = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
         )
@@ -385,14 +357,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val drawFps = preferences.getBoolean("key_fps", false)
         val _value = preferences.getString("key_prob_threshold", "0.40")
         val probThreshold = _value!!.toFloat()
-        val plantCount = preferences.getInt("number_picker_preference", 4)
+        val plantCount = preferences.getInt("number_picker_preference", 6)
         val switchToQr = preferences.getBoolean("key_start_transition", true)
         val _confirmations = preferences.getString("confirmation_number_picker", "3")
         val confirmations = _confirmations!!.toInt()
-        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold, switchToQr, confirmations);
+        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold, switchToQr, confirmations, plantCount)
     }
-
-
 
     public override fun onPause() {
         super.onPause()
@@ -401,10 +371,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     companion object {
         const val REQUEST_CAMERA = 100
+        const val CAMERA_ORIENTATION = 1
         private const val TAG = "MainActivityNanodetNCNN"
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
-
 
         /** Use external media if it is available, our app's file directory otherwise */
         fun getOutputDirectory(context: Context): File {

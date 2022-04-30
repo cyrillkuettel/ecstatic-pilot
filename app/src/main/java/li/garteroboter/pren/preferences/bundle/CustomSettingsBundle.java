@@ -6,51 +6,54 @@ import androidx.annotation.NonNull;
  * this is a simple Dataclass
  * Store all the Settings. Main purpose: for testing 
  */
-public final class CustomSettingsBundle implements SettingsBundle {
+public final class CustomSettingsBundle  {
 
-    private  int confirmations;
+    private final int confirmations;
     private  boolean usingBluetooth;
     private  boolean showFPS;
-    private  float prob_threshold = 0.4f;
-    private  boolean switchToQr;
+    private final float prob_threshold;
+    private final boolean switchToQr;
+    private final int plantCount;
 
-    public CustomSettingsBundle(boolean usingBluetooth, boolean showFPS, float prob_threshold, boolean switchToQr, int confirmations) {
+    public CustomSettingsBundle(boolean usingBluetooth, boolean showFPS, float prob_threshold, boolean switchToQr, int confirmations, int plantCount) {
         this.usingBluetooth = usingBluetooth;
         this.showFPS = showFPS;
         this.prob_threshold = prob_threshold;
         this.switchToQr = switchToQr;
         this.confirmations = confirmations;
+        this.plantCount = plantCount;
     }
     
 
 
-    @Override
+
     public boolean isUsingBluetooth() {
         return usingBluetooth;
     }
 
-    @Override
+
     public boolean isShowFPS() {
         return showFPS;
     }
 
-    @Override
     public float getProb_threshold() {
        return prob_threshold;
     }
 
-    @Override
+
     public int getConfirmations() {
         return confirmations;
     }
 
-    public void setUsingBluetooth(boolean usingBluetooth) {
-        this.usingBluetooth = usingBluetooth;
+
+    public int getPlantCount() {
+        return plantCount;
     }
 
-    public void setShowFPS(boolean showFPS) {
-        this.showFPS = showFPS;
+    public boolean isSwitchToQr() {
+        return switchToQr;
     }
+
 
     @NonNull
     @Override
@@ -61,8 +64,6 @@ public final class CustomSettingsBundle implements SettingsBundle {
                 '}';
     }
 
-    public boolean isSwitchToQr() {
-        return switchToQr;
-    }
+
 
 }
