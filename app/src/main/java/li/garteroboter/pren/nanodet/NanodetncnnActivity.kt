@@ -48,14 +48,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var ringtone: Ringtone? = null
     private var terminalFragment: TerminalFragment? = null
     var transitionToQRActivityEnabled = true
-    private var binding: ActivityNanodetncnnBinding? = null
+
+    private lateinit  var binding: ActivityNanodetncnnBinding
 
 
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
+        val view = binding.root
+        setContentView(view)
 
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
@@ -102,40 +104,29 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
         nanodetncnn.injectProbThresholdSettings(settingsBundle.prob_threshold)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        cameraView = binding!!.cameraview
+        cameraView = binding.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
         cameraView!!.holder.addCallback(this)
 
-        val spinnerModel = binding!!.spinnerModel
+        val spinnerModel = binding.spinnerModel
         setupSpinnerOnClick(spinnerModel)
 
-        val spinnerCPUGPU = binding!!.spinnerCPUGPU
+        val spinnerCPUGPU = binding.spinnerCPUGPU
         setupSpinnerCPUGPUOnClick(spinnerCPUGPU)
+
+        binding.mainButtonSwitchCameraSource.setOnClickListener{ closeNanodetCamera()}
 
 
         initializePreferences()
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
 
-        // To be absolutely certain we have a plant detected, and not a false positive, I
-        // implemented a little extra check.
-        // It will watch for a fast burst of plantVaseDetectedCallback.
-        // To detect that burst of callbacks in a short period of time, I use an atomicCounter.
-        // This atomicCounter tracks the number of plantVaseDetectedCallback in a given interval.
-        // After the interval has passed, simply reset the atomicCounter back to zero.
-        val resetAtomicCounterEveryNSeconds = Runnable {
-            Log.v(TAG, "resetting counter")
-            atomicCounter.incrementAndGet()
-        }
-        val executor = Executors.newScheduledThreadPool(1)
-        executor.scheduleAtFixedRate(
-            resetAtomicCounterEveryNSeconds,
-            0,
-            3,
-            TimeUnit.SECONDS
-        )
+
+        setupAtomicCounterInterval()
+
         reload()
     }
+
 
 
 
@@ -157,7 +148,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
-    fun continueDriving() {}
     private fun reload() {
         val ret_init = nanodetncnn.loadModel(assets, current_model, current_cpugpu)
         if (!ret_init) {
@@ -220,6 +210,30 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(myIntent)
         }
+    }
+
+    private fun setupAtomicCounterInterval() {
+        // To be absolutely certain we have a plant detected, and not a false positive, I
+        // implemented a little extra check.
+        // It will watch for a fast burst of plantVaseDetectedCallback.
+        // To detect that burst of callbacks in a short period of time, I use an atomicCounter.
+        // This atomicCounter tracks the number of plantVaseDetectedCallback in a given interval.
+        // After the interval has passed, simply reset the atomicCounter back to zero.
+        val resetAtomicCounterEveryNSeconds = Runnable {
+            Log.v(TAG, "resetting counter")
+            atomicCounter.incrementAndGet()
+        }
+        val executor = Executors.newScheduledThreadPool(1)
+        executor.scheduleAtFixedRate(
+            resetAtomicCounterEveryNSeconds,
+            0,
+            3,
+            TimeUnit.SECONDS
+        )
+    }
+
+    private fun closeNanodetCamera() {
+        nanodetncnn.closeCamera()
     }
 
     /** Called from terminal Fragment  */

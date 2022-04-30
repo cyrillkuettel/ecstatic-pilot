@@ -34,7 +34,7 @@ private const val IMMERSIVE_FLAG_TIMEOUT = 500L
  * functionality is implemented in the form of fragments.
  */
 class QrcodeActivity : AppCompatActivity() {
-    private val TAG = "QrcodeActivity"
+
     private lateinit var activityQrcodeBinding: ActivityQrcodeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

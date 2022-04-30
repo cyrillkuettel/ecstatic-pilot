@@ -40,7 +40,7 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/switch_camera_source"
+            android:id="@+id/mainButtonSwitchCameraSource"
             android:text="Switch"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
