@@ -39,6 +39,9 @@
         android:tag="intermediate_fragment_tag"
         android:label="IntermediateFragment" >
 
+        <argument
+            android:name="returning_from"
+            app:argType="string" />
         <action
             android:id="@+id/action_intermediate_to_camera"
             app:destination="@id/camera_fragment" />

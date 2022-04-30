@@ -56,7 +56,6 @@ import kotlinx.coroutines.launch
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
-import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
@@ -354,13 +353,17 @@ class CameraFragment : Fragment() {
                                     qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                     qrCodeInsertionThread!!.join()
 
-                                    takePhotoOnceAndSaveUri()
 
-                                    val intent = Intent(requireActivity(), NanodetncnnActivity::class.java)
-                                    intent.putExtra("drive", "1") // start driving again
+                                   // takePhotoOnceAndSaveUri()
+
+                                    // val intent = Intent(requireActivity(), NanodetncnnActivity::class.java)
+                                    // intent.putExtra("drive", "1") // start driving again
                                     // finish()  //Kill the activity from which you will go to next activity
-                                    startActivity(intent)
+                                    // startActivity(intent)
 
+                                    Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
+                                        CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
+                                    )
                                 }
                             }
 

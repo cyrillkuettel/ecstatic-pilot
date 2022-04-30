@@ -17,11 +17,13 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.Spinner
+import androidx.activity.viewModels
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import li.garteroboter.pren.Constants.STOP_COMMAND_ESP32
@@ -31,6 +33,7 @@ import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.preferences.bundle.SettingsBundle
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
+import li.garteroboter.pren.qrcode.fragments.StateViewModel
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalFragment
 import java.io.File
@@ -40,6 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
+
+    private val viewModel: StateViewModel by viewModels()
 
 
     private var lastTimePlantCallback: Long = 0
@@ -53,6 +58,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var ringtone: Ringtone? = null
     private var terminalFragment: TerminalFragment? = null
     private var transitionToQRActivityEnabled = true
+
+    private var currentSurfaceViewWidth = 0;
+    private var currentSurfaceViewHeight = 0;
 
     private lateinit var binding: ActivityNanodetncnnBinding
 
@@ -98,6 +106,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 Log.e(TAG, "terminalFragment null")
             }
         }
+
+        viewModel.getCurrentState().observe(this, Observer { state ->
+            Log.i(TAG, "viewModel.getCurrentState().observe")
+            reOpenNanodetCamera()
+        })
+
 
 
         // creates a reference to the currently active instance
@@ -243,20 +257,35 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         shrinkSufaceView()
 
-
-        // binding.fragmentContainer.getFragment<>() intermediate_fragment_tag
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
-
-        val fragment: Fragment = navHostFragment.getChildFragmentManager().getFragments().get(0)
+        val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
         val intermediateFragment = fragment as IntermediateFragment
-         intermediateFragment.navigateToCamera()
+        intermediateFragment.navigateToCamera()
 
     }
 
     private fun shrinkSufaceView() {
-        val unchangedWidth = cameraView!!.layoutParams.width
-        cameraView!!.layoutParams = LinearLayout.LayoutParams( unchangedWidth, 1)
+        currentSurfaceViewWidth = cameraView!!.layoutParams.width // save to restore later
+        currentSurfaceViewHeight = cameraView!!.layoutParams.height
+
+        cameraView!!.layoutParams = LinearLayout.LayoutParams( currentSurfaceViewWidth, 1) // shrink
     }
+
+
+    private fun reOpenNanodetCamera() {
+        unShrinkSufaceView()
+        nanodetncnn.openCamera(1)
+    }
+
+    private fun unShrinkSufaceView() {
+         cameraView!!.layoutParams.width = currentSurfaceViewWidth
+         cameraView!!.layoutParams.height = currentSurfaceViewHeight
+
+         cameraView!!.layoutParams = LinearLayout.LayoutParams( currentSurfaceViewWidth, currentSurfaceViewHeight)
+    }
+
+
+
 
     /** Called from terminal Fragment  */
     fun receiveTerminalFragmentReference(terminalFragment: TerminalFragment?) {
