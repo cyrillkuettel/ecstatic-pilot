@@ -1,7 +1,6 @@
 package li.garteroboter.pren.nanodet
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.pm.PackageManager
@@ -9,8 +8,6 @@ import android.graphics.PixelFormat
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -30,17 +27,14 @@ import li.garteroboter.pren.preferences.bundle.SettingsBundle
 import li.garteroboter.pren.qrcode.QrcodeActivity
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalFragment
-import simple.bluetooth.terminal.VibrationListener
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback,
-    VibrationListener, PlaySoundListener {
-    val waitingTime = 1000 // wait x milliseconds before vibrate / ringtone again (avoid
+class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
 
-    // spamming)
+
     var lastTime: Long = 0
     var lastTimePlantCallback: Long = 0
     val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
@@ -54,6 +48,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback,
     private var terminalFragment: TerminalFragment? = null
     var transitionToQRActivityEnabled = true
     private var binding: ActivityNanodetncnnBinding? = null
+
 
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -288,27 +283,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback,
         nanodetncnn.openCamera(1) // always open front camera
     }
 
-    @SuppressLint("MissingPermission")
-    override fun startVibrating(millis: Int) {
-        val v = getSystemService(VIBRATOR_SERVICE) as Vibrator
-        // safety mechanism to not vibrate too often.
-        if (TOGGLE_VIBRATE && System.currentTimeMillis() - lastTime > waitingTime) {
-
-// Vibrate for N milliseconds
-            try {
-                v.vibrate(
-                    VibrationEffect.createOneShot(
-                        millis.toLong(),
-                        VibrationEffect.DEFAULT_AMPLITUDE
-                    )
-                )
-            } catch (e: Exception) {
-                Log.d(TAG, "Failed to initialize SystemService Vibration")
-                e.printStackTrace()
-            }
-            lastTime = System.currentTimeMillis()
-        }
-    }
 
     override fun startRingtone() {
         if (TOGGLE_RINGTONE) {
@@ -352,7 +326,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback,
     companion object {
         const val REQUEST_CAMERA = 100
         private const val TAG = "MainActivityNanodetNCNN"
-        var TOGGLE_VIBRATE = false
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
     }
