@@ -34,8 +34,8 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="key_start_transition"
-            android:summary="If disabled, will keep looking for plants"
-            android:title="Just detect plants Qr-Code as well?" />
+            android:summary="If disabled, will ignore Qr-Code"
+            android:title="Detect plants, or Qr-Code as well?" />
 
 
 

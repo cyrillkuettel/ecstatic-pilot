@@ -40,7 +40,7 @@ class PermissionsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        Log.e(TAG, "onCreate PermmissionsFragment")
 
         if (!hasPermissions(requireContext())) {
             // Request camera-related permissions

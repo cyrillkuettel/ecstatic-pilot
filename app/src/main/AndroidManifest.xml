@@ -60,34 +60,6 @@
         <activity
             android:name=".nanodet.NanodetncnnActivity"
             android:screenOrientation="portrait">
-        </activity>
-        <service android:name="simple.bluetooth.terminal.SerialService" />
-        <activity
-            android:name=".preferences.PreferenceActivity"
-            android:screenOrientation="user">
-
-        </activity>
-
-
-        <activity
-            android:name="li.garteroboter.pren.qrcode.QrcodeActivity"
-            android:clearTaskOnLaunch="true"
-            android:theme="@style/AppTheme"
-            android:icon="@mipmap/ic_launcher"
-            android:screenOrientation="fullUser"
-            android:rotationAnimation="seamless"
-            android:resizeableActivity="true"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            tools:targetApi="O"
-            android:exported="true">
-
-            <!-- Main app intent filter -->
-<!--            alt + c then alt + l (holding alt ) for toggle comment-->
-
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
 
             <!-- Register as a system camera app -->
             <intent-filter>
@@ -107,10 +79,16 @@
                 <data android:host="example.android.com" />
                 <data android:pathPattern="/camerax" />
             </intent-filter>
-
             <!-- Declare notch support -->
+
             <meta-data android:name="android.notch_support" android:value="true"/>
 
+        </activity>
+
+        <service android:name="simple.bluetooth.terminal.SerialService" />
+        <activity
+            android:name=".preferences.PreferenceActivity"
+            android:screenOrientation="user">
         </activity>
 
 

@@ -2,8 +2,6 @@ package li.garteroboter.pren.nanodet
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.pm.PackageManager
 import android.graphics.PixelFormat
 import android.media.Ringtone
@@ -31,7 +29,6 @@ import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.preferences.bundle.SettingsBundle
-import li.garteroboter.pren.qrcode.QrcodeActivity
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
 import li.garteroboter.pren.qrcode.fragments.StateViewModel
 import simple.bluetooth.terminal.DevicesFragment
@@ -57,10 +54,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var cameraView: SurfaceView? = null
     private var ringtone: Ringtone? = null
     private var terminalFragment: TerminalFragment? = null
-    private var transitionToQRActivityEnabled = true
 
-    private var currentSurfaceViewWidth = 0;
-    private var currentSurfaceViewHeight = 0;
+    private var currentSurfaceViewWidth = 0
+    private var currentSurfaceViewHeight = 0
 
     private lateinit var binding: ActivityNanodetncnnBinding
 
@@ -74,20 +70,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
 
-        val drive: String?
-        if (savedInstanceState == null) {
-            val extras = intent.extras
-            if (extras == null) {
-                drive = null
-            } else {
-                drive = extras.getString("drive")
-                if (bluetoothCheck(terminalFragment)) {
-                    terminalFragment!!.send(drive)
-                } else {
-                    Log.e(TAG, "terminalFragment null")
-                }
-            }
 
+        if (savedInstanceState == null) {
 
             val devicesFragment = DevicesFragment.newInstance()
             devicesFragment.arguments = setupBluetoothPermission()
@@ -96,22 +80,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 devicesFragment, "devices"
             ).commit()
 
-
-        } else {
-            Log.d(TAG, "savedInstanceState != NULL")
-            drive = savedInstanceState.getSerializable("drive") as String?
-            if (bluetoothCheck(terminalFragment)) {
-                terminalFragment!!.send(drive)
-            } else {
-                Log.e(TAG, "terminalFragment null")
-            }
         }
 
         viewModel.getCurrentState().observe(this, Observer { state ->
             Log.i(TAG, "viewModel.getCurrentState().observe")
             reOpenNanodetCamera()
         })
-
 
 
         // creates a reference to the currently active instance
@@ -132,10 +106,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val spinnerCPUGPU = binding.spinnerCPUGPU
         setupSpinnerCPUGPUOnClick(spinnerCPUGPU)
 
-        binding.mainButtonSwitchCameraSource.setOnClickListener{ closeNanodetCamera()}
+        binding.mainButtonSwitchCameraSource.setOnClickListener { closeNanodetCamera() }
 
 
-        initializePreferences()
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
 
@@ -144,10 +117,23 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         reload()
 
+        // debugging
+        val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
+
+        navHostFragment.childFragmentManager.addOnBackStackChangedListener {
+            val fragmentsInBackstack = navHostFragment.childFragmentManager.fragments
+            Log.v(TAG, "current backstack : $fragmentsInBackstack with length ${fragmentsInBackstack.size}" )
+        }
+
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+            Log.v(TAG, "current destination.id = $destination.id")
+            val currentRoute = navHostFragment.navController.currentBackStackEntry?.destination?.id
+            Log.v(TAG, "currentRoute = $currentRoute")
+        }
+
+
 
     }
-
-
 
 
     override fun onRequestPermissionsResult(
@@ -168,9 +154,33 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
+    private fun setupBluetoothPermission(): Bundle {
+        val args = Bundle()
+        if (useBluetooth) {
+            if (ActivityCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
+                // TODO: is it not possible to use ActivityCompat.requestPermissions like in onResume()
+                requestPermissions(
+                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                    REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
+                )
+            } else {
+                args.putString("autoConnect", "true")
+            }
+        } else {
+            args.putString("autoConnect", "false")
+        }
+        return args
+    }
+
     private fun reload() {
-        val ret_init = nanodetncnn.loadModel(assets, current_model, current_cpugpu)
-        if (!ret_init) {
+        val retryInit = nanodetncnn.loadModel(assets, current_model, current_cpugpu)
+        if (!retryInit) {
             Log.e("MainActivity", "nanodetncnn loadModel failed")
         }
     }
@@ -205,7 +215,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                     }
                 }
                 startRingtone()
-                startQRActivityIfEnabled()
             }
         }
     }
@@ -224,13 +233,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         return false
     }
 
-    fun startQRActivityIfEnabled() {
-        if (transitionToQRActivityEnabled) {
-            val myIntent = Intent(this, QrcodeActivity::class.java)
-            myIntent.addFlags(FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(myIntent)
-        }
-    }
+
 
     private fun setupAtomicCounterInterval() {
         // To be absolutely certain we have a plant detected, and not a false positive, I
@@ -268,23 +271,24 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         currentSurfaceViewWidth = cameraView!!.layoutParams.width // save to restore later
         currentSurfaceViewHeight = cameraView!!.layoutParams.height
 
-        cameraView!!.layoutParams = LinearLayout.LayoutParams( currentSurfaceViewWidth, 1) // shrink
+        cameraView!!.layoutParams =
+            LinearLayout.LayoutParams(currentSurfaceViewWidth, 1) // shrink
     }
 
 
     private fun reOpenNanodetCamera() {
+        Log.i(TAG, "reOpenNanodetCamera")
         unShrinkSufaceView()
         nanodetncnn.openCamera(1)
     }
 
     private fun unShrinkSufaceView() {
-         cameraView!!.layoutParams.width = currentSurfaceViewWidth
-         cameraView!!.layoutParams.height = currentSurfaceViewHeight
+        cameraView!!.layoutParams.width = currentSurfaceViewWidth
+        cameraView!!.layoutParams.height = currentSurfaceViewHeight
 
-         cameraView!!.layoutParams = LinearLayout.LayoutParams( currentSurfaceViewWidth, currentSurfaceViewHeight)
+        cameraView!!.layoutParams =
+            LinearLayout.LayoutParams(currentSurfaceViewWidth, currentSurfaceViewHeight)
     }
-
-
 
 
     /** Called from terminal Fragment  */
@@ -300,29 +304,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
 
-    private fun setupBluetoothPermission(): Bundle {
-        val args = Bundle()
-        if (useBluetooth) {
-            if (ActivityCompat.checkSelfPermission(
-                    applicationContext,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
-                // TODO: is it not possible to use ActivityCompat.requestPermissions like in onResume()
-                requestPermissions(
-                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
-                    REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
-                )
-            } else {
-                args.putString("autoConnect", "true")
-            }
-        } else {
-            args.putString("autoConnect", "false")
-        }
-        return args
-    }
+
 
     private fun setupSpinnerCPUGPUOnClick(spinnerCPUGPU: Spinner) {
         spinnerCPUGPU.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -397,18 +379,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val _value = preferences.getString("key_prob_threshold", "0.40")
         val probThreshold = _value!!.toFloat()
         val plantCount = preferences.getInt("number_picker_preference", 4)
-        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold)
+        val switchToQr = preferences.getBoolean("key_start_transition", true);
+        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold, switchToQr);
     }
 
 
-    private fun initializePreferences() {
-
-        val preferences = PreferenceManager.getDefaultSharedPreferences(
-            applicationContext
-        )
-        // load preferences ot local variable
-        transitionToQRActivityEnabled = preferences.getBoolean("key_start_transition", false)
-    }
 
     public override fun onPause() {
         super.onPause()
@@ -426,7 +401,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         fun getOutputDirectory(context: Context): File {
             val appContext = context.applicationContext
             val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
-                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() } }
+                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() }
+            }
             return if (mediaDir != null && mediaDir.exists())
                 mediaDir else appContext.filesDir
         }

@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
-import li.garteroboter.pren.qrcode.QrcodeActivity
+import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
 import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
@@ -69,6 +69,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -235,7 +236,7 @@ class CameraFragment : Fragment() {
 
 
         // Determine the output directory
-        outputDirectory = QrcodeActivity.getOutputDirectory(requireContext())
+        outputDirectory = NanodetncnnActivity.getOutputDirectory(requireContext())
 
         // Wait for the views to be properly laid out
         fragmentCameraBinding.viewFinder.post {
@@ -331,45 +332,34 @@ class CameraFragment : Fragment() {
                 .setTargetRotation(rotation)
                 .build()
 
-        // ImageAnalysis
         imageAnalyzer = ImageAnalysis.Builder()
-
                 // .setTargetAspectRatio(screenAspectRatio)
-                // Set initial target rotation, we will have to call this again if rotation changes
-                // during the lifecycle of this use case
                 .setTargetRotation(rotation)
                 .setTargetResolution(Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // from Qr
                 .build()
                 // The analyzer can then be assigned to the instance
                 .also {
-
                     it.setAnalyzer(
                         cameraExecutor,
                         QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
                             override fun onQRCodeFound(qrCode: String?) {
                                 Log.i(TAG, "onQRCodeFound")
                                 if (waitingTimeOver()) {
+
                                     qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                     qrCodeInsertionThread!!.join()
 
 
                                    // takePhotoOnceAndSaveUri()
+                                    activity?.runOnUiThread(Runnable {
+                                        navigateBack()
+                                    })
 
-                                    // val intent = Intent(requireActivity(), NanodetncnnActivity::class.java)
-                                    // intent.putExtra("drive", "1") // start driving again
-                                    // finish()  //Kill the activity from which you will go to next activity
-                                    // startActivity(intent)
 
-                                    Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                                        CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
-                                    )
                                 }
                             }
-
-                            override fun qrCodeNotFound() {
-                                // nope
-                            }
+                            override fun qrCodeNotFound() {}
                         })
                     )
                 }
@@ -594,18 +584,14 @@ class CameraFragment : Fragment() {
             }
         }
 
-
-
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
 
 
-            takePhotoAndCallApi() // for testing
+
+            // takePhotoAndCallApi() // for testing
 
            //  takePhotoOnceAndSaveUri() // for production with QR-Code
-
         }
-
-
 
         // Listener for button used to view the most recent photo
         cameraUiContainerBinding?.photoViewButton?.setOnClickListener {
@@ -616,6 +602,16 @@ class CameraFragment : Fragment() {
                 ).navigate(CameraFragmentDirections
                         .actionCameraToGallery(outputDirectory.absolutePath))
             }
+        }
+    }
+
+    private val done: AtomicBoolean = AtomicBoolean()
+    private fun navigateBack() {
+        if (done.get()) return // only call once
+        if (done.compareAndSet(false, true)) {
+            Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
+                CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
+            )
         }
     }
 
@@ -842,7 +838,7 @@ class CameraFragment : Fragment() {
 
     companion object {
 
-        private const val TAG = "CameraXBasic"
+        private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val PHOTO_EXTENSION = ".jpg"
         private const val RATIO_4_3_VALUE = 4.0 / 3.0

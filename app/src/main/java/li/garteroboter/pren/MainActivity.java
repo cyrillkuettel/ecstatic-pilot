@@ -24,7 +24,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
-import li.garteroboter.pren.qrcode.QrcodeActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
@@ -132,8 +131,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             intent = new Intent(this, MainActivity.class);
         } else if (itemId == R.id.nanodet) {
             intent = new Intent(this, NanodetncnnActivity.class);
-        } else if (itemId == R.id.qrCodeactivity) {
-           intent = new Intent(this, QrcodeActivity.class);
         } else {
             return super.onOptionsItemSelected(item);
         }

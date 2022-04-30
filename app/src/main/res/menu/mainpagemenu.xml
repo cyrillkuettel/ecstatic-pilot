@@ -19,9 +19,6 @@
                 android:id="@+id/nanodet"
                 android:title="Nanodet" />
 
-            <item
-                android:id="@+id/qrCodeactivity"
-                android:title="Qr Code Detection" />
          </menu>
      </item>
  </menu>

@@ -36,12 +36,12 @@
     <fragment
         android:id="@+id/intermediate_fragment"
         android:name="li.garteroboter.pren.qrcode.fragments.IntermediateFragment"
-        android:tag="intermediate_fragment_tag"
         android:label="IntermediateFragment" >
 
         <argument
             android:name="returning_from"
             app:argType="string" />
+
         <action
             android:id="@+id/action_intermediate_to_camera"
             app:destination="@id/camera_fragment" />
@@ -66,7 +66,9 @@
 
         <action
             android:id="@+id/action_camera_to_intermediate"
-            app:destination="@id/intermediate_fragment" />
+            app:destination="@id/intermediate_fragment"
+            app:popUpTo="@id/camera_fragment"
+            app:popUpToInclusive="true"/>
 
     </fragment>
 
