@@ -20,6 +20,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -35,16 +36,18 @@ private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
  * camera fragment to the user.
  */
 class PermissionsFragment : Fragment() {
+    private val TAG = "PermissionsFragment"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
 
         if (!hasPermissions(requireContext())) {
             // Request camera-related permissions
             requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
         } else {
             // If permissions have already been granted, proceed
-            navigateToCamera()
+            navigateToIntermediate()
         }
     }
 
@@ -55,17 +58,17 @@ class PermissionsFragment : Fragment() {
             if (PackageManager.PERMISSION_GRANTED == grantResults.firstOrNull()) {
                 // Take the user to the success fragment when permission is granted
                 Toast.makeText(context, "Permission request granted", Toast.LENGTH_LONG).show()
-                navigateToCamera()
+                navigateToIntermediate()
             } else {
                 Toast.makeText(context, "Permission request denied", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun navigateToCamera() {
+    private fun navigateToIntermediate() {
         lifecycleScope.launchWhenStarted {
             Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                    PermissionsFragmentDirections.actionPermissionsToCamera())
+                    PermissionsFragmentDirections.actionPermissionsToIntermediate())
         }
     }
 

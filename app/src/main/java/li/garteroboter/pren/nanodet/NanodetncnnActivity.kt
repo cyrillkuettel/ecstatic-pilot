@@ -1,6 +1,7 @@
 package li.garteroboter.pren.nanodet
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.pm.PackageManager
@@ -14,11 +15,14 @@ import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
 import android.widget.AdapterView
+import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import li.garteroboter.pren.Constants.STOP_COMMAND_ESP32
 import li.garteroboter.pren.R
@@ -26,8 +30,10 @@ import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.preferences.bundle.SettingsBundle
 import li.garteroboter.pren.qrcode.QrcodeActivity
+import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalFragment
+import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -123,6 +129,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         setupAtomicCounterInterval()
 
         reload()
+
+
     }
 
 
@@ -233,6 +241,21 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun closeNanodetCamera() {
         nanodetncnn.closeCamera()
 
+        shrinkSufaceView()
+
+
+        // binding.fragmentContainer.getFragment<>() intermediate_fragment_tag
+        val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
+
+        val fragment: Fragment = navHostFragment.getChildFragmentManager().getFragments().get(0)
+        val intermediateFragment = fragment as IntermediateFragment
+         intermediateFragment.navigateToCamera()
+
+    }
+
+    private fun shrinkSufaceView() {
+        val unchangedWidth = cameraView!!.layoutParams.width
+        cameraView!!.layoutParams = LinearLayout.LayoutParams( unchangedWidth, 1)
     }
 
     /** Called from terminal Fragment  */
@@ -368,5 +391,15 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         private const val TAG = "MainActivityNanodetNCNN"
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
+
+
+        /** Use external media if it is available, our app's file directory otherwise */
+        fun getOutputDirectory(context: Context): File {
+            val appContext = context.applicationContext
+            val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
+                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() } }
+            return if (mediaDir != null && mediaDir.exists())
+                mediaDir else appContext.filesDir
+        }
     }
 }
