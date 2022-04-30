@@ -48,7 +48,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
     private val atomicCounter = AtomicInteger(0)
     private val nanodetncnn = NanoDetNcnn()
-    private var useBluetooth = false
+
     private var current_model = 0
     private var current_cpugpu = 0
     private var cameraView: SurfaceView? = null
@@ -60,6 +60,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private lateinit var binding: ActivityNanodetncnnBinding
 
+    // preferences
+    private var useBluetooth = false
+    private var numerOfConfirmations = 3;
+
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +73,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
-
+        numerOfConfirmations = settingsBundle.confirmations;
+        Log.v(TAG, "numerOfConfirmations = $numerOfConfirmations")
 
         if (savedInstanceState == null) {
 
@@ -96,6 +101,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
         nanodetncnn.injectProbThresholdSettings(settingsBundle.prob_threshold)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         cameraView = binding.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
         cameraView!!.holder.addCallback(this)
@@ -117,24 +123,22 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         reload()
 
+
+        /*
         // debugging
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
-
         navHostFragment.childFragmentManager.addOnBackStackChangedListener {
             val fragmentsInBackstack = navHostFragment.childFragmentManager.fragments
             Log.v(TAG, "current backstack : $fragmentsInBackstack with length ${fragmentsInBackstack.size}" )
         }
-
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
             Log.v(TAG, "current destination.id = $destination.id")
             val currentRoute = navHostFragment.navController.currentBackStackEntry?.destination?.id
             Log.v(TAG, "currentRoute = $currentRoute")
         }
 
-
-
+         */
     }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -199,9 +203,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     fun plantVaseDetectedCallback(helloFromTheOtherSide: String?) {
         val _count = atomicCounter.incrementAndGet()
         if (_count != 0) {
-            // Log.v(TAG,String.format("current number of confirmations = %d", _count));
+             Log.v(TAG,String.format("current number of confirmations = %d", _count));
         }
-        if (_count >= 3) { // count = number of confirmations. The lower, the faster
+        if (_count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0) // reset the counter back
             if (lastTimeWasNSecondsAGo()) {
                 lastTimePlantCallback = System.currentTimeMillis()
@@ -215,6 +219,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                     }
                 }
                 startRingtone()
+
             }
         }
     }
@@ -260,6 +265,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         shrinkSufaceView()
 
+        // the following block is probably not optional.
+        // It may be better to make use of shared viewmodel aswell,
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
         val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
         val intermediateFragment = fragment as IntermediateFragment
@@ -379,8 +386,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val _value = preferences.getString("key_prob_threshold", "0.40")
         val probThreshold = _value!!.toFloat()
         val plantCount = preferences.getInt("number_picker_preference", 4)
-        val switchToQr = preferences.getBoolean("key_start_transition", true);
-        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold, switchToQr);
+        val switchToQr = preferences.getBoolean("key_start_transition", true)
+        val _confirmations = preferences.getString("confirmation_number_picker", "3")
+        val confirmations = _confirmations!!.toInt()
+        return CustomSettingsBundle(useBluetooth, drawFps, probThreshold, switchToQr, confirmations);
     }
 
 

@@ -30,6 +30,14 @@
             android:summary="pick_a_number"
             android:title="Pick the number of plants" />
 
+        <ListPreference
+            android:defaultValue="3"
+            android:key="confirmation_number_picker"
+            android:dialogTitle="Higher vales reduce probability of false positives. Lower == faster."
+            android:title="Required Confirmations for Plant"
+            android:entries="@array/confirmations_entries"
+            android:entryValues="@array/confirmations_values"/>
+
 
         <SwitchPreference
             android:defaultValue="false"
