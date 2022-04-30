@@ -17,14 +17,11 @@
 package li.garteroboter.pren.qrcode
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityQrcodeBinding
 import java.io.File
@@ -48,8 +45,6 @@ class QrcodeActivity : AppCompatActivity() {
     }
 
 
-
-
     override fun onResume() {
         super.onResume()
         // Before setting full screen flags, we must wait a bit to let UI settle; otherwise, we may
@@ -59,17 +54,6 @@ class QrcodeActivity : AppCompatActivity() {
         }, IMMERSIVE_FLAG_TIMEOUT)
     }
 
-    /** When key down event is triggered, relay it via local broadcast so fragments can handle it */
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                val intent = Intent(KEY_EVENT_ACTION).apply { putExtra(KEY_EVENT_EXTRA, keyCode) }
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
-                true
-            }
-            else -> super.onKeyDown(keyCode, event)
-        }
-    }
 
     companion object {
 
