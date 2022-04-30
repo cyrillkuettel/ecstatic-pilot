@@ -14,6 +14,7 @@ import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
 import android.widget.AdapterView
+import android.widget.Spinner
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -56,6 +57,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
+        val settingsBundle = generatePreferenceBundle()
+        useBluetooth = settingsBundle.isUsingBluetooth
+
         val drive: String?
         if (savedInstanceState == null) {
             val extras = intent.extras
@@ -69,31 +73,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                     Log.e(TAG, "terminalFragment null")
                 }
             }
-            val args = Bundle()
-            if (useBluetooth) {
-                if (ActivityCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    )
-                    != PackageManager.PERMISSION_GRANTED
-                ) {
-                    Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
-                    requestPermissions(
-                        arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
-                        REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
-                    )
-                } else {
-                    args.putString("autoConnect", "true")
-                }
-            } else {
-                args.putString("autoConnect", "false")
-            }
+
+
             val devicesFragment = DevicesFragment.newInstance()
-            devicesFragment.arguments = args
+            devicesFragment.arguments = setupBluetoothPermission()
             supportFragmentManager.beginTransaction().add(
                 R.id.fragmentBluetoothChain,
                 devicesFragment, "devices"
             ).commit()
+
+
         } else {
             Log.d(TAG, "savedInstanceState != NULL")
             drive = savedInstanceState.getSerializable("drive") as String?
@@ -108,8 +97,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         // creates a reference to the currently active instance
         // of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this)
-        val settingsBundle = generatePreferenceBundle()
-        useBluetooth = settingsBundle.isUsingBluetooth
+
         nanodetncnn.injectBluetoothSettings(useBluetooth)
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
         nanodetncnn.injectProbThresholdSettings(settingsBundle.prob_threshold)
@@ -117,38 +105,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         cameraView = binding!!.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
         cameraView!!.holder.addCallback(this)
+
         val spinnerModel = binding!!.spinnerModel
-        spinnerModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                arg0: AdapterView<*>?,
-                arg1: View,
-                position: Int,
-                id: Long
-            ) {
-                if (position != current_model) {
-                    current_model = position
-                    reload()
-                }
-            }
+        setupSpinnerOnClick(spinnerModel)
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
-        }
         val spinnerCPUGPU = binding!!.spinnerCPUGPU
-        spinnerCPUGPU.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                arg0: AdapterView<*>?,
-                arg1: View,
-                position: Int,
-                id: Long
-            ) {
-                if (position != current_cpugpu) {
-                    current_cpugpu = position
-                    reload()
-                }
-            }
+        setupSpinnerCPUGPUOnClick(spinnerCPUGPU)
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
-        }
+
         initializePreferences()
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
@@ -172,6 +136,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         )
         reload()
     }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -268,6 +234,66 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
+
+    private fun setupBluetoothPermission(): Bundle {
+        val args = Bundle()
+        if (useBluetooth) {
+            if (ActivityCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
+                requestPermissions(
+                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                    REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
+                )
+            } else {
+                args.putString("autoConnect", "true")
+            }
+        } else {
+            args.putString("autoConnect", "false")
+        }
+        return args
+    }
+
+    private fun setupSpinnerCPUGPUOnClick(spinnerCPUGPU: Spinner) {
+        spinnerCPUGPU.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                arg0: AdapterView<*>?,
+                arg1: View,
+                position: Int,
+                id: Long
+            ) {
+                if (position != current_cpugpu) {
+                    current_cpugpu = position
+                    reload()
+                }
+            }
+
+            override fun onNothingSelected(arg0: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupSpinnerOnClick(spinnerModel: Spinner) {
+        spinnerModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                arg0: AdapterView<*>?,
+                arg1: View,
+                position: Int,
+                id: Long
+            ) {
+                if (position != current_model) {
+                    current_model = position
+                    reload()
+                }
+            }
+
+            override fun onNothingSelected(arg0: AdapterView<*>?) {}
+        }
+    }
+
     public override fun onResume() {
         super.onResume()
         if (ContextCompat.checkSelfPermission(
@@ -304,13 +330,13 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val drawFps = preferences.getBoolean("key_fps", false)
         val _value = preferences.getString("key_prob_threshold", "0.40")
         val probThreshold = _value!!.toFloat()
-        Log.d(TAG, String.format("prob_threshold == %s", probThreshold))
         val plantCount = preferences.getInt("number_picker_preference", 4)
-        Log.d(TAG, String.format("number_picker_preference == %s", plantCount))
         return CustomSettingsBundle(useBluetooth, drawFps, probThreshold)
     }
 
+
     private fun initializePreferences() {
+        // DELETE
         val preferences = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
         )
