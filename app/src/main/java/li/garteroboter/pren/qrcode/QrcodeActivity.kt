@@ -49,7 +49,7 @@ class QrcodeActivity : AppCompatActivity() {
         // Before setting full screen flags, we must wait a bit to let UI settle; otherwise, we may
         // be trying to set app to immersive mode before it's ready and the flags do not stick
         activityQrcodeBinding.fragmentContainer.postDelayed({
-            hideSystemUI()
+             hideSystemUI()
         }, IMMERSIVE_FLAG_TIMEOUT)
     }
 

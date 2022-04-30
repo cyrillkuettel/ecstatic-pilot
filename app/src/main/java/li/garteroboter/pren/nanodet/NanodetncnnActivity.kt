@@ -36,9 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
 
 
-    var lastTime: Long = 0
-    var lastTimePlantCallback: Long = 0
-    val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
+    private var lastTimePlantCallback: Long = 0
+    private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
     private val atomicCounter = AtomicInteger(0)
     private val nanodetncnn = NanoDetNcnn()
     private var useBluetooth = false
@@ -47,10 +46,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var cameraView: SurfaceView? = null
     private var ringtone: Ringtone? = null
     private var terminalFragment: TerminalFragment? = null
-    var transitionToQRActivityEnabled = true
+    private var transitionToQRActivityEnabled = true
 
-    private lateinit  var binding: ActivityNanodetncnnBinding
-
+    private lateinit var binding: ActivityNanodetncnnBinding
 
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -234,6 +232,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private fun closeNanodetCamera() {
         nanodetncnn.closeCamera()
+
     }
 
     /** Called from terminal Fragment  */
@@ -259,6 +258,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 Log.i(TAG, " != PackageManager.PERMISSION_GRANTED")
+                // TODO: is it not possible to use ActivityCompat.requestPermissions like in onResume()
                 requestPermissions(
                     arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
                     REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT
@@ -350,7 +350,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
 
     private fun initializePreferences() {
-        // DELETE
+
         val preferences = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
         )
