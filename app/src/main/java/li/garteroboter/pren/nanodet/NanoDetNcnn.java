@@ -17,9 +17,8 @@ package li.garteroboter.pren.nanodet;
 import android.content.res.AssetManager;
 import android.view.Surface;
 
-public class NanoDetNcnn
+public class NanoDetNcnn {
 
-{
     public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
