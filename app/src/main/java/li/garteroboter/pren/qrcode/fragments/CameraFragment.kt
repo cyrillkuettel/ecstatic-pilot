@@ -70,6 +70,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -152,6 +153,15 @@ class CameraFragment : Fragment() {
             Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
                     CameraFragmentDirections.actionCameraToPermissions()
             )
+        }
+        Log.v(TAG, "onResume")
+
+        thread(start = true) {
+            Thread.sleep(500)
+            // Camera needs to be initialized. The sleep call is necessary,
+            // otherwise it does not work. Better would be callback method as soon as CameraDevice
+            // initialization is finished.
+            takePhotoOnce()
         }
     }
 
@@ -250,7 +260,6 @@ class CameraFragment : Fragment() {
             // Set up the camera and its use cases
             setUpCamera()
         }
-
 
     }
 
@@ -359,7 +368,10 @@ class CameraFragment : Fragment() {
 
                                 }
                             }
-                            override fun qrCodeNotFound() {}
+                            override fun qrCodeNotFound() {
+                                // TODO: return if nothing found after X seconds
+                               // Log.i(TAG, "qrCodeNotFound")
+                            }
                         })
                     )
                 }
@@ -586,7 +598,7 @@ class CameraFragment : Fragment() {
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
 
-
+             takePhotoOnce()
 
             // takePhotoAndCallApi() // for testing
 
@@ -669,18 +681,22 @@ class CameraFragment : Fragment() {
                     }
                 })
 
-            // We can only change the foreground Drawable using API level 23+ API
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                // Display flash animation to indicate that photo was captured
-                fragmentCameraBinding.root.postDelayed({
-                    fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
-                    fragmentCameraBinding.root.postDelayed(
-                        { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
-                }, ANIMATION_SLOW_MILLIS)
-            }
+            displayFlashAnimation()
         }
 
+    }
+
+    private fun displayFlashAnimation(color: Int = Color.WHITE) {
+        // We can only change the foreground Drawable using API level 23+ API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            // Display flash animation to indicate that photo was captured
+            fragmentCameraBinding.root.postDelayed({
+                fragmentCameraBinding.root.foreground = ColorDrawable(color)
+                fragmentCameraBinding.root.postDelayed(
+                    { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
+            }, ANIMATION_SLOW_MILLIS)
+        }
     }
 
 // only for testing
@@ -767,6 +783,86 @@ class CameraFragment : Fragment() {
             }
         }
     }
+
+
+    private fun takePhotoOnce() {
+        Log.v(TAG , "takePhotoOnce")
+
+        // Get a stable reference of the modifiable image capture use case
+        imageCapture?.let { imageCapture ->
+            Log.d(TAG , "starting capture process")
+            // Create output file to hold the image
+            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+
+            // Setup image capture metadata
+            val metadata = Metadata().apply {
+
+                // Mirror image when using the front camera
+                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            }
+
+            // Create output options object which contains file + metadata
+            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+                .setMetadata(metadata)
+                .build()
+
+            // Setup image capture listener which is triggered after photo has been taken
+            imageCapture.takePicture(
+                outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                    override fun onError(exc: ImageCaptureException) {
+                        Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    }
+
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                        Log.d(TAG, "Photo capture succeeded: $savedUri")
+
+                        // save the picture to database
+
+
+                        setGalleryThumbnail(savedUri)
+                        // If the folder selected is an external media directory, this is
+                        // unnecessary but otherwise other apps will not be able to access our
+                        // images unless we scan them using [MediaScannerConnection]
+                        val mimeType = MimeTypeMap.getSingleton()
+                            .getMimeTypeFromExtension(savedUri.toFile().extension)
+                        MediaScannerConnection.scanFile(
+                            context,
+                            arrayOf(savedUri.toFile().absolutePath),
+                            arrayOf(mimeType)
+                        ) { _, uri ->
+                            Log.d(TAG, "Image capture scanned into media store: $uri")
+                        }
+                    }
+                })
+
+            // We can only change the foreground Drawable using API level 23+ API
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                // Display flash animation to indicate that photo was captured
+                fragmentCameraBinding.root.postDelayed({
+                    fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
+                    fragmentCameraBinding.root.postDelayed(
+                        { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
+                }, ANIMATION_SLOW_MILLIS)
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     fun savePictureUriToPlantObjectAndStartApiCall(savedUri: String) : Thread {
         Log.i(TAG, "savePictureUriToPlantObjectAndStartApiCall")

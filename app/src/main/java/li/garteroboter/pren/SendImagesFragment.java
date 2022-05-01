@@ -39,7 +39,6 @@ public class SendImagesFragment extends Fragment {
     public static final int PICK_IMAGE = 1; // code to identify action in onActivityResult
 
     private WebSocketManager manager;
-    private Context applicationContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
