@@ -55,6 +55,21 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textViewDetectedObjectLabel"
+        android:layout_width="match_parent"
+        android:textSize="15sp"
+        android:textColor="@color/purple_700"
+        android:layout_height="30dp">
+
+    </TextView>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+    </LinearLayout>
 
     <SurfaceView
         android:id="@+id/cameraview"

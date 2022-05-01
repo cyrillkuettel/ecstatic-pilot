@@ -64,6 +64,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
     private var plantCount = -1
     private var switchQr = true
+    private var prob_threshhold = -1f
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +77,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         numerOfConfirmations = settingsBundle.confirmations
         plantCount = settingsBundle.plantCount
         switchQr = settingsBundle.isSwitchToQr
+        prob_threshhold = settingsBundle.prob_threshold
 
         setupFragmentBluetoothChain()
 
@@ -91,7 +93,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         cameraView!!.holder.addCallback(this)
         setupSpinnerOnClick(binding.spinnerModel)
         setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
-        binding.mainButtonSwitchCameraSource.setOnClickListener { navigateToQr() }
+        binding.mainButtonSwitchCameraSource.setOnClickListener { navigateCameraFragment() }
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
         setupAtomicCounterInterval()
@@ -195,7 +197,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 startRingtone()
 
                 runOnUiThread(Runnable {
-                    navigateToQr()
+                    navigateCameraFragment()
+                    updateDescription("detected $helloFromTheOtherSide with >= $prob_threshhold probability ")
+
                 })
             }
         }
@@ -215,6 +219,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         return false
     }
 
+    private fun updateDescription(text: String) {
+        binding.textViewDetectedObjectLabel.text = text
+    }
 
 
     private fun setupAtomicCounterInterval() {
@@ -233,7 +240,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             resetAtomicCounterEveryNSeconds, 0, 3, TimeUnit.SECONDS)
     }
 
-    private fun navigateToQr() {
+    private fun navigateCameraFragment() {
         nanodetncnn.closeCamera()
 
         shrinkSufaceView()
