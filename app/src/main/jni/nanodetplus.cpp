@@ -233,8 +233,6 @@ int NanoDetPlus::detect(const cv::Mat& rgb, std::vector<Object>& objects, float 
     int width = rgb.cols;
     int height = rgb.rows;
 
-    //     const int target_size = 320;
-    const int target_size = 416;
 
 
     // pad to multiple of 32
@@ -254,8 +252,8 @@ int NanoDetPlus::detect(const cv::Mat& rgb, std::vector<Object>& objects, float 
         w = w * scale;
     }
 
-    // ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_BGR, width, height, w, h);
-    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
+     ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
+    // ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "from_pixels_resize");
 
     // pad to target_size rectangle
@@ -266,7 +264,7 @@ int NanoDetPlus::detect(const cv::Mat& rgb, std::vector<Object>& objects, float 
                            ncnn::BORDER_CONSTANT, 0.f);
 
     const float mean_vals[3] = {103.53f, 116.28f, 123.675f};
-    const float norm_vals[3] = {0.017429f, 0.017507f, 0.017125f};
+    float norm_vals[3] = {1.f / 57.375f, 1.f / 57.12f, 1.f / 58.395f};
     in_pad.substract_mean_normalize(mean_vals, norm_vals);
 
     ncnn::Extractor ex = nanodet.create_extractor();

@@ -53,7 +53,7 @@ class NanoDetPlus{
 
 private:
     ncnn::Net nanodet;
-    int target_size;
+    int target_size = 416;
     float mean_vals[3];
     float norm_vals[3];
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
