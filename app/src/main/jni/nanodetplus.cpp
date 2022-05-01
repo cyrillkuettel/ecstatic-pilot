@@ -215,12 +215,12 @@ static void generate_proposals(const ncnn::Mat& pred, int stride, const ncnn::Ma
     }
 }
 
-int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float prob_threshold,
-                       float nms_threshold)
+int NanoDetPlus::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold,
+                        float nms_threshold)
 {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "detect");
 
-    nanodet.opt.use_vulkan_compute = true;
+   // nanodet.opt.use_vulkan_compute = true;
     // nanodet.opt.use_bf16_storage = true;
 
     // original pretrained model from https://github.com/RangiLyu/nanodet
@@ -230,8 +230,8 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     // nanodet.load_param("nanodet-plus-m_416.torchscript.ncnn.param");
     // nanodet.load_model("nanodet-plus-m_416.torchscript.ncnn.bin");
 
-    int width = bgr.cols;
-    int height = bgr.rows;
+    int width = rgb.cols;
+    int height = rgb.rows;
 
     //     const int target_size = 320;
     const int target_size = 416;
@@ -254,7 +254,8 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
         w = w * scale;
     }
 
-    ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, width, height, w, h);
+    // ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_BGR, width, height, w, h);
+    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "from_pixels_resize");
 
     // pad to target_size rectangle
@@ -286,6 +287,7 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
 
         std::vector<Object> objects8;
         generate_proposals(pred, 8, in_pad, prob_threshold, objects8);
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "      generate_proposals worked the first time");
 
         proposals.insert(proposals.end(), objects8.begin(), objects8.end());
     }
@@ -293,6 +295,8 @@ int NanoDetPlus::detect(const cv::Mat& bgr, std::vector<Object>& objects, float 
     // stride 16
     {
         ncnn::Mat pred;
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "  now extracting 228");
+
         ex.extract("228", pred);
 
         std::vector<Object> objects16;

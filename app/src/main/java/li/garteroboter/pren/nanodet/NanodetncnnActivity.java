@@ -90,9 +90,9 @@ public class NanodetncnnActivity extends FragmentActivity implements SurfaceHold
 
         SettingsBundle settingsBundle = generatePreferenceBundle();
         useBluetooth = settingsBundle.isUsingBluetooth();
-        nanodetncnn.injectBluetoothSettings(useBluetooth);
-        nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
-        nanodetncnn.injectProbThresholdSettings(settingsBundle.getProb_threshold());
+        // nanodetncnn.injectBluetoothSettings(useBluetooth);
+        // nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS());
+        // nanodetncnn.injectProbThresholdSettings(settingsBundle.getProb_threshold());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cameraView = binding.cameraview;

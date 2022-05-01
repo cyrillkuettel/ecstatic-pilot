@@ -26,9 +26,6 @@ public class NanoDetNcnn
     public native boolean setOutputWindow(Surface surface);
     public native boolean setObjectReferenceAsGlobal(NanodetncnnActivity nanodetncnnActivity);
 
-    public native boolean injectFPSPreferences(boolean showFPS);
-    public native boolean injectBluetoothSettings(boolean useBluetooth);
-    public native boolean injectProbThresholdSettings(float prob_threshold_from_settings);
 
 
 
