@@ -49,7 +49,7 @@ class NanoDet{
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
 
 
-    static void invoke_class_from_static(char *objectLabel, bool useBlueooth);
+    static void invoke_class_from_static(char *objectLabel, bool useBluetooth, float probabilityOfLabel);
 
 private:
     ncnn::Net nanodet;

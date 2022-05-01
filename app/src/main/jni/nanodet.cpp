@@ -28,8 +28,7 @@
 #include "benchmark.h"
 
 
-const int potted_plant_label = 58;
-const int vase_label = 75;
+
 
 static inline float intersection_area(const Object &a, const Object &b) {
     cv::Rect_<float> inter = a.rect & b.rect;
@@ -109,15 +108,76 @@ static void nms_sorted_bboxes(const std::vector<Object> &faceobjects, std::vecto
     }
 }
 
+static void box_prediction(int j, int i, int stride, const ncnn::Mat &dis_pred, const int reg_max_1,
+                      const int idx, int label, float initial_score, std::vector<Object> &objects) {
+
+    // this block  creates the box prediction.
+    // I might be able to toggle this off to increase performance even more.
+    // TODO: Measuring execution time of this block:
+
+
+    ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));
+    {
+        ncnn::Layer *softmax = ncnn::create_layer("Softmax");
+
+        ncnn::ParamDict pd;
+        pd.set(0, 1); // axis
+        pd.set(1, 1);
+        softmax->load_param(pd);
+
+        ncnn::Option opt;
+        opt.num_threads = 1;
+        opt.use_packing_layout = false;
+
+        softmax->create_pipeline(opt);
+
+        softmax->forward_inplace(bbox_pred, opt);
+
+        softmax->destroy_pipeline(opt);
+
+        delete softmax;
+    }
+
+    float pred_ltrb[4];
+    for (int k = 0; k < 4; k++) {
+        float dis = 0.f;
+        const float *dis_after_sm = bbox_pred.row(k);
+        for (int l = 0; l < reg_max_1; l++) {
+            dis += l * dis_after_sm[l];
+        }
+
+        pred_ltrb[k] = dis * stride;
+    }
+
+    float pb_cx = (j + 0.5f) * stride;
+    float pb_cy = (i + 0.5f) * stride;
+
+    float x0 = pb_cx - pred_ltrb[0];
+    float y0 = pb_cy - pred_ltrb[1];
+    float x1 = pb_cx + pred_ltrb[2];
+    float y1 = pb_cy + pred_ltrb[3];
+
+    Object obj;
+    obj.rect.x = x0;
+    obj.rect.y = y0;
+    obj.rect.width = x1 - x0;
+    obj.rect.height = y1 - y0;
+    obj.label = label;
+    obj.prob = initial_score; // plant or vase
+
+    objects.push_back(obj);
+}
+
 static bool toggleBluetooth;
 
 static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn::Mat &dis_pred, int stride,
                                const ncnn::Mat &in_pad, float prob_threshold,
                                std::vector<Object> &objects) {
+
+    double start_time = ncnn::get_current_time();
+
+
     const int num_grid = cls_pred.h;
-
-
-
 
     int num_grid_x;
     int num_grid_y;
@@ -137,84 +197,30 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             const int idx = i * num_grid_x + j;
 
             const float *scores = cls_pred.row(idx);
-            // find label with max score,
+            // find label with max initial_plant_score,
             // which is object 'potted_plant' or 'vase'
             // Check condition of the label to match either one of those two objects
-            int label = -1;
-            float score = -FLT_MAX;
-            if (scores[potted_plant_label] >= prob_threshold) {
-                label = potted_plant_label;
-                score = scores[potted_plant_label];
-            } else if (scores[vase_label] >= prob_threshold) {
-                label = vase_label;
-                score = scores[vase_label];
+            const int potted_plant_label = 58;
+            const int vase_label = 75;
+
+            float probability_potted_plant = scores[potted_plant_label];
+            float probability_vase = scores[vase_label];
+            // Success! Found plant or vase with probability > threshold
+            if (probability_potted_plant >= prob_threshold) {
+                NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth, probability_potted_plant);
+                box_prediction(j, i, stride, dis_pred, reg_max_1, idx, potted_plant_label, probability_potted_plant, objects);
+
+            } else if (probability_vase >= prob_threshold) {
+                NanoDet::invoke_class_from_static("vase", toggleBluetooth, probability_vase);
+                box_prediction(j, i, stride, dis_pred, reg_max_1, idx, vase_label, probability_vase, objects);
             }
 
-
-            if (score != -FLT_MAX) {
-
-                // Success! Found plant or vase with probability > 0.4
-                if (label==vase_label) {
-                    NanoDet::invoke_class_from_static("vase", toggleBluetooth);
-                } else if (label == potted_plant_label) {
-                    NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth);
-
-                }
-
-
-                ncnn::Mat bbox_pred(reg_max_1, 4, (void *) dis_pred.row(idx));
-                {
-                    ncnn::Layer *softmax = ncnn::create_layer("Softmax");
-
-                    ncnn::ParamDict pd;
-                    pd.set(0, 1); // axis
-                    pd.set(1, 1);
-                    softmax->load_param(pd);
-
-                    ncnn::Option opt;
-                    opt.num_threads = 1;
-                    opt.use_packing_layout = false;
-
-                    softmax->create_pipeline(opt);
-
-                    softmax->forward_inplace(bbox_pred, opt);
-
-                    softmax->destroy_pipeline(opt);
-
-                    delete softmax;
-                }
-
-                float pred_ltrb[4];
-                for (int k = 0; k < 4; k++) {
-                    float dis = 0.f;
-                    const float *dis_after_sm = bbox_pred.row(k);
-                    for (int l = 0; l < reg_max_1; l++) {
-                        dis += l * dis_after_sm[l];
-                    }
-
-                    pred_ltrb[k] = dis * stride;
-                }
-
-                float pb_cx = (j + 0.5f) * stride;
-                float pb_cy = (i + 0.5f) * stride;
-
-                float x0 = pb_cx - pred_ltrb[0];
-                float y0 = pb_cy - pred_ltrb[1];
-                float x1 = pb_cx + pred_ltrb[2];
-                float y1 = pb_cy + pred_ltrb[3];
-
-                Object obj;
-                obj.rect.x = x0;
-                obj.rect.y = y0;
-                obj.rect.width = x1 - x0;
-                obj.rect.height = y1 - y0;
-                obj.label = label;
-                obj.prob = score;
-
-                objects.push_back(obj);
-            }
         }
     }
+
+    double elapsed = ncnn::get_current_time() - start_time;
+    // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "%.2fms   elapsed generate_plant_vase_proposals =", elapsed);
+
 }
 
 NanoDet::NanoDet() {
@@ -324,6 +330,7 @@ static const char *class_names[] =
 int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects, float prob_threshold,
                     float nms_threshold) {
 
+    double start_time = ncnn::get_current_time();
 
     int width = rgb.cols;
     int height = rgb.rows;
@@ -358,10 +365,16 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
 
     ex.input("input.1", in_pad);
 
+    double elapsed_after_extractor = ncnn::get_current_time() - start_time;
+    // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   elapsed_after_extractor", elapsed_after_extractor);
+
+    double proposals_time = ncnn::get_current_time();
+
     std::vector<Object> proposals;
 
     // stride 8
     {
+
         ncnn::Mat cls_pred;
         ncnn::Mat dis_pred;
         ex.extract("cls_pred_stride_8", cls_pred);
@@ -371,10 +384,12 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
         generate_plant_vase_proposals(cls_pred, dis_pred, 8, in_pad, prob_threshold, objects8);
 
         proposals.insert(proposals.end(), objects8.begin(), objects8.end());
+
     }
 
     // stride 16
     {
+
         ncnn::Mat cls_pred;
         ncnn::Mat dis_pred;
         ex.extract("cls_pred_stride_16", cls_pred);
@@ -384,10 +399,13 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
         generate_plant_vase_proposals(cls_pred, dis_pred, 16, in_pad, prob_threshold, objects16);
 
         proposals.insert(proposals.end(), objects16.begin(), objects16.end());
+
     }
 
     // stride 32
     {
+
+
         ncnn::Mat cls_pred;
         ncnn::Mat dis_pred;
         ex.extract("cls_pred_stride_32", cls_pred);
@@ -397,7 +415,15 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
         generate_plant_vase_proposals(cls_pred, dis_pred, 32, in_pad, prob_threshold, objects32);
 
         proposals.insert(proposals.end(), objects32.begin(), objects32.end());
+
     }
+
+    double elapsed_only_stride = ncnn::get_current_time() - proposals_time;
+     //__android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   elapsed_only_stride", elapsed_only_stride);
+
+
+    double elapsed_before_quicksort = ncnn::get_current_time() - start_time;
+   // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   elapsed_before_quicksort", elapsed_before_quicksort);
 
     // sort all proposals by score from highest to lowest
     qsort_descent_inplace(proposals);
@@ -442,7 +468,8 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     } objects_area_greater;
     std::sort(objects.begin(), objects.end(), objects_area_greater);
 
-    //  __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   inference_time", elasped);
+    double elapsed = ncnn::get_current_time() - start_time;
+     // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%.2fms   inference_time", elapsed);
 
     return 0;
 }
@@ -466,7 +493,7 @@ JavaVM *javaVM_global;
 static jint JNI_VERSION = JNI_VERSION_1_4;
 
 
-void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
+void NanoDet::invoke_class_from_static(char *objectLabel, bool useBluetooth, float probabilityOfLabel) {
 
     double start_time = ncnn::get_current_time();
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
@@ -477,14 +504,14 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
 
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
                                                   "plantVaseDetectedCallback",
-                                                  "(Ljava/lang/String;)V");
+                                                  "(Ljava/lang/String;Ljava/lang/String;)V");
 
 /*
  * I could directly access the TerminalFragment form there.
  * This might improve performance slightly, but introduces too much complexity for the benefit.
  *
     jmethodID instanceMethod_Call_TerminalFragment;
-    if (useBlueooth) {
+    if (useBluetooth) {
         instanceMethod_Call_TerminalFragment = env2->GetMethodID(TerminalFragmentClass,
                                                       "plantVaseDetectedCallback",
                                                       "(Ljava/lang/String;)V"); // JNI type signature
@@ -497,11 +524,22 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
         return;
     } else {
         jstrBuf = env2->NewStringUTF(objectLabel);
+
         if (!jstrBuf) {
             __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jstring.");
             return;
         }
-        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf);
+        // __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "probabilityOfLabel == %.2f", probabilityOfLabel);
+        std::string probabilityString = std::to_string(probabilityOfLabel);
+        const char* probabilityChar = probabilityString.c_str();
+        //__android_log_print(ANDROID_LOG_DEBUG, APPNAME, "char probability == %s. Creating jstring now.", probabilityChar);
+
+        jstring jprobability = env2->NewStringUTF(probabilityChar);
+        if (!jprobability) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "failed to create jprobability jstring.");
+            return;
+        }
+        env2->CallVoidMethod(MainActivityNanodetNCNNObject, instanceMethod_CallInJava, jstrBuf, jprobability);
     }
 
     double elasped = ncnn::get_current_time() - start_time;

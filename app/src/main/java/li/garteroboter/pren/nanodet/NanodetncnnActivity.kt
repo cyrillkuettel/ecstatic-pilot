@@ -176,10 +176,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
      * Note that this is effectively called by a different thread.
      * It _is_ a different thread. that also means you cannot change the UI from this method directly */
 
-    fun plantVaseDetectedCallback(helloFromTheOtherSide: String?) {
+    fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
         val _count = atomicCounter.incrementAndGet()
+
         if (_count != 0) {
-             Log.v(TAG,String.format("current number of confirmations = %d", _count))
+             // Log.v(TAG,String.format("current number of confirmations = %d", _count))
         }
         if (_count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0) // reset the counter back
@@ -200,7 +201,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                     if (switchQr) {
                         navigateCameraFragment()
                     }
-                    updateDescription("detected $helloFromTheOtherSide with >= $prob_threshhold probability ")
+
+                    updateDescription("detected %s, latest probability == %s".format(objectLabel, probability))
 
                 })
             }
