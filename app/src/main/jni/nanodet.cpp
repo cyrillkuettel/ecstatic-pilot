@@ -477,7 +477,7 @@ void NanoDet::invoke_class_from_static(char *objectLabel, bool useBlueooth) {
 
     instanceMethod_CallInJava = env2->GetMethodID(MainActivityNanodetNCNNClass,
                                                   "plantVaseDetectedCallback",
-                                                  "(Ljava/lang/String;)V"); // JNI type signatue
+                                                  "(Ljava/lang/String;)V");
 
 /*
  * I could directly access the TerminalFragment form there.

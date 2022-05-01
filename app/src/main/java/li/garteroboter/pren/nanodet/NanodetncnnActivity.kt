@@ -197,7 +197,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 startRingtone()
 
                 runOnUiThread(Runnable {
-                    navigateCameraFragment()
+                    if (switchQr) {
+                        navigateCameraFragment()
+                    }
                     updateDescription("detected $helloFromTheOtherSide with >= $prob_threshhold probability ")
 
                 })
