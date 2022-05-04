@@ -115,6 +115,9 @@ class CameraFragment : Fragment() {
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
+    private val maximumQRCodeWaitingTime: Long = 4000
+    private val lastTimeNoQRCodeWasFound: Long = System.currentTimeMillis();
+
 
     private lateinit var windowInfoTracker: WindowInfoTracker
 
@@ -369,8 +372,11 @@ class CameraFragment : Fragment() {
                                 }
                             }
                             override fun qrCodeNotFound() {
-                                // TODO: return if nothing found after X seconds
-                               // Log.i(TAG, "qrCodeNotFound")
+                                if (System.currentTimeMillis() - lastTimeNoQRCodeWasFound > maximumQRCodeWaitingTime) {
+                                    activity?.runOnUiThread(Runnable {
+                                        navigateBack()
+                                    })
+                                }
                             }
                         })
                     )
