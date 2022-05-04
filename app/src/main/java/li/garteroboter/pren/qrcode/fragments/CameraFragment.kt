@@ -385,9 +385,9 @@ class CameraFragment : Fragment() {
                                 }
 
 
-                                    activity?.runOnUiThread(Runnable {
-                                        navigateBack()
-                                    })
+                                activity?.runOnUiThread(Runnable {
+                                    navigateBack()
+                                })
 
 
 

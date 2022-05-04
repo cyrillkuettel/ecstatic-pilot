@@ -96,16 +96,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         setupFragmentBluetoothChain()
 
-        globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
-            Log.i(TAG, "viewModel.getCurrentState().observe")
-            reOpenNanodetCamera()
-        })
 
-        globalStateViewModel.getCurrentImage().observe(this, Observer { image ->
-            Log.i(TAG, "viewModel.getCurrentImage().observe")
 
-            uploadPlantFromFile(image)
-        })
+        observeViewModels()
 
         injectPreferences(settingsBundle)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -121,6 +114,18 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
 
         reload()
+    }
+
+    private fun observeViewModels() {
+        globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
+            Log.i(TAG, "viewModel.getCurrentState().observe")
+            reOpenNanodetCamera()
+        })
+
+        globalStateViewModel.getCurrentImage().observe(this, Observer { image ->
+            Log.i(TAG, "viewModel.getCurrentImage().observe")
+            uploadPlantFromFile(image)
+        })
     }
 
     private fun uploadPlantFromFile(file: File?) {
