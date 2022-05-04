@@ -130,9 +130,13 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
             Log.i(TAG, "viewModel.getCurrentState().observe")
             if (state == START_COMMAND_ESP32) {
-
                 managerText.sendText("received start command")
             } else {
+                synchronized(this) {
+                    if (bluetoothCheck(terminalFragment)) {
+                        terminalFragment!!.send(STOP_COMMAND_ESP32)
+                    }
+                }
                 reOpenNanodetCamera()
             }
         })
