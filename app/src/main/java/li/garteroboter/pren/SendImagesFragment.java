@@ -62,7 +62,7 @@ public class SendImagesFragment extends Fragment {
             manager = instance.getManager();
         } catch (ClassCastException castException) {
             /** The activity does not implement the listener. */
-            Log.e(TAG, "Failed to implement VibrationListener");
+            Log.e(TAG, "Failed to implement WebSocketManagerInstance");
         }
     }
 
@@ -155,7 +155,7 @@ public class SendImagesFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    };
+    }
 
 
 

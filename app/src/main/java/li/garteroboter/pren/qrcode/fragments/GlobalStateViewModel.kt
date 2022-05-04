@@ -8,8 +8,8 @@ import java.io.File
 /** I need to share data between fragment [IntermediateFragment] and their host activity
  * This is kind of the observer pattern.  */
 
-class StateViewModel : ViewModel() {
-    private val TAG = "StateViewModel"
+class GlobalStateViewModel : ViewModel() {
+    private val TAG = "GlobalStateViewModel"
     private val currentImage = MutableLiveData<File>()
     private val mutableDriveState = MutableLiveData<String>()
 
@@ -23,11 +23,11 @@ class StateViewModel : ViewModel() {
         return currentImage
     }
 
-    fun setState(state: String) {
+    fun setDriveState(state: String) {
         mutableDriveState.value = state
     }
 
-    fun getCurrentState() : MutableLiveData<String> {
+    fun getCurrentDriveState() : MutableLiveData<String> {
         return mutableDriveState
     }
 }

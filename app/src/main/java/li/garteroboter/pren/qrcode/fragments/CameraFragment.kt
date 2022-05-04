@@ -18,7 +18,6 @@ package li.garteroboter.pren.qrcode.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -44,6 +43,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toFile
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.Navigation
@@ -85,6 +85,7 @@ import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundList
  */
 class CameraFragment : Fragment() {
 
+    private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -95,8 +96,9 @@ class CameraFragment : Fragment() {
     private lateinit var outputDirectory: File
     private lateinit var broadcastManager: LocalBroadcastManager
 
-    private var QRCodeWaitingTime: Int = 5000
-    private var lastTime: Long = 0
+    private val qrCodeWaitingTime: Long = 4000 // maximum expected fragment Lifetime
+    private val timeStampFragmentStarted: Long = System.currentTimeMillis()
+
 
     //TODO:
     // remove this in the final act. This is just for debugging.
@@ -115,8 +117,7 @@ class CameraFragment : Fragment() {
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
 
-    private val maximumQRCodeWaitingTime: Long = 4000
-    private val lastTimeNoQRCodeWasFound: Long = System.currentTimeMillis();
+
 
 
     private lateinit var windowInfoTracker: WindowInfoTracker
@@ -159,14 +160,31 @@ class CameraFragment : Fragment() {
         }
         Log.v(TAG, "onResume")
 
+        takePhotoDelayed(500)
+
+    }
+
+    fun takePhotoDelayed(timeoutMillis: Long) {
         thread(start = true) {
-            Thread.sleep(500)
+            Thread.sleep(timeoutMillis)
             // Camera needs to be initialized. The sleep call is necessary,
             // otherwise it does not work. Better would be callback method as soon as CameraDevice
             // initialization is finished.
-            takePhotoOnce()
+            takePhotoOnce(::placeHolder)
         }
     }
+
+
+    fun placeHolder(input: File) {
+        Log.i(TAG, "placeHolder");
+    }
+
+    fun onImageSaved(input: File) {
+        Log.i(TAG, "onImageSaved")
+
+        globalStateViewModel.setCurrentImage(input)
+    }
+
 
     private fun getAPIKey() : String {
         val applicationInfo: ApplicationInfo = requireActivity().applicationContext.packageManager
@@ -357,24 +375,33 @@ class CameraFragment : Fragment() {
                         QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
                             override fun onQRCodeFound(qrCode: String?) {
                                 Log.i(TAG, "onQRCodeFound")
-                                if (waitingTimeOver()) {
 
+                                if (qrCodeAlreadyExists(qrCode)) {
+                                    Log.e(TAG, "QR-Code '$qrCode' Already exists, not inserting.")
+
+                                } else {
                                     qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                     qrCodeInsertionThread!!.join()
+                                }
 
 
-                                   // takePhotoOnceAndSaveUri()
                                     activity?.runOnUiThread(Runnable {
                                         navigateBack()
                                     })
 
 
-                                }
+
                             }
                             override fun qrCodeNotFound() {
-                                if (System.currentTimeMillis() - lastTimeNoQRCodeWasFound > maximumQRCodeWaitingTime) {
+
+                                val totalWaitedTime = System.currentTimeMillis() - timeStampFragmentStarted
+
+                                if (totalWaitedTime > qrCodeWaitingTime) {
                                     activity?.runOnUiThread(Runnable {
+                                        Log.e(TAG, "NAVIGATE BACK. totalWaitedTime $totalWaitedTime ")
                                         navigateBack()
+
+                                        Log.e(TAG, "timeStampFragmentStarted = $timeStampFragmentStarted")
                                     })
                                 }
                             }
@@ -419,16 +446,7 @@ class CameraFragment : Fragment() {
         val plantDao = db?.plantDataAccessObject()
         var allPlants: List<Plant> = plantDao?.getAll() ?: Collections.emptyList()
 
-        if (QRCodeAlreadyExists(allPlants, qrCode)) {
-            Log.d(TAG, "QR-Code '$qrCode' Already exists, not inserting.")
-          return -1L
-        }
 
-
-        // The Image URI will be added a later point thus for now is set to 'not-populated'
-        // another idea would be to launch the takePhotoOnce() here which then returns a value.
-        // that value can then be used to create the Plant Object, instead of 'not-populated'
-        // This seems to be a much cleaner solution, but it's probably blocking
 
         val plant = qrCode?.let { it1 -> Plant(it1, "not-populated", "no-species-yet") }
 
@@ -453,17 +471,13 @@ class CameraFragment : Fragment() {
 
     }
 
-    private fun QRCodeAlreadyExists(plants : List<Plant>, qrCode: String?) : Boolean {
-        return plants.any{ it.qrString == qrCode }
+    private fun qrCodeAlreadyExists(qrCode: String?) : Boolean {
+        val db = context?.let { it1 -> getDatabase(it1) }
+        val plantDao = db?.plantDataAccessObject()
+        val allPlants: List<Plant> = plantDao?.getAll() ?: Collections.emptyList()
+        return allPlants.any{ it.qrString == qrCode }
     }
 
-    private fun waitingTimeOver() : Boolean {
-        if (System.currentTimeMillis() - lastTime > QRCodeWaitingTime) {
-            lastTime = System.currentTimeMillis()
-          return true
-        }
-        return false
-    }
 
 
 
@@ -510,12 +524,7 @@ class CameraFragment : Fragment() {
         }
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-
-             takePhotoOnce()
-
-            // takePhotoAndCallApi() // for testing
-
-           //  takePhotoOnceAndSaveUri() // for production with QR-Code
+             takePhotoOnce(::onImageSaved)
         }
 
         // Listener for button used to view the most recent photo
@@ -540,64 +549,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun takePhotoOnceAndSaveUri() {
-        // Get a stable reference of the modifiable image capture use case
-        imageCapture?.let { imageCapture ->
-            Log.d(TAG , "starting capture process")
-            // Create output file to hold the image
-            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
 
-            // Setup image capture metadata
-            val metadata = Metadata().apply {
-
-                // Mirror image when using the front camera
-                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-            }
-
-            // Create output options object which contains file + metadata
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-                .setMetadata(metadata)
-                .build()
-
-            // Setup image capture listener which is triggered after photo has been taken
-            imageCapture.takePicture(
-                outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) {
-                        Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                    }
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-                        Log.d(TAG, "Photo capture succeeded: $savedUri")
-
-                        // save the picture to database
-                        //TODO: somehow retrieve the result from the api call
-                        // this could be a preference as well
-                        savePictureUriToPlantObjectAndStartApiCall(
-                            savedUri.toString())
-                            .start()
-
-
-                        setGalleryThumbnail(savedUri)
-                        // If the folder selected is an external media directory, this is
-                        // unnecessary but otherwise other apps will not be able to access our
-                        // images unless we scan them using [MediaScannerConnection]
-                        val mimeType = MimeTypeMap.getSingleton()
-                            .getMimeTypeFromExtension(savedUri.toFile().extension)
-                        MediaScannerConnection.scanFile(
-                            context,
-                            arrayOf(savedUri.toFile().absolutePath),
-                            arrayOf(mimeType)
-                        ) { _, uri ->
-                            Log.d(TAG, "Image capture scanned into media store: $uri")
-                        }
-                    }
-                })
-
-            displayFlashAnimation()
-        }
-
-    }
 
     private fun displayFlashAnimation(color: Int = Color.WHITE) {
         // We can only change the foreground Drawable using API level 23+ API
@@ -612,93 +564,10 @@ class CameraFragment : Fragment() {
         }
     }
 
-// only for testing
-    fun takePhotoAndCallApi() {
-        Log.d(TAG, "takePhotoAndCallApi")
-        // Get a stable reference of the modifiable image capture use case
-        imageCapture?.let { imageCapture ->
-            Log.d(TAG , "starting capture process")
-            // Create output file to hold the image
-            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
-
-            // Setup image capture metadata
-            val metadata = Metadata().apply {
-
-                // Mirror image when using the front camera
-                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-            }
-
-            // Create output options object which contains file + metadata
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-                .setMetadata(metadata)
-                .build()
-
-            // Setup image capture listener which is triggered after photo has been taken
-            imageCapture.takePicture(
-                outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) {
-                        Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                    }
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-                        Log.d(TAG, "Photo capture succeeded: $savedUri")
 
 
 
-                        val scientificName = startLocalApiCall(savedUri.toString())
-
-                       //  val scientificName = startRemoteApiCall()
-
-                        activity?.runOnUiThread  {
-                            Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
-                                .show()
-                        }
-
-                        // We can only change the foreground Drawable using API level 23+ API
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            // Update the gallery thumbnail with latest picture taken
-                            setGalleryThumbnail(savedUri)
-                        }
-
-                        // Implicit broadcasts will be ignored for devices running API level >= 24
-                        // so if you only target API level 24+ you can remove this statement
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                            requireActivity().sendBroadcast(
-                                Intent(android.hardware.Camera.ACTION_NEW_PICTURE, savedUri)
-                            )
-                        }
-
-                        // If the folder selected is an external media directory, this is
-                        // unnecessary but otherwise other apps will not be able to access our
-                        // images unless we scan them using [MediaScannerConnection]
-                        val mimeType = MimeTypeMap.getSingleton()
-                            .getMimeTypeFromExtension(savedUri.toFile().extension)
-                        MediaScannerConnection.scanFile(
-                            context,
-                            arrayOf(savedUri.toFile().absolutePath),
-                            arrayOf(mimeType)
-                        ) { _, uri ->
-                            Log.d(TAG, "Image capture scanned into media store: $uri")
-                        }
-                    }
-                })
-
-            // We can only change the foreground Drawable using API level 23+ API
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                // Display flash animation to indicate that photo was captured
-                fragmentCameraBinding.root.postDelayed({
-                    fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
-                    fragmentCameraBinding.root.postDelayed(
-                        { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
-                }, ANIMATION_SLOW_MILLIS)
-            }
-        }
-    }
-
-
-    private fun takePhotoOnce() {
+    private fun takePhotoOnce(myActionOnImageSaved: (savedImage: File) -> Unit) {
         Log.v(TAG , "takePhotoOnce")
 
         // Get a stable reference of the modifiable image capture use case
@@ -728,10 +597,12 @@ class CameraFragment : Fragment() {
 
                     override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                         val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+
                         Log.d(TAG, "Photo capture succeeded: $savedUri")
 
-                        // save the picture to database
+                        // maybe better to use savedUri.
 
+                        myActionOnImageSaved(photoFile)
 
                         setGalleryThumbnail(savedUri)
                         // If the folder selected is an external media directory, this is
@@ -762,15 +633,6 @@ class CameraFragment : Fragment() {
         }
 
     }
-
-
-
-
-
-
-
-
-
 
 
 

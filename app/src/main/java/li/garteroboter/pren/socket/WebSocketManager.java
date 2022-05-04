@@ -81,16 +81,11 @@ public class WebSocketManager extends AppCompatActivity {
 */
 
     public boolean createAndOpenWebSocketConnection(SocketType socketType) {
-        if (!isInternetAvailable()) {
-            // TODO: test this. Test with no WLAN enabled
-            new Handler(Looper.getMainLooper()).post(createToast(INTERNET_NOT_AVAILABLE, context));
-            Log.e(TAG, INTERNET_NOT_AVAILABLE);
-            return false;
-        }
+        Log.i(TAG, "createAndOpenWebSocketConnection");
 
 
-        String completeURI = this.URI + socketType.id;
-        Future<WebSocket> future = null;
+        final String completeURI = this.URI + socketType.id;
+
         WebSocket ws = null;
 
         try {
@@ -115,6 +110,7 @@ public class WebSocketManager extends AppCompatActivity {
             return false;
         }
 
+        Future<WebSocket> future = null;
         try {
             future = ws.connect(executorService);
         } catch (Exception ex) {
@@ -141,6 +137,8 @@ public class WebSocketManager extends AppCompatActivity {
         return true;
 
     }
+
+
 
     public static Runnable createToast(String message, Context context) {
         return new Runnable() {
