@@ -11,6 +11,7 @@ import java.io.File
 class GlobalStateViewModel : ViewModel() {
     private val TAG = "GlobalStateViewModel"
     private val currentImage = MutableLiveData<File>()
+
     private val mutableDriveState = MutableLiveData<String>()
 
 

@@ -20,6 +20,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import li.garteroboter.pren.Constants
+import li.garteroboter.pren.Constants.START_COMMAND_ESP32
 import li.garteroboter.pren.R
 import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
@@ -250,6 +251,10 @@ class TerminalFragment : Fragment(), ServiceConnection,
             )
         } else {
             var msg = String(data)
+            // TODO: TEST THIS
+            if (msg.contains(START_COMMAND_ESP32)) {
+                globalStateViewModel.setDriveState(START_COMMAND_ESP32)
+            }
             if (newline == TextUtil.newline_crlf && msg.length > 0) {
                 // don't show CR as ^M if directly before LF
                 msg = msg.replace(TextUtil.newline_crlf, TextUtil.newline_lf)

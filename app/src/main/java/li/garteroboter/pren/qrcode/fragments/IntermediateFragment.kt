@@ -11,7 +11,7 @@ import li.garteroboter.pren.R
 
 class IntermediateFragment: Fragment() {
 
-    private val viewModelGlobal: GlobalStateViewModel by activityViewModels()
+    private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
     private val args: IntermediateFragmentArgs by navArgs()
 
 
@@ -24,7 +24,7 @@ class IntermediateFragment: Fragment() {
             // observer pattern. We use this String argument to
                 // change the state of the HostActivity to start the other Camera again
             Log.i(TAG, "Returning from CameraFragment")
-            viewModelGlobal.setDriveState(returningFromIntermediate)
+            globalStateViewModel.setDriveState(returningFromIntermediate)
         } else {
             Log.i(TAG, "args is not returningfrom CameraFragment")
 

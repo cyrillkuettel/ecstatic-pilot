@@ -23,7 +23,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -311,13 +310,6 @@ public class WebSocketManager extends AppCompatActivity {
         return false;
     }
 
-    public final String GenerateRandomNumber(int charLength) {
-        Random r = new Random(System.currentTimeMillis());
-        int low = 1; // inclusive
-        int high = 1000000000; //exclusive
-        int result = r.nextInt(high - low) + low;
-        return String.valueOf(result);
-    }
 
     public WebSocket getSocketFromMap(SocketType socketType) {
         return sockets.get(socketType);
