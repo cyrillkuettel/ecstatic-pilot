@@ -80,32 +80,16 @@ public class WebSocketManager extends AppCompatActivity {
 
 */
 
-    public boolean createAndOpenWebSocketConnection(SocketType socket) {
+    public boolean createAndOpenWebSocketConnection(SocketType socketType) {
         if (!isInternetAvailable()) {
             // TODO: test this. Test with no WLAN enabled
             new Handler(Looper.getMainLooper()).post(createToast(INTERNET_NOT_AVAILABLE, context));
-            Log.e(TAG,  INTERNET_NOT_AVAILABLE);
+            Log.e(TAG, INTERNET_NOT_AVAILABLE);
             return false;
         }
 
-        String typeOfSocketConnection = null;
-        if (socket.equals(SocketType.Text)) {
-            typeOfSocketConnection = "999";  // I define these special client ID's on the server
 
-        }
-        if (socket.equals(SocketType.Binary)) {
-            typeOfSocketConnection = "888";
-        }
-
-        // temporary for testing to allow multiple websocket clients
-        /*
-        typeOfSocketConnection = GenerateRandomNumber(11);
-        Log.i(TAG,  "random_id = " + typeOfSocketConnection);
-
-         */
-
-
-        String completeURI = this.URI + typeOfSocketConnection;
+        String completeURI = this.URI + socketType.id;
         Future<WebSocket> future = null;
         WebSocket ws = null;
 
@@ -120,13 +104,11 @@ public class WebSocketManager extends AppCompatActivity {
             Log.e(TAG, String.format("getHostname = %s", hostname));
             Log.e(TAG, String.format("getSSLSocket = %s", ssl));
             hostnameUnverifiedException.printStackTrace();
-        }
-        catch (WebSocketException e) {
+        } catch (WebSocketException e) {
 
             // Failed to establish a WebSocket connection.
             Log.e(TAG, "WebSocketException : " + e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         if (ws == null) {
@@ -155,7 +137,7 @@ public class WebSocketManager extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        sockets.put(socket, ws);
+        sockets.put(socketType, ws);
         return true;
 
     }
@@ -172,7 +154,8 @@ public class WebSocketManager extends AppCompatActivity {
     /**
      * Connect to the server.
      */
-    private WebSocket createWebSocket(final String completeURI) throws IOException, WebSocketException {
+    private WebSocket createWebSocket(final String completeURI) throws IOException,
+            WebSocketException {
         WebSocketFactory factory = new WebSocketFactory();
         factory.setServerName("pren.garteroboter.li");
 
@@ -241,7 +224,7 @@ public class WebSocketManager extends AppCompatActivity {
      * Under the assumption that there exists an open connection
      * Run createAndOpenWebSocketConnection before this !
      */
-    public boolean sendText(String message ) {
+    public boolean sendText(String message) {
         WebSocket ws = sockets.get(SocketType.Text);
 
         if (message.equals("") || ws == null) {
@@ -341,7 +324,6 @@ public class WebSocketManager extends AppCompatActivity {
     public WebSocket getSocketFromMap(SocketType socketType) {
         return sockets.get(socketType);
     }
-
 
 
     /*
