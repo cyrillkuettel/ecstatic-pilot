@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
+import li.garteroboter.pren.Constants.START_COMMAND_ESP32
 import li.garteroboter.pren.Constants.STOP_COMMAND_ESP32
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
@@ -62,10 +63,19 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var currentSurfaceViewHeight = 0
 
     // Initialization by lazy { ... } is thread-safe by default
-    private val manager: WebSocketManager? by lazy {
+    private val managerByte: WebSocketManager by lazy {
         WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
             lifecycleScope.launch {
                 createAndOpenWebSocketConnection(SocketType.Binary)
+            }
+
+        }
+    }
+
+    private val managerText: WebSocketManager by lazy {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
+            lifecycleScope.launch {
+                createAndOpenWebSocketConnection(SocketType.Text)
             }
 
         }
@@ -119,7 +129,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun observeViewModels() {
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
             Log.i(TAG, "viewModel.getCurrentState().observe")
-            reOpenNanodetCamera()
+            if (state == START_COMMAND_ESP32) {
+
+                managerText.sendText("received start command")
+            } else {
+                reOpenNanodetCamera()
+            }
         })
 
         globalStateViewModel.getCurrentImage().observe(this, Observer { image ->
@@ -134,12 +149,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         file?.let { it ->
             try {
                 val bytes = FileUtils.readFileToByteArray(it)
-                manager?.sendBytes(bytes) ?: Log.e(TAG, "manager == null")
+                managerByte.sendBytes(bytes)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
+
 
     private fun injectPreferences(settingsBundle: CustomSettingsBundle) {
         // creates a reference to the currently active instance
