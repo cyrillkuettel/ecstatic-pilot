@@ -45,7 +45,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
-    private VibrationListener vibrationListener;
 
 
     public native boolean setObjectReferenceAsGlobal(TerminalFragment terminalFragment);
@@ -111,11 +110,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         getActivity().bindService(new Intent(getActivity(), SerialService.class), this, Context.BIND_AUTO_CREATE);
-        try {
-            vibrationListener = (VibrationListener) activity;
-        } catch (ClassCastException castException) {
-            Log.e(TAG, "Failed to cast VibrationListener in onAttach(). ");
-        }
     }
 
     @Override
