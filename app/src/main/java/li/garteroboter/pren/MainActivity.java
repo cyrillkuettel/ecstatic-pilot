@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -139,8 +138,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -148,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             manager.disconnectAll();
         }
     }
-
 
     /***
      * Fires when the user has allowed or denied camera access during runtime.
@@ -185,13 +181,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         public Fragment createFragment(int position) {
 
             if (position == 0) {
-                Log.v(TAG, String.format("Position is %s, return LoggingFragment", position));
                 return LoggingFragment.newInstance();
             } else if (position == 1) {
-                Log.v(TAG, String.format("Position is %s, return SendImagesFragment", position));
                 return SendImagesFragment.newInstance();
             } else
-                Log.v(TAG, String.format("Position is %s, return DevicesFragment", position));
                 return DevicesFragment.newInstance();
             }
 
