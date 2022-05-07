@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import li.garteroboter.pren.Constants.START_COMMAND_ESP32
 import li.garteroboter.pren.R
 
 class IntermediateFragment: Fragment() {
@@ -24,7 +25,7 @@ class IntermediateFragment: Fragment() {
             // observer pattern. We use this String argument to
                 // change the state of the HostActivity to start the other Camera again
             Log.i(TAG, "Returning from CameraFragment")
-            globalStateViewModel.setDriveState(returningFromIntermediate)
+            globalStateViewModel.setDriveState(START_COMMAND_ESP32)
         } else {
             Log.i(TAG, "args is not returningfrom CameraFragment")
 
@@ -54,7 +55,6 @@ class IntermediateFragment: Fragment() {
 
     companion object {
         private val TAG = "IntermediateFragment"
-        const val returningFromIntermediate = "CALLBACK_TO_SWITCH_BACK_TO_NANODET"
     }
 
 

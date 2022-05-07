@@ -18,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import li.garteroboter.pren.Constants
 import li.garteroboter.pren.Constants.START_COMMAND_ESP32
@@ -170,9 +171,14 @@ class TerminalFragment : Fragment(), ServiceConnection,
         }
         val sendStopSignalButton = view.findViewById<View>(R.id.bluetooth_send_stop)
         sendStopSignalButton.setOnClickListener { v: View? ->
+            /*
             send(
                 Constants.STOP_COMMAND_ESP32
             )
+             */
+            // simulate connection loss for testing
+            onSerialIoError(java.lang.Exception("Totally a  SerialIOerRRO"))
+
         }
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
@@ -296,6 +302,7 @@ class TerminalFragment : Fragment(), ServiceConnection,
     override fun onSerialConnectError(e: Exception) {
         status("connection failed: " + e.message)
         disconnect()
+        startRecoverySequence()
     }
 
     override fun onSerialRead(data: ByteArray) {
@@ -305,6 +312,17 @@ class TerminalFragment : Fragment(), ServiceConnection,
     override fun onSerialIoError(e: Exception) {
         status("connection lost: " + e.message)
         disconnect()
+        startRecoverySequence()
+    }
+
+    private fun startRecoverySequence() {
+
+        /** If things really go wrong, that is, we receive some type of Serial error,
+         *  attempt to reconnect. Reconnect by returning back to DevicesFragment.
+         *
+         * There, implement a function to automatically re-connect */
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        fragmentManager.popBackStackImmediate()
     }
 
     companion object {
