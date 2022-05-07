@@ -1,5 +1,8 @@
 package simple.bluetooth.terminal;
 
+import static li.garteroboter.pren.Constants.ACCEPTED_ESP32_DEVICE_NAMES;
+import static li.garteroboter.pren.Constants.ESP_MAC_ADRESES;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -112,10 +115,10 @@ public class DevicesFragment extends ListFragment {
             setEmptyText("<bluetoothAdapter is disabled>");
 
         }else if (!autoConnectToESP32) {
-            setEmptyText("Enable Bluetooth in Settings. ");
+            setEmptyText("Toggle Bluetooth in App-Settings. ");
             return; // don't scan if we don't use bluetooth
         } else {
-            setEmptyText("<no bluetooth devices found>");
+            setEmptyText("<no bluetooth devices matching the MAC-Addresses>");
         }
         refresh();
     }
@@ -128,7 +131,7 @@ public class DevicesFragment extends ListFragment {
         if (bluetoothAdapter != null) {
             for (BluetoothDevice device : bluetoothAdapter.getBondedDevices())
                 if (device.getType() != BluetoothDevice.DEVICE_TYPE_LE)
-                    //if (isRelevantBluetoothDevice(device))
+                     if (isRelevantBluetoothDevice(device))
                         listItems.add(device);
 
         }
@@ -137,9 +140,9 @@ public class DevicesFragment extends ListFragment {
 
         if (autoConnectToESP32) {
             Log.d(TAG, "autoConnectToESP ");
-            if (listItems.size() == 1) { /* There i one device called ESP32. */
+            if (listItems.size() == 1) {
                 BluetoothDevice ESP32_Device = listItems.get(0);
-                initializeTerminalFragment(ESP32_Device);;
+                initializeTerminalFragment(ESP32_Device);
             } else {
                 // there may be multiple devices with the name "ESP32"
                 // here I can check for the MAC Address.
@@ -149,10 +152,17 @@ public class DevicesFragment extends ListFragment {
     }
 
     private boolean isRelevantBluetoothDevice(BluetoothDevice device) {
+        final String bluetoothDeviceAddress = device.getAddress().toUpperCase();
+        Log.e(TAG, bluetoothDeviceAddress);
+        return ESP_MAC_ADRESES.contains(bluetoothDeviceAddress);
+
+
+    }
+
+    private boolean isRelevantBluetoothDeviceByName(BluetoothDevice device) {
         @SuppressLint("MissingPermission")
         final String bluetoothDeviceName = device.getName().toLowerCase();
-        return bluetoothDeviceName.contains("esp2") || bluetoothDeviceName.contains(
-                "garteroboterli");
+        return ACCEPTED_ESP32_DEVICE_NAMES.contains(bluetoothDeviceName);
     }
 
     @Override
@@ -164,8 +174,7 @@ public class DevicesFragment extends ListFragment {
     public void initializeTerminalFragment(BluetoothDevice device) {
         Bundle args = new Bundle();
         args.putString("device", device.getAddress());
-        Log.d(TAG, String.format("Clicked on List item with device.getAddress() %s",
-                device.getAddress()));
+
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
 
