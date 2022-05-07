@@ -20,9 +20,12 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -225,10 +228,18 @@ public class WebSocketManager extends AppCompatActivity {
         if (ws.isOpen()) {
             ws.sendText(message);
             return true;
+        } else {
+            Log.e(TAG, "Websocket not open");
         }
 
         Log.e(TAG, "Tried to call method 'sendText', but Websocket is not open!");
         return false;
+    }
+
+    public void startTimer() {
+        String value_now = getDeviceTimeStampAsMilliseconds();
+        String message = String.format("command=startTime=%s", value_now);
+        sendText(message);
     }
 
 
@@ -248,7 +259,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (ws.isOpen()) {
             ws.sendBinary(bytes);
-            Log.i(TAG, "I sent the bytes to %s} !".format(URI));
+            Log.i(TAG, String.format("sent the bytes to %s} !", URI));
             return true;
         }
         Log.i(TAG, "Tried to call method 'sendBytes', but Websocket is not open!");
@@ -302,7 +313,29 @@ public class WebSocketManager extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * This methods returns the current Time on the device. It may differ slightly from the
+     * internet time, which is more precise.
+     * I modify the String manually ( which is bad) to include 'T' and 'Z'
+     *
+     * @return current System time
+     */
+    public static String getDeviceTimeStampAsMilliseconds() {
+        // ISO 8601
+        // 2018-04-04T16:00:00.000Z
+        // expects https://day.js.org/docs/en/parse/string
+        final Calendar cal = Calendar.getInstance();
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
+
+        final long timeInMillis = cal.getTimeInMillis();
+        final String message = Long.toString(timeInMillis);
+        final int numDigits = String.valueOf(timeInMillis).length();
+        assert numDigits == 13; // (13 digits, since the Unix Epoch Jan 1 1970 12AM UTC).
+        Log.i(TAG, "startTime=" + message);
+        return message;
+    }
 
 
     public WebSocket getSocketFromMap(SocketType socketType) {

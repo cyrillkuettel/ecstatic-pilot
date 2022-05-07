@@ -131,8 +131,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             /** Start Driving*/
             if (state == FROM_BINARY_START_COMMAND_ESP32) {
                 Log.v(TAG, "state == START_COMMAND_ESP32")
-                websocketManagerText.sendText("received start command")
-
+                // websocketManagerText.sendText("received start command")
+                websocketManagerText.startTimer()
             } else if (state == RETURNING_FROM_INTERMEDIATE){
                 /** Here we are returning from the Qr-Code reading State in
                  * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
