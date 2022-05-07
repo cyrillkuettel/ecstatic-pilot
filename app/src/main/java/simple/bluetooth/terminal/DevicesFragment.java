@@ -129,9 +129,10 @@ public class DevicesFragment extends ListFragment {
         if (bluetoothAdapter != null) {
             for (BluetoothDevice device : bluetoothAdapter.getBondedDevices())
                 if (device.getType() != BluetoothDevice.DEVICE_TYPE_LE)
-                    if (device.getName().contains("ESP32")) { // check here for only ESP32
+
+                   // if (device.getName().contains("ESP32")) { // check here for only ESP32
                         listItems.add(device);
-                    }
+                    // }
 
         }
         listItems.sort(DevicesFragment::compareTo);

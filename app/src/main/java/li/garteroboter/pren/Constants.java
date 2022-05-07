@@ -1,32 +1,25 @@
 package li.garteroboter.pren;
 
 
-public interface Constants {
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-    // Message types sent from the BluetoothChatService Handler
-    int MESSAGE_STATE_CHANGE = 1;
-    int MESSAGE_READ = 2;
-    int MESSAGE_WRITE = 3;
-    int MESSAGE_DEVICE_NAME = 4;
-    int MESSAGE_TOAST = 5;
+public final class Constants {
 
-    // Key names received from the BluetoothChatService Handler
-    String DEVICE_NAME = "device_name";
-    String TOAST = "toast";
+    public static final String START_COMMAND_ESP32 = "1";
+    public static final String STOP_COMMAND_ESP32 = "0";
 
-    String WEBSOCKET_URI =   "wss://pren.garteroboter.li:80/ws/";
-    String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
-    String GARTEROBOTERLI_HOSTNAME = "pren.garteroboter.li";
-
-    String ESP32_NAME = "ESP32";
-    String ESP32_MAC_ADDRESS = "4C:EB:D6:75:AB:4E";
-
-    String START_COMMAND_ESP32 = "1";
-    String STOP_COMMAND_ESP32 = "0";
+    public static final String WEBSOCKET_URI =   "wss://pren.garteroboter.li:80/ws/";
+    public static final String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
+    public static final String GARTEROBOTERLI_HOSTNAME = "pren.garteroboter.li";
 
 
-    String ANSI_YELLOW = "\033[33m";
-    String ANSI_GREEN = "\033[32m";
-    String ANSI_CYAN = "\033[36m";
-    String ANSI_RESET = "\033[0m";
+    public final Set<String> ESP_MAC_ADRESES = new HashSet<String>(Arrays.asList(
+            ESP32_MAC_ADDRESS,
+            TESTING_ESP32_MAC_ADDRESS));
+
+
+    public static final String ESP32_MAC_ADDRESS = "4C:EB:D6:75:AB:4E"; // Dave's ESP32
+    public static final String TESTING_ESP32_MAC_ADDRESS = "4C:EB:D6:75:AB:4E"; // ESP32 currently used for testing
 }

@@ -47,45 +47,45 @@ import java.util.concurrent.atomic.AtomicInteger
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
 
     private val globalStateViewModel: GlobalStateViewModel by viewModels()
+    private lateinit var binding: ActivityNanodetncnnBinding
 
     private var lastTimePlantCallback: Long = 0
 
     private val atomicCounter = AtomicInteger(0)
     private val nanodetncnn = NanoDetNcnn()
 
-    private var current_model = 0
-    private var current_cpugpu = 0
+    private var currentModel = 0
+    private var currentCPUGPU = 0
     private var cameraView: SurfaceView? = null
     private var ringtone: Ringtone? = null
+
+    // TODO: REPLACE THIS. Add ViewModel for inter-fragment communication.
     private var terminalFragment: TerminalFragment? = null
 
     private var currentSurfaceViewWidth = 0
     private var currentSurfaceViewHeight = 0
 
     // Initialization by lazy { ... } is thread-safe by default
-    private val managerByte: WebSocketManager by lazy {
+    private val websocketManagerByte: WebSocketManager by lazy {
         WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
             lifecycleScope.launch {
                 createAndOpenWebSocketConnection(SocketType.Binary)
             }
-
         }
     }
 
-    private val managerText: WebSocketManager by lazy {
+    private val websocketManagerText: WebSocketManager by lazy {
         WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
             lifecycleScope.launch {
                 createAndOpenWebSocketConnection(SocketType.Text)
             }
-
         }
     }
 
-    private lateinit var binding: ActivityNanodetncnnBinding
 
     // preferences
     private var useBluetooth = false
-    private var numerOfConfirmations = 3 // accept Plant detection result aftter N confirmations
+    private var numerOfConfirmations = 3 // accept Plant detection result after N confirmations
     private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
     private var plantCount = -1
     private var switchQr = true
@@ -94,8 +94,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
@@ -130,11 +129,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
             Log.i(TAG, "viewModel.getCurrentState().observe")
             if (state == START_COMMAND_ESP32) {
-                managerText.sendText("received start command")
+                websocketManagerText.sendText("received start command")
             } else {
+                /** Here we are returning from the Qr-Code reading State in
+                 * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
+                 * in any case, resume driving. */
                 synchronized(this) {
                     if (bluetoothCheck(terminalFragment)) {
-                        terminalFragment!!.send(STOP_COMMAND_ESP32)
+                        terminalFragment!!.send(START_COMMAND_ESP32)
                     }
                 }
                 reOpenNanodetCamera()
@@ -153,7 +155,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         file?.let { it ->
             try {
                 val bytes = FileUtils.readFileToByteArray(it)
-                managerByte.sendBytes(bytes)
+                websocketManagerByte.sendBytes(bytes)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -224,7 +226,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
     private fun reload() {
-        val retryInit = nanodetncnn.loadModel(assets, current_model, current_cpugpu)
+        val retryInit = nanodetncnn.loadModel(assets, currentModel, currentCPUGPU)
         if (!retryInit) {
             Log.e("MainActivity", "nanodetncnn loadModel failed")
         }
@@ -243,19 +245,17 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
      * It _is_ a different thread. that also means you cannot change the UI from this method directly */
 
     fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
-        val _count = atomicCounter.incrementAndGet()
+        val count = atomicCounter.incrementAndGet()
 
-        if (_count != 0) {
+        if (count != 0) {
             // Log.v(TAG,String.format("current number of confirmations = %d", _count))
         }
-        if (_count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
+        if (count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0) // reset the counter back
             if (lastTimeWasNSecondsAGo()) {
                 lastTimePlantCallback = System.currentTimeMillis()
-                Log.d(
-                    TAG,
-                    String.format("Accept potted plant detection with %d confirmations", _count)
-                )
+                Log.d(TAG, "Accept potted plant detection with $count confirmations")
+
                 synchronized(this) {
                     if (bluetoothCheck(terminalFragment)) {
                         terminalFragment!!.send(STOP_COMMAND_ESP32)
@@ -401,8 +401,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 position: Int,
                 id: Long
             ) {
-                if (position != current_cpugpu) {
-                    current_cpugpu = position
+                if (position != currentCPUGPU) {
+                    currentCPUGPU = position
                     reload()
                 }
             }
@@ -419,8 +419,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 position: Int,
                 id: Long
             ) {
-                if (position != current_model) {
-                    current_model = position
+                if (position != currentModel) {
+                    currentModel = position
                     reload()
                 }
             }

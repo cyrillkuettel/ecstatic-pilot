@@ -240,7 +240,6 @@ class TerminalFragment : Fragment(), ServiceConnection,
         }
     }
 
-    // here: Add Listener to start when the start command comes.
     private fun receive(data: ByteArray) {
         if (hexEnabled) {
             receiveText!!.append(
@@ -251,10 +250,11 @@ class TerminalFragment : Fragment(), ServiceConnection,
             )
         } else {
             var msg = String(data)
-            // TODO: TEST THIS
+
             if (msg.contains(START_COMMAND_ESP32)) {
                 globalStateViewModel.setDriveState(START_COMMAND_ESP32)
             }
+
             if (newline == TextUtil.newline_crlf && msg.length > 0) {
                 // don't show CR as ^M if directly before LF
                 msg = msg.replace(TextUtil.newline_crlf, TextUtil.newline_lf)
