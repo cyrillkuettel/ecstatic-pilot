@@ -18,14 +18,13 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.ListFragment;
-
 import java.util.ArrayList;
-
 import li.garteroboter.pren.R;
 
 public class DevicesFragment extends ListFragment {
 
     private static final String TAG = "DevicesFragment";
+
     private BluetoothAdapter bluetoothAdapter;
     private final ArrayList<BluetoothDevice> listItems = new ArrayList<>();
     private ArrayAdapter<BluetoothDevice> listAdapter;
@@ -129,10 +128,8 @@ public class DevicesFragment extends ListFragment {
         if (bluetoothAdapter != null) {
             for (BluetoothDevice device : bluetoothAdapter.getBondedDevices())
                 if (device.getType() != BluetoothDevice.DEVICE_TYPE_LE)
-
-                   // if (device.getName().contains("ESP32")) { // check here for only ESP32
+                    //if (isRelevantBluetoothDevice(device))
                         listItems.add(device);
-                    // }
 
         }
         listItems.sort(DevicesFragment::compareTo);
@@ -146,11 +143,17 @@ public class DevicesFragment extends ListFragment {
             } else {
                 // there may be multiple devices with the name "ESP32"
                 // here I can check for the MAC Address.
-                // This will be useful when there will be multiple ESP32 devices.
+                // This can be useful when there are multiple ESP32 devices in the area.
             }
         }
     }
 
+    private boolean isRelevantBluetoothDevice(BluetoothDevice device) {
+        @SuppressLint("MissingPermission")
+        final String bluetoothDeviceName = device.getName().toLowerCase();
+        return bluetoothDeviceName.contains("esp2") || bluetoothDeviceName.contains(
+                "garteroboterli");
+    }
 
     @Override
     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
@@ -166,7 +169,10 @@ public class DevicesFragment extends ListFragment {
         Fragment fragment = new TerminalFragment();
         fragment.setArguments(args);
 
-
+        if (getActivity() == null) {
+            Log.e(TAG, "FATAL: getActivity() == null");
+            return;
+        }
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragmentBluetoothChain, fragment,
                 "terminal").addToBackStack(null).commit();
