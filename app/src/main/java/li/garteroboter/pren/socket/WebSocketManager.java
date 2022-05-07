@@ -70,14 +70,6 @@ public class WebSocketManager extends AppCompatActivity {
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
-    /*
-    public WebSocketManager(String URI) {
-        this.sockets = new HashMap<>();
-        this.URI = URI;
-        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-    }
-
-*/
 
     public boolean createAndOpenWebSocketConnection(SocketType socketType) {
         Log.i(TAG, "createAndOpenWebSocketConnection");
@@ -309,6 +301,8 @@ public class WebSocketManager extends AppCompatActivity {
         }
         return false;
     }
+
+
 
 
     public WebSocket getSocketFromMap(SocketType socketType) {

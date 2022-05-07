@@ -26,13 +26,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
-import li.garteroboter.pren.Constants.START_COMMAND_ESP32
-import li.garteroboter.pren.Constants.STOP_COMMAND_ESP32
+import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
+import li.garteroboter.pren.qrcode.fragments.IntermediateFragment.Companion.RETURNING_FROM_INTERMEDIATE
 import li.garteroboter.pren.socket.SocketType
 import li.garteroboter.pren.socket.WebSocketManager
 import org.apache.commons.io.FileUtils
@@ -47,8 +47,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
 
     private val globalStateViewModel: GlobalStateViewModel by viewModels()
-    private lateinit var binding: ActivityNanodetncnnBinding
 
+    private lateinit var binding: ActivityNanodetncnnBinding
     private var lastTimePlantCallback: Long = 0
 
     private val atomicCounter = AtomicInteger(0)
@@ -127,10 +127,13 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private fun observeViewModels() {
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
-            Log.i(TAG, "viewModel.getCurrentState().observe")
-            if (state == START_COMMAND_ESP32) {
+
+            /** Start Driving*/
+            if (state == FROM_BINARY_START_COMMAND_ESP32) {
+                Log.v(TAG, "state == START_COMMAND_ESP32")
                 websocketManagerText.sendText("received start command")
-            } else {
+
+            } else if (state == RETURNING_FROM_INTERMEDIATE){
                 /** Here we are returning from the Qr-Code reading State in
                  * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
                  * in any case, resume driving. */

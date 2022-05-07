@@ -21,15 +21,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import li.garteroboter.pren.Constants
-import li.garteroboter.pren.Constants.START_COMMAND_ESP32
+import li.garteroboter.pren.Constants.FROM_BINARY_START_COMMAND_ESP32
 import li.garteroboter.pren.R
 import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import simple.bluetooth.terminal.SerialService.SerialBinder
 import simple.bluetooth.terminal.TextUtil.HexWatcher
 
-class TerminalFragment : Fragment(), ServiceConnection,
-    SerialListener {
+
+class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
 
     private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
@@ -257,10 +257,6 @@ class TerminalFragment : Fragment(), ServiceConnection,
         } else {
             var msg = String(data)
 
-            if (msg.contains(START_COMMAND_ESP32)) {
-                globalStateViewModel.setDriveState(START_COMMAND_ESP32)
-            }
-
             if (newline == TextUtil.newline_crlf && msg.length > 0) {
                 // don't show CR as ^M if directly before LF
                 msg = msg.replace(TextUtil.newline_crlf, TextUtil.newline_lf)
@@ -271,7 +267,14 @@ class TerminalFragment : Fragment(), ServiceConnection,
                 }
                 pendingNewline = msg[msg.length - 1] == '\r'
             }
-            receiveText!!.append(TextUtil.toCaretString(msg, newline.length != 0))
+            val content: CharSequence =  TextUtil.toCaretString(msg, newline.isNotEmpty())
+
+            if (content.contains(FROM_BINARY_START_COMMAND_ESP32)) {
+                Log.d(TAG, content.toString())
+                 globalStateViewModel.setDriveState(FROM_BINARY_START_COMMAND_ESP32)
+
+            }
+            receiveText!!.append(content)
         }
     }
 
@@ -321,6 +324,7 @@ class TerminalFragment : Fragment(), ServiceConnection,
          *  attempt to reconnect. Reconnect by returning back to DevicesFragment.
          *
          * There, implement a function to automatically re-connect */
+        Log.e(TAG, "startRecoverySequence")
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
         fragmentManager.popBackStackImmediate()
     }
