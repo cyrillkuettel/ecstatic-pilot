@@ -15,10 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
@@ -175,39 +172,9 @@ public class LoggingFragment extends Fragment {
      * Note that in the end this messsage has to be called as a result of the Bluetooth message
      */
     public void sendStartSignalToWebServer() {
-        String value_now = getDeviceTimeStampAsMilliseconds();
-        Log.v(TAG, value_now);
-        String message = String.format("command=startTime=%s", value_now);
-        if (manager.sendText(message)) {
-            Log.i(TAG, "sendStartSignalToWebServer - successful");
-        } else {
-            Log.e(TAG, "Error sendStartSignalToWebServer " + message);
-        }
+        manager.startTimer();
     }
 
-    /**
-     * This methods returns the current Time on the device. It may differ slightly from the
-     * internet time, which is more precise.
-     * I modify the String manually ( which is bad) to include 'T' and 'Z'
-     *
-     * @return current System time
-     */
-    public static String getDeviceTimeStampAsMilliseconds() {
-        // ISO 8601
-        // 2018-04-04T16:00:00.000Z
-        // expects https://day.js.org/docs/en/parse/string
-        final Calendar cal = Calendar.getInstance();
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));
-
-        final long timeInMillis = cal.getTimeInMillis();
-        final String message = Long.toString(timeInMillis);
-        final int numDigits = String.valueOf(timeInMillis).length();
-        assert numDigits == 13; // (13 digits, since the Unix Epoch Jan 1 1970 12AM UTC).
-        Log.i(TAG, "startTime=" + message);
-        return message;
-    }
 
     public LoggingFragment() {
         // Required empty public constructor

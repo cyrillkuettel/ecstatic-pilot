@@ -6,8 +6,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.neovisionaries.ws.client.HostnameUnverifiedException;
 import com.neovisionaries.ws.client.OpeningHandshakeException;
 import com.neovisionaries.ws.client.StatusLine;
@@ -43,7 +41,7 @@ import li.garteroboter.pren.Constants;
  * with adding my own protocol layer to distinguish. That's why we have two connections.
  */
 
-public class WebSocketManager extends AppCompatActivity {
+public class WebSocketManager {
     private static final String TAG = "WebSocketManager";
 
     private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you " +
