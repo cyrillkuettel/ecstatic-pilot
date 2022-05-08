@@ -57,8 +57,8 @@
             />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/bluetooth_send_stop"
-            android:text="Stop"
+            android:id="@+id/bluetooth_crash_simulate"
+            android:text="Crash"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:layout_width="100dp"

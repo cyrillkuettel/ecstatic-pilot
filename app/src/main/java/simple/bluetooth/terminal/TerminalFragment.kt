@@ -20,10 +20,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import li.garteroboter.pren.Constants
 import li.garteroboter.pren.Constants.FROM_BINARY_START_COMMAND_ESP32
 import li.garteroboter.pren.R
-import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import simple.bluetooth.terminal.SerialService.SerialBinder
 import simple.bluetooth.terminal.TextUtil.HexWatcher
@@ -33,7 +33,8 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
 
     private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
-
+    private val startStopViewModel: StartStopViewModel  by activityViewModels()
+      //   ViewModelProvider(this)[StartStopViewModel::class.java] // Like this in fragment.
 
     private enum class Connected {
         False, Pending, True
@@ -138,12 +139,6 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        try {
-            (activity as NanodetncnnActivity?)!!.receiveTerminalFragmentReference(this)
-        } catch (e: Exception) {
-            Log.e(TAG, "Attempted to call public method on MainActivityNanodetNCNN, failed")
-            e.printStackTrace()
-        }
 
         receiveText =
             view.findViewById(R.id.receive_text) // TextView performance decreases with number of spans
@@ -157,8 +152,16 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         sendText?.addTextChangedListener(hexWatcher)
         sendText?.setHint(if (hexEnabled) "HEX mode" else "")
 
+        observeViewModel(view)
 
+    }
+
+    private fun observeViewModel(view: View) {
         setupButtonOnClickListener(view)
+        startStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
+            Log.v(TAG, " startStopViewModel.getNextCommand().observe")
+            send(command)
+        })
     }
 
     private fun setupButtonOnClickListener(view: View) {
@@ -169,13 +172,9 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
                 Constants.START_COMMAND_ESP32
             )
         }
-        val sendStopSignalButton = view.findViewById<View>(R.id.bluetooth_send_stop)
-        sendStopSignalButton.setOnClickListener { v: View? ->
-            /*
-            send(
-                Constants.STOP_COMMAND_ESP32
-            )
-             */
+        val mainButtonsimulateIOError = view.findViewById<View>(R.id.bluetooth_crash_simulate)
+        mainButtonsimulateIOError.setOnClickListener { v: View? ->
+
             // simulate connection loss for testing
             onSerialIoError(java.lang.Exception("Totally a  SerialIOerRRO"))
 

@@ -37,7 +37,7 @@ import li.garteroboter.pren.socket.SocketType
 import li.garteroboter.pren.socket.WebSocketManager
 import org.apache.commons.io.FileUtils
 import simple.bluetooth.terminal.DevicesFragment
-import simple.bluetooth.terminal.TerminalFragment
+import simple.bluetooth.terminal.StartStopViewModel
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
 
     private val globalStateViewModel: GlobalStateViewModel by viewModels()
+    private val startStopViewModel: StartStopViewModel  by viewModels()
 
     private lateinit var binding: ActivityNanodetncnnBinding
     private var lastTimePlantCallback: Long = 0
@@ -59,8 +60,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var cameraView: SurfaceView? = null
     private var ringtone: Ringtone? = null
 
-    // TODO: REPLACE THIS. Add ViewModel for inter-fragment communication.
-    private var terminalFragment: TerminalFragment? = null
 
     private var currentSurfaceViewWidth = 0
     private var currentSurfaceViewHeight = 0
@@ -131,17 +130,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             /** Start Driving*/
             if (state == FROM_BINARY_START_COMMAND_ESP32) {
                 Log.v(TAG, "state == START_COMMAND_ESP32")
-                // websocketManagerText.sendText("received start command")
+                websocketManagerText.sendText("received start command")
                 websocketManagerText.startTimer()
             } else if (state == RETURNING_FROM_INTERMEDIATE){
                 /** Here we are returning from the Qr-Code reading State in
                  * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
                  * in any case, resume driving. */
-                synchronized(this) {
-                    if (bluetoothCheck(terminalFragment)) {
-                        terminalFragment!!.send(START_COMMAND_ESP32)
-                    }
-                }
+                startStopViewModel.setCommand(START_COMMAND_ESP32)  // resume driving
+
                 reOpenNanodetCamera()
             }
         })
@@ -259,14 +255,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 lastTimePlantCallback = System.currentTimeMillis()
                 Log.d(TAG, "Accept potted plant detection with $count confirmations")
 
-                synchronized(this) {
-                    if (bluetoothCheck(terminalFragment)) {
-                        terminalFragment!!.send(STOP_COMMAND_ESP32)
-                    }
-                }
                 startRingtone()
 
                 runOnUiThread(Runnable {
+                    startStopViewModel.setCommand(STOP_COMMAND_ESP32)  // stop driving
+
                     if (switchQr) {
                         navigateCameraFragment()
                     }
@@ -287,15 +280,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         return System.currentTimeMillis() - lastTimePlantCallback > waitingTimePlantCallback
     }
 
-    private fun bluetoothCheck(terminalFragment: TerminalFragment?): Boolean {
-        if (useBluetooth && terminalFragment != null) {
-            return true
-        }
-        if (terminalFragment == null) {
-            Log.d(TAG, "bluetoothCheck failed, terminalFragment == null ")
-        }
-        return false
-    }
 
     private fun updateDescription(text: String) {
         binding.textViewDetectedObjectLabel.text = text
@@ -358,17 +342,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
 
-    /** Called from terminal Fragment  */
-    fun receiveTerminalFragmentReference(terminalFragment: TerminalFragment?) {
-        if (bluetoothCheck(terminalFragment)) {
-            this.terminalFragment = terminalFragment
-        } else {
-            Log.e(
-                TAG,
-                "receiveTerminalFragmentReference failed to get reference to terminalFragment"
-            )
-        }
-    }
 
 
     public override fun onResume() {
