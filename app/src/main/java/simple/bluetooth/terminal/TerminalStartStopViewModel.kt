@@ -3,7 +3,8 @@ package simple.bluetooth.terminal
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-open class StartStopViewModel : ViewModel() {
+class TerminalStartStopViewModel : ViewModel() {
+
     private val TAG = "StartStopViewModel"
     private val currentCommand = MutableLiveData<String>()
 

@@ -33,8 +33,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
 
     private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
-    private val startStopViewModel: StartStopViewModel  by activityViewModels()
-      //   ViewModelProvider(this)[StartStopViewModel::class.java] // Like this in fragment.
+    private val terminalStartStopViewModel: TerminalStartStopViewModel  by activityViewModels()
 
     private enum class Connected {
         False, Pending, True
@@ -52,9 +51,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     private val newline = TextUtil.newline_crlf
     external fun setObjectReferenceAsGlobal(terminalFragment: TerminalFragment?): Boolean
 
-    /*
-     * Lifecycle
-     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
@@ -62,8 +59,8 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         Log.d(TAG, String.format("Found device address: %s", deviceAddress))
         //deviceAddress = "58:BF:25:81:CC:C8";
         Log.i(TAG, "setting Global reference for JNI ")
-        setObjectReferenceAsGlobal(this) /*This allows accessing the instance of TerminalFragment
-                                            from the C++ Layer */
+        // setObjectReferenceAsGlobal(this) /* This allows accessing the instance of TerminalFragment from the C++ Layer */
+
     }
 
     override fun onDestroy() {
@@ -158,7 +155,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
     private fun observeViewModel(view: View) {
         setupButtonOnClickListener(view)
-        startStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
+        terminalStartStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
             Log.v(TAG, " startStopViewModel.getNextCommand().observe")
             send(command)
         })
@@ -176,7 +173,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         mainButtonsimulateIOError.setOnClickListener { v: View? ->
 
             // simulate connection loss for testing
-            onSerialIoError(java.lang.Exception("Totally a  SerialIOerRRO"))
+            onSerialIoError(java.lang.Exception("Totally a SerialIOError"))
 
         }
 
