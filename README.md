@@ -17,11 +17,14 @@ At the same time this is happening, status updates are sent to the webserver.
 </p>
 
 
+# Finite State machine
+<p align="left">
+  <img src="doc/Finite_state_machine_mit_Pflanze.drawio.png" alt="finite state machine"  width="80%" height="80%"/>
+</p>
 
 
 
-
-### ACKNOWLEDGMENTS
+## ACKNOWLEDGMENTS
 This project wouldn't exist without the following open-source repositories.
 
 
