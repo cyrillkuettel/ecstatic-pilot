@@ -5,7 +5,7 @@
 </p>
 
 This is the software for a robot. The robot is specifically built to get best scores at a tournament at HSLU.
-It drives trough a parcour. A Smartphone is attached to it. The goal from a software perspective is to detect plants in real-time communicate with hardware to stop. And then read QR-Codes. Then control the camera. The species of the plant will also be determined.
+It drives trough a parcour. A Smartphone is attached to it. The goal from a software perspective is to detect plants in real-time communicate with hardware to stop. And then read QR-Codes and save to internal database. The app is also able take photos on it's own. The species of the plant will also be determined by calling an API.
 
 The app will connect to a Bluetooth device in order to send commands. 
 
