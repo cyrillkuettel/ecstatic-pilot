@@ -31,8 +31,10 @@ import simple.bluetooth.terminal.TextUtil.HexWatcher
 
 class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
-
+    /** ViewModel used for output of information*/
     private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
+
+    /** ViewModel used for input of information*/
     private val terminalStartStopViewModel: TerminalStartStopViewModel  by activityViewModels()
 
     private enum class Connected {
