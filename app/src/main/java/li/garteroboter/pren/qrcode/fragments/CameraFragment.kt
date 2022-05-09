@@ -70,11 +70,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
+
 
 
 /**
@@ -96,15 +98,18 @@ class CameraFragment : Fragment() {
     private lateinit var outputDirectory: File
     private lateinit var broadcastManager: LocalBroadcastManager
 
-    private val qrCodeWaitingTime: Long = 4000 // maximum expected fragment Lifetime
     private val timeStampFragmentStarted: Long = System.currentTimeMillis()
-
 
     //TODO:
     // remove this in the final act. This is just for debugging.
     private var dataBaseThread: Thread = clearAllTablesThread()
 
     private var qrCodeInsertionThread: Thread? = null
+
+    private val imageTaken: AtomicBoolean = AtomicBoolean(false)
+    private val callsToNavigateBack: AtomicBoolean = AtomicBoolean(false)
+
+    @Volatile private var qrString: String = ""
 
 
     val queue = LinkedBlockingQueue<Long>()
@@ -118,7 +123,15 @@ class CameraFragment : Fragment() {
     private var cameraProvider: ProcessCameraProvider? = null
 
 
+    @Synchronized fun setQRString(qrCode: String?) {
+        if (qrCode != null) {
+            qrString = qrCode
+        }
+    }
 
+    @Synchronized fun qrCodeAlreadySet() : Boolean {
+        return qrString != ""
+    }
 
     private lateinit var windowInfoTracker: WindowInfoTracker
 
@@ -149,6 +162,7 @@ class CameraFragment : Fragment() {
         } ?: Unit
     }
 
+
     override fun onResume() {
         super.onResume()
         // Make sure that all permissions are still present, since the
@@ -160,7 +174,11 @@ class CameraFragment : Fragment() {
         }
         Log.v(TAG, "onResume")
 
-        takePhotoDelayed(500)
+        Timer("Navigate back in any case", false).schedule(qrCodeWaitingTime) {
+          //   cameraExecutor.shutdown()
+            navigateBack()
+        }
+       // takePhotoDelayed(500)
 
     }
 
@@ -179,7 +197,7 @@ class CameraFragment : Fragment() {
         Log.i(TAG, "placeHolder");
     }
 
-    fun onImageSaved(input: File) {
+    fun onImageSavedPrepareUpload(input: File) {
         Log.i(TAG, "onImageSaved")
 
         globalStateViewModel.setCurrentImage(input)
@@ -360,13 +378,14 @@ class CameraFragment : Fragment() {
                 // Set initial target rotation, we will have to call this again if rotation changes
                 // during the lifecycle of this use case
                 .setTargetRotation(rotation)
+
                 .build()
 
         imageAnalyzer = ImageAnalysis.Builder()
                 // .setTargetAspectRatio(screenAspectRatio)
                 .setTargetRotation(rotation)
                 .setTargetResolution(Size(1280, 720))
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // from Qr
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // TODO: experiment with this
                 .build()
                 // The analyzer can then be assigned to the instance
                 .also {
@@ -376,42 +395,37 @@ class CameraFragment : Fragment() {
                             override fun onQRCodeFound(qrCode: String?) {
                                 Log.i(TAG, "onQRCodeFound")
 
-                                if (qrCodeAlreadyExists(qrCode)) {
-                                    Log.e(TAG, "QR-Code '$qrCode' Already exists, not inserting.")
+                                if (qrCodeAlreadySet()) {
+                                    // should this block be synchronized?
+
+                                    Log.e(TAG, "QR-Code '$qrCode' qrCodeAlreadyExists, not inserting.")
                                     activity?.runOnUiThread(Runnable {
                                         Toast.makeText(context, "qrCodeAlreadyExists", Toast.LENGTH_LONG)
                                             .show()
                                     })
-                                } else {
-                                    qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
-                                    qrCodeInsertionThread!!.join()
 
-                                    takePhotoOnce(::savePictureUriToPlantObjectAndStartApiCall)
+                                      //  navigateBack()
+
+
+                                } else { // NOTE: should this be synchronized?
+
+                                   //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
+                                   //  qrCodeInsertionThread!!.join()
+
+                                    setQRString(qrCode)
+                                    takePhotoOnce(::startAPICallAndUploadImage)
 
                                 }
 
-
-
-                                activity?.runOnUiThread(Runnable {
-                                    navigateBack()
-                                })
 
 
 
                             }
                             override fun qrCodeNotFound() {
-
-                                val totalWaitedTime = System.currentTimeMillis() - timeStampFragmentStarted
-
-                                if (totalWaitedTime > qrCodeWaitingTime) {
-                                    activity?.runOnUiThread(Runnable {
-                                        Log.e(TAG, "NAVIGATE BACK. totalWaitedTime $totalWaitedTime ")
-                                        navigateBack()
-
-                                        Log.e(TAG, "timeStampFragmentStarted = $timeStampFragmentStarted")
-                                    })
-                                }
+                                // nope
                             }
+
+
                         })
                     )
                 }
@@ -478,11 +492,15 @@ class CameraFragment : Fragment() {
 
     }
 
-    private fun qrCodeAlreadyExists(qrCode: String?) : Boolean {
+    private fun qrCodeAlreadyExists(qrCode: String) : Boolean {
+
+
         val db = context?.let { it1 -> getDatabase(it1) }
         val plantDao = db?.plantDataAccessObject()
         val allPlants: List<Plant> = plantDao?.getAll() ?: Collections.emptyList()
         return allPlants.any{ it.qrString == qrCode }
+
+
     }
 
 
@@ -531,7 +549,7 @@ class CameraFragment : Fragment() {
         }
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-             takePhotoOnce(::onImageSaved)
+             takePhotoOnce(::onImageSavedPrepareUpload)
         }
 
         // Listener for button used to view the most recent photo
@@ -546,104 +564,114 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private val done: AtomicBoolean = AtomicBoolean()
+
     private fun navigateBack() {
-        if (done.get()) return // only call once
-        if (done.compareAndSet(false, true)) {
-            Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
-            )
+
+        if (callsToNavigateBack.get()) return // only run once to prevent issues
+        if (callsToNavigateBack.compareAndSet(false, true)) {
+            requireActivity().runOnUiThread(Runnable {
+                try {
+                    Log.e(TAG, "callsToNavigateBack.compareAndSet")
+                    Navigation.findNavController(requireActivity(), R.id.fragment_container)
+                        .navigate(
+                            CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
+                        )
+                } catch (e: Exception) {
+                    Log.v(TAG, e.toString())
+                }
+            })
         }
     }
 
 
-
-    private fun displayFlashAnimation(color: Int = Color.WHITE) {
-        // We can only change the foreground Drawable using API level 23+ API
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            // Display flash animation to indicate that photo was captured
-            fragmentCameraBinding.root.postDelayed({
-                fragmentCameraBinding.root.foreground = ColorDrawable(color)
-                fragmentCameraBinding.root.postDelayed(
-                    { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
-            }, ANIMATION_SLOW_MILLIS)
-        }
-    }
 
 
 
 
     private fun takePhotoOnce(myActionOnImageSaved: (savedImage: File) -> Unit) {
-        Log.v(TAG , "takePhotoOnce")
+        if (callsToNavigateBack.get()) return // to prevent error of "Photo capture failed: Camera is closed"
+        if (imageTaken.get()) return // only call once
+        if (imageTaken.compareAndSet(false, true)) {
+            Log.v(TAG, "takePhotoOnce")
 
-        // Get a stable reference of the modifiable image capture use case
-        imageCapture?.let { imageCapture ->
-            Log.d(TAG , "starting capture process")
-            // Create output file to hold the image
-            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+            // Get a stable reference of the modifiable image capture use case
+            imageCapture?.let { imageCapture ->
+                Log.d(TAG, "starting capture process")
+                // Create output file to hold the image
+                val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
 
-            // Setup image capture metadata
-            val metadata = Metadata().apply {
+                // Setup image capture metadata
+                val metadata = Metadata().apply {
 
-                // Mirror image when using the front camera
-                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-            }
+                    // Mirror image when using the front camera
+                    isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+                }
 
-            // Create output options object which contains file + metadata
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-                .setMetadata(metadata)
-                .build()
+                // Create output options object which contains file + metadata
+                val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+                    .setMetadata(metadata)
+                    .build()
 
-            // Setup image capture listener which is triggered after photo has been taken
-            imageCapture.takePicture(
-                outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) {
-                        Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                    }
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-
-                        Log.d(TAG, "Photo capture succeeded: $savedUri")
-
-                        // maybe better to use savedUri.
-
-                        myActionOnImageSaved(photoFile)
-
-                        setGalleryThumbnail(savedUri)
-                        // If the folder selected is an external media directory, this is
-                        // unnecessary but otherwise other apps will not be able to access our
-                        // images unless we scan them using [MediaScannerConnection]
-                        val mimeType = MimeTypeMap.getSingleton()
-                            .getMimeTypeFromExtension(savedUri.toFile().extension)
-                        MediaScannerConnection.scanFile(
-                            context,
-                            arrayOf(savedUri.toFile().absolutePath),
-                            arrayOf(mimeType)
-                        ) { _, uri ->
-                            Log.d(TAG, "Image capture scanned into media store: $uri")
+                // Setup image capture listener which is triggered after photo has been taken
+                imageCapture.takePicture(
+                    outputOptions, cameraExecutor, object : ImageCapture.OnImageSavedCallback {
+                        override fun onError(exc: ImageCaptureException) {
+                            Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                         }
-                    }
-                })
 
-            // We can only change the foreground Drawable using API level 23+ API
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                            val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
 
-                // Display flash animation to indicate that photo was captured
-                fragmentCameraBinding.root.postDelayed({
-                    fragmentCameraBinding.root.foreground = ColorDrawable(Color.WHITE)
-                    fragmentCameraBinding.root.postDelayed(
-                        { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
-                }, ANIMATION_SLOW_MILLIS)
+                            Log.d(TAG, "Photo capture succeeded: $savedUri")
+
+                            // maybe better to use savedUri.
+
+                            myActionOnImageSaved(photoFile)
+
+                            setGalleryThumbnail(savedUri)
+                            // If the folder selected is an external media directory, this is
+                            // unnecessary but otherwise other apps will not be able to access our
+                            // images unless we scan them using [MediaScannerConnection]
+                            val mimeType = MimeTypeMap.getSingleton()
+                                .getMimeTypeFromExtension(savedUri.toFile().extension)
+                            MediaScannerConnection.scanFile(
+                                context,
+                                arrayOf(savedUri.toFile().absolutePath),
+                                arrayOf(mimeType)
+                            ) { _, uri ->
+                                Log.d(TAG, "Image capture scanned into media store: $uri")
+                            }
+                        }
+                    })
+
+            displayFlashAnimation()
+
             }
         }
-
     }
 
 
 
+    fun startAPICallAndUploadImage(file: File)  {
+        Log.i(TAG, "startAPICallAndUploadImage")
+           thread(start = true) {
+               var speciesName = "failed"
+               try {
+                   val savedUri = file.toString()
+                   speciesName = startLocalApiCall(savedUri)
+                   globalStateViewModel.setCurrentImage(file)
 
+                   activity?.runOnUiThread  {
+                       Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
+                           .show()
+                   }
+               } catch (e: InterruptedException) {
+                   Log.d(TAG, "caught Interrupted exception!")
+               } finally {
+                   Log.v(TAG, "updating database with scientific name $speciesName")
+               }
+           }
+    }
 
 
     fun savePictureUriToPlantObjectAndStartApiCall(file: File) : Thread {
@@ -685,8 +713,8 @@ class CameraFragment : Fragment() {
     fun startLocalApiCall(savedUri: String) : String  {
         Log.i(TAG, "startApiCall")
         val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
-        val scientificName = retroFitWrapper.requestLocalPlantIdentification(savedUri)
-        return scientificName;
+        val name = retroFitWrapper.requestLocalPlantIdentification(savedUri)
+        return name;
 
     }
 
@@ -713,9 +741,23 @@ class CameraFragment : Fragment() {
 
 
 
+    private fun displayFlashAnimation(color: Int = Color.WHITE) {
+        // We can only change the foreground Drawable using API level 23+ API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            // Display flash animation to indicate that photo was captured
+            fragmentCameraBinding.root.postDelayed({
+                fragmentCameraBinding.root.foreground = ColorDrawable(color)
+                fragmentCameraBinding.root.postDelayed(
+                    { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
+            }, ANIMATION_SLOW_MILLIS)
+        }
+    }
 
 
     companion object {
+
+        private const val qrCodeWaitingTime: Long = 10000 // maximum allowed fragment Lifetime
 
         private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
