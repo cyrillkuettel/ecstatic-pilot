@@ -51,6 +51,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     private val hexEnabled = false
     private var pendingNewline = false
     private val newline = TextUtil.newline_crlf
+
     external fun setObjectReferenceAsGlobal(terminalFragment: TerminalFragment?): Boolean
 
 
@@ -59,16 +60,18 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         retainInstance = true
         deviceAddress = requireArguments().getString("device")
         Log.d(TAG, String.format("Found device address: %s", deviceAddress))
-        //deviceAddress = "58:BF:25:81:CC:C8";
-        Log.i(TAG, "setting Global reference for JNI ")
+
+        // Log.i(TAG, "setting Global reference for JNI ")
         // setObjectReferenceAsGlobal(this) /* This allows accessing the instance of TerminalFragment from the C++ Layer */
 
     }
 
     override fun onDestroy() {
+        super.onDestroy()
+        Log.e(TAG, "onDestroy()")
         if (connected != Connected.False) disconnect()
         requireActivity().stopService(Intent(activity, SerialService::class.java))
-        super.onDestroy()
+
     }
 
     override fun onStart() {
@@ -202,6 +205,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     }
 
     private fun disconnect() {
+        Log.d(TAG, "disconnect()")
         connected = Connected.False
         service!!.disconnect()
     }
@@ -324,14 +328,18 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
          * There, implement a function to automatically re-connect */
         Log.e(TAG, "startRecoverySequence")
         val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        fragmentManager.popBackStackImmediate()
+        val result = fragmentManager.popBackStackImmediate("terminal", POP_BACK_STACK_INCLUSIVE)
+        if (!result) {
+            Log.e(TAG, "There is nothing to pop")
+        }
     }
 
     companion object {
         private const val TAG = "TerminalFragment"
+        private const val POP_BACK_STACK_INCLUSIVE = 1
 
-        init {
-            System.loadLibrary("nanodetncnn")
-        }
+        // init {
+          //  System.loadLibrary("nanodetncnn")
+        // }
     }
 }

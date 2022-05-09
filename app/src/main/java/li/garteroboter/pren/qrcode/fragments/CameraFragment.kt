@@ -378,11 +378,18 @@ class CameraFragment : Fragment() {
 
                                 if (qrCodeAlreadyExists(qrCode)) {
                                     Log.e(TAG, "QR-Code '$qrCode' Already exists, not inserting.")
-
+                                    activity?.runOnUiThread(Runnable {
+                                        Toast.makeText(context, "qrCodeAlreadyExists", Toast.LENGTH_LONG)
+                                            .show()
+                                    })
                                 } else {
                                     qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                     qrCodeInsertionThread!!.join()
+
+                                    takePhotoOnce(::savePictureUriToPlantObjectAndStartApiCall)
+
                                 }
+
 
 
                                 activity?.runOnUiThread(Runnable {
@@ -639,34 +646,35 @@ class CameraFragment : Fragment() {
 
 
 
-    fun savePictureUriToPlantObjectAndStartApiCall(savedUri: String) : Thread {
+    fun savePictureUriToPlantObjectAndStartApiCall(file: File) : Thread {
         Log.i(TAG, "savePictureUriToPlantObjectAndStartApiCall")
         return object : Thread("savePictureUriToPlantObjectAndStartApiCall") {
             override fun run() {
                 try {
+                    val savedUri = file.toString()
                     val ID_currentPlantObject = queue.take()
 
                     Log.v(TAG, "starting retroFitWrapper")
 
-                    val scientificName = startLocalApiCall(savedUri)
+                    val speciesName = startLocalApiCall(savedUri)
                     activity?.runOnUiThread  {
-                        Toast.makeText(context, "Species: $scientificName", Toast.LENGTH_LONG)
+                        Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
                             .show()
                     }
                     val db = context?.let { it -> getDatabase(it) }
                     val plantDao = db?.plantDataAccessObject()
-                    if (scientificName != "failed" && ID_currentPlantObject != -1L) {
-                        Log.v(TAG, "updating database with scientific name $scientificName")
-                        plantDao?.updateUriAndSpecies(ID_currentPlantObject, savedUri, scientificName)
+                    if (speciesName != "failed" && ID_currentPlantObject != -1L) {
+                        Log.v(TAG, "updating database with scientific name $speciesName")
+                        plantDao?.updateUriAndSpecies(ID_currentPlantObject, savedUri, speciesName)
                     } else {
-                        if (scientificName == "failed") run {
-                            Log.e(TAG, "scientificName == failed")
-                            // TODO: error handling
-
-
+                        if (speciesName == "failed") run {
+                            Log.e(TAG, "speciesName == failed")
+                            activity?.runOnUiThread  {
+                                Toast.makeText(context, "speciesName == failed", Toast.LENGTH_LONG)
+                                    .show()
+                            }
                         }
                     }
-
                 } catch (e: InterruptedException) {
                     Log.d(TAG, "caught Interrupted exception!")
                 }

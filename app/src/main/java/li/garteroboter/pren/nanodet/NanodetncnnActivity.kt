@@ -16,7 +16,6 @@ import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.activity.viewModels
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -176,16 +175,15 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val devicesFragment = DevicesFragment.newInstance()
         val autoConnectBluetooth = setupBluetoothPermission()
         devicesFragment.arguments = autoConnectBluetooth
+
         supportFragmentManager.beginTransaction().add(
             R.id.fragmentBluetoothChain,
-            devicesFragment, "devices"
+            devicesFragment, DEVICES_FRAGMENT
         ).commit()
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        @NonNull permissions: Array<String>,
-        @NonNull grantResults: IntArray
+        requestCode: Int, permissions: Array<String>,grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT) {
@@ -438,6 +436,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
+        const val DEVICES_FRAGMENT = "devices"
+
         private const val TAG = "MainActivityNanodetNCNN"
         private const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
         var TOGGLE_RINGTONE = true

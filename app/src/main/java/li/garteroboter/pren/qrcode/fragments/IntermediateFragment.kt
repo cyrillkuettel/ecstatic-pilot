@@ -44,8 +44,10 @@ class IntermediateFragment: Fragment() {
     }
 
 
-    public fun navigateToCamera() {
+    fun navigateToCamera() {
         Log.d(TAG, "launching to camera")
+        // TODO: Add this again
+
         // lifecycleScope.launchWhenStarted {
             Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
                 IntermediateFragmentDirections.actionIntermediateToCamera())

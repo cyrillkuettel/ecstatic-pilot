@@ -175,16 +175,16 @@ public class DevicesFragment extends ListFragment {
         Bundle args = new Bundle();
         args.putString("device", device.getAddress());
 
-        Fragment fragment = new TerminalFragment();
-        fragment.setArguments(args);
+        Fragment terminalFragment = new TerminalFragment();
+        terminalFragment.setArguments(args);
 
         if (getActivity() == null) {
             Log.e(TAG, "FATAL: getActivity() == null");
             return;
         }
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragmentBluetoothChain, fragment,
-                "terminal").addToBackStack(null).commit();
+        fragmentManager.beginTransaction().replace(R.id.fragmentBluetoothChain, terminalFragment,
+                "terminal").addToBackStack("terminal").commit();
     }
 
     /**
