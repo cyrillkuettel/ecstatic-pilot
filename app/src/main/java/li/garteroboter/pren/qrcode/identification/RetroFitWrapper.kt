@@ -65,7 +65,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
                 val plantNetApiResult: JsonObject? = response.body()
                 val res: List<Results> = plantNetApiResult?.results ?: Collections.emptyList()
                 Log.d(TAG, res.toString())
-                return extractBestResult(res)?.species?.commonNames?.get(0) ?: "failed";
+                return extractBestResult(res)?.species?.commonNames?.get(0) ?: "failed_common_name";
             }
         } catch (ex: Exception) {
             Log.e(TAG, "Api Call requestRemotePlantIdentificationSynchronously failed ");
