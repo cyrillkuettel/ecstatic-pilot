@@ -19,7 +19,7 @@ At the same time this is happening, status updates are sent to the webserver.
 
 # Finite State machine
 <p align="left">
-  <img src="doc/Finite_state_machine_mit_Pflanze.drawio.png" alt="finite state machine"  width="80%" height="80%"/>
+  <img src="doc/Finite_state_machine_plant.png" alt="finite state machine"  width="70%" height="70%"/>
 </p>
 
 
