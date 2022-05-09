@@ -1,16 +1,21 @@
 # ecstatic-pilot
 ## The brain behind an autonomous robot
-We built a robot for a tournament.
-It drives trough a parcour. 
-The goal is to detect plants in real-time and read QR-Codes. The species of the plant will also be determined.
+<p align="center">
+  <img src="app/src/main/res/drawable/rover_transparent_30.png" alt="rover"/>
+</p>
+
+This is the software for a robot. The robot is specifically built to get best scores at a tournament at HSLU.
+It drives trough a parcour. A Smartphone is attached to it. The goal from a software perspective is to detect plants in real-time communicate with hardware to stop. And then read QR-Codes. Then control the camera. The species of the plant will also be determined.
 
 The app will connect to a Bluetooth device in order to send commands. 
 
 At the same time this is happening, status updates are sent to the webserver.
 
-<p align="center">
-  <img src="app/src/main/res/drawable/rover_transparent_30.png" alt="rover"/>
+
+<p align="left">
+<img src="garteroboterli.jpeg" alt="garteroboterli"  width="60%" height="60%"/>
 </p>
+
 
 
 
