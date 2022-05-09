@@ -13,7 +13,7 @@ At the same time this is happening, status updates are sent to the webserver.
 
 
 <p align="left">
-<img src="garteroboterli.jpeg" alt="garteroboterli"  width="60%" height="60%"/>
+<img src="doc/garteroboterli.jpeg" alt="garteroboterli"  width="60%" height="60%"/>
 </p>
 
 
