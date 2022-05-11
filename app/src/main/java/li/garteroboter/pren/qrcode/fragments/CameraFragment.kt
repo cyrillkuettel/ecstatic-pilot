@@ -654,12 +654,13 @@ class CameraFragment : Fragment() {
 
     fun startAPICallAndUploadImage(file: File)  {
         Log.i(TAG, "startAPICallAndUploadImage")
+        globalStateViewModel.setCurrentImage(file)
            thread(start = true) {
                var speciesName = "failed"
                try {
                    val savedUri = file.toString()
                    speciesName = startApiCallForSpecies(savedUri)
-                   globalStateViewModel.setCurrentImage(file)
+
 
                    activity?.runOnUiThread  {
                        Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
@@ -716,10 +717,6 @@ class CameraFragment : Fragment() {
         val name = retroFitWrapper.requestLocalPlantIdentification(savedUri)
         return name;
     }
-
-
-
-
 
     /** Returns true if the device has an available back camera. False otherwise */
     private fun hasBackCamera(): Boolean {
