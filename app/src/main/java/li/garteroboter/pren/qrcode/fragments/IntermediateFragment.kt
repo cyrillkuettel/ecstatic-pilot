@@ -22,7 +22,7 @@ class IntermediateFragment: Fragment() {
         // almost always we return from CameraFragment, except when permissions have to be handled.
         if (args.returningFrom == "CameraFragment" ) {
             // observer pattern. We use this String argument to
-                // change the state of the HostActivity to start the other Camera again
+            // change the state of the HostActivity to restart the NdkCamera
             Log.i(TAG, "Returning from CameraFragment")
             globalStateViewModel.setDriveState(RETURNING_FROM_INTERMEDIATE)
         } else {
