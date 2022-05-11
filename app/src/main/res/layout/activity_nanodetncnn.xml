@@ -60,7 +60,14 @@
         android:layout_width="match_parent"
         android:textSize="15sp"
         android:textColor="@color/purple_700"
-        android:layout_height="30dp">
+        android:layout_height="28dp">
+    </TextView>
+    <TextView
+        android:id="@+id/textViewCurrentSpecies"
+        android:layout_width="match_parent"
+        android:textSize="15sp"
+        android:textColor="@color/cyrill_green"
+        android:layout_height="28dp">
 
     </TextView>
 

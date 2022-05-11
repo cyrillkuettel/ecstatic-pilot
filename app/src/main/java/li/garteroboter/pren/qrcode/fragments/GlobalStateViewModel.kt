@@ -17,7 +17,7 @@ import java.io.File
 class GlobalStateViewModel : ViewModel() {
     private val TAG = "GlobalStateViewModel"
     private val currentImage = MutableLiveData<File>()
-
+    private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
 
     private val currentLog = MutableLiveData<String>()
@@ -38,6 +38,15 @@ class GlobalStateViewModel : ViewModel() {
     fun getCurrentDriveState() : MutableLiveData<String> {
         return mutableDriveState
     }
+
+    fun setCurrentSpecies(species: String) {
+        currentSpecies.value = species
+    }
+
+    fun getCurrentSpecies() : MutableLiveData<String> {
+        return currentSpecies
+    }
+
 
     enum class LogType(val state: String) {
         STARTED("STARTED"),

@@ -655,12 +655,13 @@ class CameraFragment : Fragment() {
     fun startAPICallAndUploadImage(file: File)  {
         Log.i(TAG, "startAPICallAndUploadImage")
         globalStateViewModel.setCurrentImage(file)
+
            thread(start = true) {
                var speciesName = "failed"
                try {
                    val savedUri = file.toString()
                    speciesName = startApiCallForSpecies(savedUri)
-
+                   globalStateViewModel.setCurrentSpecies(speciesName)
 
                    activity?.runOnUiThread  {
                        Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)

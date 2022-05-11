@@ -145,6 +145,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             Log.i(TAG, "viewModel.getCurrentImage().observe")
             uploadPlantFromFile(image)
         })
+        globalStateViewModel.getCurrentSpecies().observe(this, Observer { speciesName ->
+            Log.i(TAG, "viewModel.getCurrentSpecies().observe")
+            binding.textViewCurrentSpecies.text = speciesName
+        })
+
+
     }
 
     private fun uploadPlantFromFile(file: File?) {
