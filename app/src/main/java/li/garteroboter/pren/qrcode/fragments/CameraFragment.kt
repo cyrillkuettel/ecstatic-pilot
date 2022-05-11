@@ -407,7 +407,7 @@ class CameraFragment : Fragment() {
                                       //  navigateBack()
 
 
-                                } else { // NOTE: should this be synchronized?
+                                } else {
 
                                    //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                    //  qrCodeInsertionThread!!.join()
@@ -658,7 +658,7 @@ class CameraFragment : Fragment() {
                var speciesName = "failed"
                try {
                    val savedUri = file.toString()
-                   speciesName = startLocalApiCall(savedUri)
+                   speciesName = startApiCallForSpecies(savedUri)
                    globalStateViewModel.setCurrentImage(file)
 
                    activity?.runOnUiThread  {
@@ -684,7 +684,7 @@ class CameraFragment : Fragment() {
 
                     Log.v(TAG, "starting retroFitWrapper")
 
-                    val speciesName = startLocalApiCall(savedUri)
+                    val speciesName = startApiCallForSpecies(savedUri)
                     activity?.runOnUiThread  {
                         Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
                             .show()
@@ -710,21 +710,13 @@ class CameraFragment : Fragment() {
         }
     }
 
-    fun startLocalApiCall(savedUri: String) : String  {
+    fun startApiCallForSpecies(savedUri: String) : String  {
         Log.i(TAG, "startApiCall")
         val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
         val name = retroFitWrapper.requestLocalPlantIdentification(savedUri)
         return name;
-
     }
 
-    fun startRemoteApiCall() : String  {
-        Log.i(TAG, "startApiCall")
-        val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
-        val scientificName = retroFitWrapper.requestRemotePlantIdentificationSynchronously()
-        return scientificName;
-
-    }
 
 
 
