@@ -23,15 +23,15 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
-import li.garteroboter.pren.ui.LogcatLine;
 import li.garteroboter.pren.ui.LoggingFragment;
 import li.garteroboter.pren.ui.SendImagesFragment;
 
@@ -59,26 +59,23 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
-        readLogcat();
+        final List<String> logs = readLogcat();
 
-        setupViewPager();
+        setupViewPager(logs);
 
         setupButtonOnClickListeners();
 
         //startMainActivityNanodetNCNN();
     }
 
-    private void readLogcat() {
+    private List<String> readLogcat() {
         LogcatDataReader logcatDataReader = new LogcatDataReader();
-
         try {
-            List<String> logs = logcatDataReader.read(400);
-            List<LogcatLine> logcatLines = logs.stream().map(LogcatLine::new).collect(Collectors.toList());
-            logcatLines.forEach(el -> System.out.println(el.toString() + '\n'));
-
+            return logcatDataReader.read(400);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return Collections.emptyList();
     }
 
     private void setupButtonOnClickListeners() {
@@ -95,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
 
-    private void setupViewPager() {
+    private void setupViewPager(List<String> logs) {
         /*
          * The pager widget, which handles animation and allows swiping horizontally to access
          * previous
@@ -104,7 +101,10 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         ViewPager2 viewPager = findViewById(R.id.pager);
 
         /* The pager adapter, which provides the pages to the view pager widget. */
-        FragmentStateAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
+        ScreenSlidePagerAdapter pagerAdapter = new ScreenSlidePagerAdapter(this);
+        /* pass in the logs which are used as Fragment arguments. */
+        pagerAdapter.setLogcatLines(logs);
+
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout = findViewById(R.id.tabLayout);
@@ -193,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         public ScreenSlidePagerAdapter(FragmentActivity fa) {
             super(fa);
         }
+        private ArrayList<String> logcatLines;
+
 
         @NonNull
         @Override
@@ -203,12 +205,17 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             } else if (position == 1) {
                 return SendImagesFragment.newInstance();
             } else
-                return newLogcatFragmentInstance();
+                return newLogcatFragmentInstance(logcatLines);
             }
 
         @Override
         public int getItemCount() {
             return NUM_PAGES;
+        }
+
+
+        public void setLogcatLines(List<String> logcatLines) {
+            this.logcatLines = new ArrayList<>(logcatLines);
         }
     }
 

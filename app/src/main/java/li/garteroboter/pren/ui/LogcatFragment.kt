@@ -1,7 +1,6 @@
 package li.garteroboter.pren.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +9,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import li.garteroboter.pren.R
-import li.garteroboter.pren.log.LogcatDataReader
-import java.io.IOException
 import java.util.stream.Collectors
 
 /**
@@ -22,24 +19,15 @@ class LogcatFragment : Fragment() {
     private var columnCount = 1
     private var content: List<LogcatLine> = mutableListOf(LogcatLine("testing"))
 
+    private var logs: ArrayList<String> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        readLogcat()
-    }
-
-    private fun readLogcat() {
-        val logcatDataReader = LogcatDataReader()
-        try {
-            // logcatDataReader.flush()
-            val logs = logcatDataReader.read(
-                400
-            )
-            Log.v(TAG, "logs.size == $logs.size")
+        arguments?.let { argument ->
+            logs = argument.getStringArrayList(LOGCATDUMP) as ArrayList<String>
             content = logs.stream().map { LogcatLine(it) }.collect(Collectors.toList())
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
+
     }
 
 
@@ -64,13 +52,15 @@ class LogcatFragment : Fragment() {
 
     companion object {
 
-        // TODO: Customize parameter argument names
         const val TAG = "LogcatFragment"
+        const val LOGCATDUMP = "LogcatDump"
 
-        // TODO: Customize parameter initialization
         @JvmStatic
-        fun newLogcatFragmentInstance() =
+        fun newLogcatFragmentInstance(list: ArrayList<String>) =
             LogcatFragment().apply {
+                arguments = Bundle().apply {
+                    putStringArrayList(LOGCATDUMP, list)
+                }
             }
     }
 }
