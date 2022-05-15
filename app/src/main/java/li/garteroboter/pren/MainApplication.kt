@@ -1,4 +1,4 @@
-package li.garteroboter.pren.qrcode
+package li.garteroboter.pren
 
 import android.app.Application
 import android.util.Log

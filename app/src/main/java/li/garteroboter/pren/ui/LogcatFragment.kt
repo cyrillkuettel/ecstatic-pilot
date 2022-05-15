@@ -21,11 +21,19 @@ class LogcatFragment : Fragment() {
 
     private var logs: ArrayList<String> = ArrayList()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { argument ->
             logs = argument.getStringArrayList(LOGCATDUMP) as ArrayList<String>
-            content = logs.stream().map { LogcatLine(it) }.collect(Collectors.toList())
+            content = logs.stream().map {
+
+                // val char = it[32]
+                // TODO: LogcatType
+                // Log.v(TAG, "CHAR = $char")
+
+                LogcatLine(it)
+            }.collect(Collectors.toList())
         }
 
     }
@@ -48,6 +56,11 @@ class LogcatFragment : Fragment() {
             }
         }
         return view
+    }
+
+    enum class LogcatType {
+        // TODO: map Color to Log
+        // INFO()
     }
 
     companion object {

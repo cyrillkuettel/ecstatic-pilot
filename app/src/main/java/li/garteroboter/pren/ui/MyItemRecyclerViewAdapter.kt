@@ -31,7 +31,7 @@ class MyItemRecyclerViewAdapter(
     override fun getItemCount(): Int = values.size
 
     inner class ViewHolder(binding: FragmentLogcatBinding) : RecyclerView.ViewHolder(binding.root) {
-        val contentView: TextView = binding.content
+        val contentView: TextView = binding.logcatLine
 
         override fun toString(): String {
             return super.toString() + " '" + contentView.text + "'"
