@@ -1,3 +1,4 @@
+# Caution: This branch attempts to migrate to nanodetplus, but did not successfully do so. It is discontinued for now. 
 # ecstatic-pilot
 ## The brain behind an autonomous robot
 We built a robot for a tournament.
