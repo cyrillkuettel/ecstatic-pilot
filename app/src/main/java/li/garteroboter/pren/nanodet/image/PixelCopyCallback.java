@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-// This class implements the callback after ImageProcessor as initialized the Copy process.
+/**
+ * This class implements the callback after ImageProcessor as initialized the Copy process.
+ * So only use this class as part of ImageCopyRequest.
+  */
 
 public class PixelCopyCallback implements PostTake {
     private static final String TAG = "PixelCopyCallback";
@@ -44,5 +47,4 @@ public class PixelCopyCallback implements PostTake {
         }
 
     }
-
 }

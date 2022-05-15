@@ -7,7 +7,12 @@ import android.util.Log;
 import android.view.PixelCopy;
 import android.view.SurfaceView;
 
-
+/**
+ * This is a class to copy the contents of SurfaceView.
+ * It makes use of PixelCopyCallback.
+ * Usage: ImageCopyRequest copyRequest = new ImageCopyRequest(surfaceView);
+ * copyRequest.start();
+ */
 public class ImageCopyRequest implements ImageProcessor{
     private static final String TAG = "ImageCopyRequest";
 
