@@ -38,6 +38,7 @@ import org.apache.commons.io.FileUtils
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalStartStopViewModel
 import java.io.File
+import java.lang.System.exit
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -114,13 +115,22 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         cameraView!!.holder.addCallback(this)
         setupSpinnerOnClick(binding.spinnerModel)
         setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
-        binding.mainButtonSwitchCameraSource.setOnClickListener { navigateCameraFragment() }
+
+        binding.mainButtonExit.setOnClickListener { simulateCrash() }
+
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
         setupAtomicCounterInterval()
 
 
         reload()
+    }
+
+    private fun simulateCrash() {
+        //finish()
+        /** For testing purposes: Simulate a Crash of NanodetncnnActivity
+         *  Terminates the currently running java virtual machine.  */
+        exit(0)
     }
 
     private fun observeViewModels() {

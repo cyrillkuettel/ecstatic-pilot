@@ -40,8 +40,8 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/mainButtonSwitchCameraSource"
-            android:text="Switch"
+            android:id="@+id/main_button_exit"
+            android:text="Exit"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:layout_width="100dp"
