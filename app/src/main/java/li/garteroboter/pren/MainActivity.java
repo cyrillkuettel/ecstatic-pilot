@@ -53,6 +53,27 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
+        setupViewPager();
+
+        setupButtonOnClickListeners();
+
+        //startMainActivityNanodetNCNN();
+    }
+
+    private void setupButtonOnClickListeners() {
+        Button btnSTART = findViewById(R.id.START);
+        // btnSTART.setBackgroundColor(getResources().ContextCompat.getColor(R.color.purple_500));
+        btnSTART.setOnClickListener(v ->
+                startMainActivityNanodetNCNN());
+
+        Button settingsBtn = findViewById(R.id.idBtnSettings);
+        settingsBtn.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, PreferenceActivity.class);
+            startActivity(i);
+        });
+    }
+
+    private void setupViewPager() {
         /*
          * The pager widget, which handles animation and allows swiping horizontally to access
          * previous
@@ -78,19 +99,6 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         } else {
             Log.e(TAG, "tabLayout or viewPager == null");
         }
-
-        Button btnSTART = findViewById(R.id.START);
-        // btnSTART.setBackgroundColor(getResources().ContextCompat.getColor(R.color.purple_500));
-        btnSTART.setOnClickListener(v ->
-                startMainActivityNanodetNCNN());
-
-        Button settingsBtn = findViewById(R.id.idBtnSettings);
-        settingsBtn.setOnClickListener(v -> {
-            Intent i = new Intent(MainActivity.this, PreferenceActivity.class);
-            startActivity(i);
-        });
-
-        //startMainActivityNanodetNCNN();
     }
 
     public void createSharedPreferences() {
