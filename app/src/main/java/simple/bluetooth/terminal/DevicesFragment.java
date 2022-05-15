@@ -1,6 +1,5 @@
 package simple.bluetooth.terminal;
 
-import static li.garteroboter.pren.Constants.ACCEPTED_ESP32_DEVICE_NAMES;
 import static li.garteroboter.pren.Constants.ESP32_BLUETOOTH_MAC_ADDRESS;
 import static li.garteroboter.pren.Constants.ESP_MAC_ADRESES;
 
@@ -145,7 +144,8 @@ public class DevicesFragment extends ListFragment {
                     setEmptyText("<no bluetooth devices matching the provided MAC-Addresses>");
                 }
                 if (scannedDevices.isEmpty()) {
-                    setEmptyText("<Couldn't find a single Bluetooth Device>");
+                    setEmptyText("<Couldn't find a single Bluetooth Device \n " +
+                            "This is probably a hardware issue.>");
                 }
                 Log.d(TAG, String.format("listItems.size == %s", listItems.size()));
                 if (autoConnectToESP32) {
@@ -187,11 +187,7 @@ public class DevicesFragment extends ListFragment {
         return true;
     }
 
-    private boolean isRelevantBluetoothDeviceByName(BluetoothDevice device) {
-        @SuppressLint("MissingPermission") final String bluetoothDeviceName =
-                device.getName().toLowerCase();
-        return ACCEPTED_ESP32_DEVICE_NAMES.contains(bluetoothDeviceName);
-    }
+
 
     @Override
     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
