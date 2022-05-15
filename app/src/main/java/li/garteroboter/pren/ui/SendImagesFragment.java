@@ -1,4 +1,4 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.ui;
 
 
 import android.app.Activity;
@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import li.garteroboter.pren.R;
+import li.garteroboter.pren.StorageAccessAgent;
 import li.garteroboter.pren.socket.SocketType;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;

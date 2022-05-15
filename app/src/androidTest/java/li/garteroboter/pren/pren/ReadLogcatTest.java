@@ -6,13 +6,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.Log;
-import android.view.View;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.SmallTest;
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 
-import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +20,6 @@ import java.util.List;
 
 import li.garteroboter.pren.MainActivity;
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
 
 @RunWith(AndroidJUnit4ClassRunner.class)
@@ -51,16 +48,10 @@ public class ReadLogcatTest {
     @Test
     public void testLogcat() throws IOException {
         LogcatDataReader logcatdata = new LogcatDataReader();
-        logcatdata.setReadNumberOfLines(300);
-        List<String> logs = logcatdata.read();
+        List<String> logs = logcatdata.read(300);
         for (String log : logs) {
             Log.v(TAG, log);
         }
         assertThat(logs).isNotEmpty();
-
     }
-
-
-
-
 }

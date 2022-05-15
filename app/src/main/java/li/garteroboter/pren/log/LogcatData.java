@@ -9,7 +9,7 @@ public interface LogcatData {
      * Read the current output of the Logcat at runtime.
      * @return Appendded String.
      */
-    List<String> read() throws IOException;
+    List<String> read(long readNumberOfLines) throws IOException;
 
     /**
      * Flush the Logs. This will erase history.

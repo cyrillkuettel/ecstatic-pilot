@@ -1,4 +1,4 @@
-package li.garteroboter.pren;
+package li.garteroboter.pren.ui;
 
 
 import android.content.Context;
@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import java.io.IOException;
 import java.util.List;
 
+import li.garteroboter.pren.R;
 import li.garteroboter.pren.log.LogcatData;
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.shell.RootShell;
@@ -87,9 +88,7 @@ public class LoggingFragment extends Fragment {
 
 
         btnClose.setEnabled(false);
-        btnClose.setOnClickListener(v -> {
-            manager.disconnectAll();
-        });
+        btnClose.setOnClickListener(v -> manager.disconnectAll());
 
 
         logcatreader = new LogcatDataReader();
@@ -100,9 +99,9 @@ public class LoggingFragment extends Fragment {
             Log.i(TAG, "Attempt logcat read");
 
             try {
-                // Todo: print this to fragment
+
                 Log.i(TAG, "     -------- Dumping Logcat output --------       ");
-                List<String> logs = logcatreader.read();
+                List<String> logs = logcatreader.read(300);
                 logs.forEach(System.out::println);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -1,6 +1,8 @@
 package li.garteroboter.pren;
 
 
+import static li.garteroboter.pren.ui.LogcatFragment.newLogcatFragmentInstance;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -20,11 +22,18 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
-import simple.bluetooth.terminal.DevicesFragment;
+import li.garteroboter.pren.ui.LogcatLine;
+import li.garteroboter.pren.ui.LoggingFragment;
+import li.garteroboter.pren.ui.SendImagesFragment;
 
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
@@ -50,11 +59,26 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
 
+        readLogcat();
+
         setupViewPager();
 
         setupButtonOnClickListeners();
 
         //startMainActivityNanodetNCNN();
+    }
+
+    private void readLogcat() {
+        LogcatDataReader logcatDataReader = new LogcatDataReader();
+
+        try {
+            List<String> logs = logcatDataReader.read(400);
+            List<LogcatLine> logcatLines = logs.stream().map(LogcatLine::new).collect(Collectors.toList());
+            logcatLines.forEach(el -> System.out.println(el.toString() + '\n'));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupButtonOnClickListeners() {
@@ -70,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         });
     }
 
+
     private void setupViewPager() {
         /*
          * The pager widget, which handles animation and allows swiping horizontally to access
@@ -83,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         viewPager.setAdapter(pagerAdapter);
         viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout = findViewById(R.id.tabLayout);
-        tabNames = new String[]{"Logs", "Images", "Bluetooth Terminal"};
+        tabNames = new String[]{"Logs", "Images", "Logcat"};
         if (tabLayout != null) {
             new TabLayoutMediator(
                     tabLayout,
@@ -94,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
                     }
             ).attach();
         } else {
-            Log.e(TAG, "tabLayout or viewPager == null");
+            Log.e(TAG, "tabLayout || viewPager == null");
         }
     }
 
@@ -178,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             } else if (position == 1) {
                 return SendImagesFragment.newInstance();
             } else
-                return DevicesFragment.newInstance();
+                return newLogcatFragmentInstance();
             }
 
         @Override

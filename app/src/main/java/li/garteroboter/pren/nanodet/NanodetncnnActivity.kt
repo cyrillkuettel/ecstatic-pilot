@@ -125,7 +125,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private fun observeViewModels() {
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
-
             /** Start Driving*/
             if (state == FROM_BINARY_START_COMMAND_ESP32) {
                 Log.v(TAG, "state == START_COMMAND_ESP32")
@@ -149,8 +148,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             Log.i(TAG, "viewModel.getCurrentSpecies().observe")
             binding.textViewCurrentSpecies.text = speciesName
         })
-
-
     }
 
     private fun uploadPlantFromFile(file: File?) {

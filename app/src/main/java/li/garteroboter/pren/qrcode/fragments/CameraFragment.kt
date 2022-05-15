@@ -130,7 +130,9 @@ class CameraFragment : Fragment() {
     }
 
     @Synchronized fun qrCodeAlreadySet() : Boolean {
-        return qrString != ""
+        return false;
+        // disabled for testing purposes
+       // return qrString != ""
     }
 
     private lateinit var windowInfoTracker: WindowInfoTracker
@@ -178,10 +180,14 @@ class CameraFragment : Fragment() {
           //   cameraExecutor.shutdown()
             navigateBack()
         }
+
        // takePhotoDelayed(500)
 
     }
 
+    /** If we are too late taking photo with QR-Code, taking photo whith this approach might be an
+     * idea.
+     * Note PixelCopyCallback is also an option, although the resolution might be reduced. */
     fun takePhotoDelayed(timeoutMillis: Long) {
         thread(start = true) {
             Thread.sleep(timeoutMillis)
@@ -416,9 +422,6 @@ class CameraFragment : Fragment() {
                                     takePhotoOnce(::startAPICallAndUploadImage)
 
                                 }
-
-
-
 
                             }
                             override fun qrCodeNotFound() {
@@ -715,7 +718,7 @@ class CameraFragment : Fragment() {
     fun startApiCallForSpecies(savedUri: String) : String  {
         Log.i(TAG, "startApiCall")
         val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
-        val name = retroFitWrapper.requestLocalPlantIdentification(savedUri)
+        val name = retroFitWrapper.requestLocalPlantIdentificationSynchronously(savedUri)
         return name;
     }
 

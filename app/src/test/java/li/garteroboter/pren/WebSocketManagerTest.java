@@ -2,7 +2,6 @@ package li.garteroboter.pren;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import android.content.Context;
@@ -13,14 +12,12 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -87,37 +84,6 @@ public class WebSocketManagerTest {
         return manager;
     }
 
-    /**
-     * {@link WebSocketManager#getInternetTime() get Time from Website}
-     * {@link LoggingFragment#getDeviceTimeStampAsMilliseconds() get Time from Device }
-     */
-    @Test
-    public void localTimeAndInternetTime_ShouldBeWithinOneSecond() {
-        WebSocketManager manager = createWebSocket();
-        WebSocket socket = manager.getSocketFromMap(SocketType.Text);
-        assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
-
-
-        String internetTime = manager.getInternetTime();
-        internetTime = internetTime.replace(",", "");
-        String localDeviceTime = LoggingFragment.getDeviceTimeStampAsMilliseconds();
-        String[] timeOnlyMinSecMillisec = new String[]{internetTime, localDeviceTime};
-
-        Date[] date = new Date[2];
-
-        for (int i = 0, timesLength = timeOnlyMinSecMillisec.length; i < timesLength; i++) {
-            String ele = timeOnlyMinSecMillisec[i];
-            String timeStartingWithMinutes = ele.substring(ele.length() - 9); // take the last 9 chars
-            timeOnlyMinSecMillisec[i] = timeStartingWithMinutes;
-            Date myDate = parseDate(timeOnlyMinSecMillisec[i]);
-            date[i] = myDate;
-        }
-
-        // Time difference from Local Time and the time fetched from Server should never be higher
-        // than one second.
-        assertEquals(DateUtils.round(date[0],Calendar.SECOND),
-                DateUtils.round(date[1],Calendar.SECOND));
-    }
 
     public static Date parseDate(String date) {
         try {

@@ -63,7 +63,6 @@ data class Results(
     override fun compareTo(other: Results): Int {
         return score.compareTo(other.score)
     }
-
 }
 
 data class Gbif(

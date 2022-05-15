@@ -33,7 +33,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
     private val plantService = retrofit.create(PlantApiService::class.java)
 
 
-    fun requestLocalPlantIdentification(uri: String) : String {
+    fun requestLocalPlantIdentificationSynchronously(uri: String) : String {
         Log.d(TAG, "requestLocalPlantIdentification");
         val processedUri =  removeFilePrefixFromURI(uri)
         Log.d(TAG, "starting request with uri = $processedUri")
@@ -104,6 +104,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
 
 
     private fun extractBestResult(res: List<Results>): Results? {
+        /** Custom Comparator in PlantApiService */
         return res.maxOrNull()
     }
 
