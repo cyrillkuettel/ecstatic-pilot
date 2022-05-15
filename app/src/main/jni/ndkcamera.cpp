@@ -744,6 +744,10 @@ void NdkCameraWindow::on_image(const unsigned char* nv21, int nv21_width, int nv
     // scale to target size
     if (buf.format == AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM || buf.format == AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM)
     {
+        if (buf.format == AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM) {
+            __android_log_print(ANDROID_LOG_ERROR, "NdkCamera", "        RGBX, alpha channel unused");
+
+        }
         for (int y = 0; y < render_h; y++)
         {
             const unsigned char* ptr = rgb_render.ptr<const unsigned char>(y);
