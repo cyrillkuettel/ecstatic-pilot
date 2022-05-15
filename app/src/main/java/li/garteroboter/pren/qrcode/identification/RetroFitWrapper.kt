@@ -41,7 +41,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
         val file = File(processedUri)
         val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
         val multiPartBody = MultipartBody.Part.createFormData("images", file.name, requestFile)
-        val organs = RequestBody.create(MediaType.parse("multipart/form-data"), "auto")
+        val organs = RequestBody.create(MediaType.parse("multipart/form-data"), "leaf")
 
 
         val synchronousCall = plantService.singlePlantRequestLocal2(
@@ -49,7 +49,7 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
             organs,
             include = false,
             no_Reject=false,
-            "en",
+            "de",
             apiKey)
 
         Log.v(TAG, synchronousCall.toString())
@@ -65,7 +65,8 @@ class RetroFitWrapper(private val apiKey: String, val context: Context?) {
                 val plantNetApiResult: JsonObject? = response.body()
                 val res: List<Results> = plantNetApiResult?.results ?: Collections.emptyList()
                 Log.d(TAG, res.toString())
-                return extractBestResult(res)?.species?.commonNames?.get(0) ?: "failed_common_name";
+                val concatenatedNames = extractBestResult(res)?.species?.commonNames?.joinToString()
+                return concatenatedNames ?: "failed to extract Name";
             }
         } catch (ex: Exception) {
             Log.e(TAG, "Api Call requestRemotePlantIdentificationSynchronously failed ");
