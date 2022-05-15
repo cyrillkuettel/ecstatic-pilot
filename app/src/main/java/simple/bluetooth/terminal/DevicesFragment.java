@@ -49,25 +49,7 @@ public class DevicesFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // In some situations, we might not want to automatically connect to ESP. For example,
-        // if there is no device at hand and we just want to test.
-        if (getArguments() != null) {
-            try {
-                String autoConnect = getArguments().getString("autoConnect");
-                if (autoConnect != null && autoConnect.equals("true")) {
-                    Log.d(TAG, "autoConnectToESP32  == true");
-                    autoConnectToESP32 = true;
-                } else {
-                    Log.e(TAG, "autoConnectToESP32  == false");
-                    autoConnectToESP32 = false;
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, "Attempted to get Arguments in Fragment startup. " +
-                        "The autoConnectToESP32 Property was not found.");
-                e.printStackTrace();
-            }
-        }
+        autoConnectToESP32 = parseAutoConnectArgs();
 
 
         if (getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
@@ -81,15 +63,37 @@ public class DevicesFragment extends ListFragment {
                     if (view == null)
                         view = getActivity().getLayoutInflater().inflate(R.layout.device_list_item,
                                 parent, false);
-                    TextView text1 = view.findViewById(R.id.text1);
-                    TextView text2 = view.findViewById(R.id.text2);
-                    text1.setText(device.getName());
-                    text2.setText(device.getAddress());
+                    TextView textViewDeviceName = view.findViewById(R.id.textViewDeviceName);
+                    TextView textViewDeviceAddress = view.findViewById(R.id.textViewDeviceAddress);
+                    textViewDeviceName.setText(device.getName());
+                    textViewDeviceAddress.setText(device.getAddress());
                     return view;
                 }
             };
         }
 
+    }
+
+    // In some situations, we might not want to automatically connect to ESP. For example,
+    // if there is no device at hand and we just want to test.
+    private boolean parseAutoConnectArgs() {
+        boolean autoConnectToESP32 = false;
+        if (getArguments() != null) {
+            try {
+                String autoConnect = getArguments().getString("autoConnect");
+                if (autoConnect != null && autoConnect.equals("true")) {
+                    Log.d(TAG, "autoConnectToESP32  == true");
+                    autoConnectToESP32 = true;
+                } else {
+                    Log.e(TAG, "autoConnectToESP32  == false");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Attempted to get Arguments in Fragment startup. " +
+                        "The autoConnectToESP32 Property was not found.");
+                e.printStackTrace();
+            }
+        }
+        return autoConnectToESP32;
     }
 
     @Override
@@ -137,15 +141,12 @@ public class DevicesFragment extends ListFragment {
                         }
                     }
                 }
-
                 if (listItems.isEmpty()) {
                     setEmptyText("<no bluetooth devices matching the provided MAC-Addresses>");
                 }
                 if (scannedDevices.isEmpty()) {
                     setEmptyText("<Couldn't find a single Bluetooth Device>");
-
                 }
-
                 Log.d(TAG, String.format("listItems.size == %s", listItems.size()));
                 listItems.sort(DevicesFragment::compareTo);
                 listAdapter.notifyDataSetChanged();
@@ -173,7 +174,6 @@ public class DevicesFragment extends ListFragment {
                         initializeTerminalFragment(device);
                     }
                 }
-
             }
         }
     }
