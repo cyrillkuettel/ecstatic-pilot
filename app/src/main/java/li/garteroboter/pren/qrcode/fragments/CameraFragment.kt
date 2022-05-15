@@ -664,12 +664,10 @@ class CameraFragment : Fragment() {
                try {
                    val savedUri = file.toString()
                    speciesName = startApiCallForSpecies(savedUri)
-                   globalStateViewModel.setCurrentSpecies(speciesName)
-
-                   activity?.runOnUiThread  {
-                       Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
-                           .show()
+                   activity?.runOnUiThread {
+                       globalStateViewModel.setCurrentSpecies(speciesName)
                    }
+
                } catch (e: InterruptedException) {
                    Log.d(TAG, "caught Interrupted exception!")
                } finally {
