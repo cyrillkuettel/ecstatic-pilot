@@ -100,8 +100,8 @@ public class DevicesFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setListAdapter(null);
-        View header = getActivity().getLayoutInflater().inflate(R.layout.device_list_header, null
-                , false);
+        View header = getActivity().getLayoutInflater().inflate(R.layout.device_list_header,
+                null, false);
         getListView().addHeaderView(header, null, false);
         setEmptyText("initializing...");
         ((TextView) getListView().getEmptyView()).setTextSize(18);
@@ -148,10 +148,9 @@ public class DevicesFragment extends ListFragment {
                     setEmptyText("<Couldn't find a single Bluetooth Device>");
                 }
                 Log.d(TAG, String.format("listItems.size == %s", listItems.size()));
-                listItems.sort(DevicesFragment::compareTo);
-                listAdapter.notifyDataSetChanged();
-
-                manageAutoConnection();
+                if (autoConnectToESP32) {
+                    manageAutoConnection();
+                }
             }
         } else {
             Log.e(TAG, "bluetooth Adapter == null");
@@ -159,20 +158,18 @@ public class DevicesFragment extends ListFragment {
     }
 
     private void manageAutoConnection() {
-        if (autoConnectToESP32) {
-            Log.d(TAG, "autoConnectToESP ");
-            if (listItems.size() == 1) {
-                BluetoothDevice ESP32_Device = listItems.get(0);
-                initializeTerminalFragment(ESP32_Device);
-            } else {
-                // there may be multiple devices with the name "ESP32"
-                // here I can check for the MAC Address.
-                // This can be useful when there are multiple ESP32 devices in the area.
-                // Probably not, but you never know.
-                for (BluetoothDevice device : listItems) {
-                    if (Objects.equals(device.getAddress(), ESP32_BLUETOOTH_MAC_ADDRESS)) {
-                        initializeTerminalFragment(device);
-                    }
+        Log.d(TAG, "autoConnectToESP ");
+        if (listItems.size() == 1) {
+            BluetoothDevice ESP32_Device = listItems.get(0);
+            initializeTerminalFragment(ESP32_Device);
+        } else {
+            // there may be multiple devices with the name "ESP32"
+            // here I can check for the MAC Address.
+            // This can be useful when there are multiple ESP32 devices in the area.
+            // Probably not, but you never know.
+            for (BluetoothDevice device : listItems) {
+                if (Objects.equals(device.getAddress(), ESP32_BLUETOOTH_MAC_ADDRESS)) {
+                    initializeTerminalFragment(device);
                 }
             }
         }
@@ -216,24 +213,6 @@ public class DevicesFragment extends ListFragment {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragmentBluetoothChain, terminalFragment,
                 "terminal").addToBackStack("terminal").commit();
-    }
-
-    /**
-     * sort by name, then address. sort named devices first
-     */
-    static int compareTo(BluetoothDevice a, BluetoothDevice b) {
-        @SuppressLint("MissingPermission") boolean aValid =
-                a.getName() != null && !a.getName().isEmpty();
-        @SuppressLint("MissingPermission") boolean bValid =
-                b.getName() != null && !b.getName().isEmpty();
-        if (aValid && bValid) {
-            @SuppressLint("MissingPermission") int ret = a.getName().compareTo(b.getName());
-            if (ret != 0) return ret;
-            return a.getAddress().compareTo(b.getAddress());
-        }
-        if (aValid) return -1;
-        if (bValid) return +1;
-        return a.getAddress().compareTo(b.getAddress());
     }
 
     public DevicesFragment() {
