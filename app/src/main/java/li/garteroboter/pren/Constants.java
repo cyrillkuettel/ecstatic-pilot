@@ -7,7 +7,7 @@ import java.util.Set;
 
 public final class Constants {
 
-    public static final String FROM_BINARY_START_COMMAND_ESP32 = "^A";
+    public static final String RECEIVED_CHAR_START_COMMAND_ESP32 = "^A";
     public static final String START_COMMAND_ESP32 = "1";
     public static final String STOP_COMMAND_ESP32 = "0";
 

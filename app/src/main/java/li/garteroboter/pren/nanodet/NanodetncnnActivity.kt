@@ -87,7 +87,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var numerOfConfirmations = 3 // accept Plant detection result after N confirmations
     private val waitingTimePlantCallback = 5000 // to configure the bluetooth calls
     private var plantCount = -1
-    private var switchQr = true
+    private var switchQr = true // determine if QR-Code detection is enabled
     private var prob_threshhold = -1f
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,7 +136,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun observeViewModels() {
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
             /** Start Driving*/
-            if (state == FROM_BINARY_START_COMMAND_ESP32) {
+            if (state == RECEIVED_CHAR_START_COMMAND_ESP32) {
+                terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)  // send initial driving command
                 Log.v(TAG, "state == START_COMMAND_ESP32")
                 websocketManagerText.sendText("received start command")
                 websocketManagerText.startTimer()
@@ -157,6 +158,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         globalStateViewModel.getCurrentSpecies().observe(this, Observer { speciesName ->
             Log.i(TAG, "viewModel.getCurrentSpecies().observe")
             binding.textViewCurrentSpecies.text = speciesName
+            // websocketManagerText.sendText(speciesName)
+        })
+        globalStateViewModel.getCurrentLog().observe(this, Observer { log ->
+            websocketManagerText.sendText(log.state)
         })
     }
 
