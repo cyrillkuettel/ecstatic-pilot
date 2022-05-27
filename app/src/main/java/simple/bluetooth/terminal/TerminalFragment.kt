@@ -22,7 +22,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import li.garteroboter.pren.Constants
-import li.garteroboter.pren.Constants.FROM_BINARY_START_COMMAND_ESP32
+import li.garteroboter.pren.Constants.RECEIVED_CHAR_START_COMMAND_ESP32
 import li.garteroboter.pren.R
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import simple.bluetooth.terminal.SerialService.SerialBinder
@@ -271,9 +271,9 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
             }
             val content: CharSequence =  TextUtil.toCaretString(msg, newline.isNotEmpty())
 
-            if (content.contains(FROM_BINARY_START_COMMAND_ESP32)) {
+            if (content.contains(RECEIVED_CHAR_START_COMMAND_ESP32)) {
                 Log.d(TAG, content.toString())
-                 globalStateViewModel.setDriveState(FROM_BINARY_START_COMMAND_ESP32)
+                 globalStateViewModel.setDriveState(RECEIVED_CHAR_START_COMMAND_ESP32)
 
             }
             receiveText!!.append(content)
