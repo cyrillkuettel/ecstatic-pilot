@@ -180,8 +180,10 @@ class CameraFragment : Fragment() {
           //   cameraExecutor.shutdown()
             navigateBack()
         }
+        globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.OBJECT_DETECTION_TRIGGERED)
 
-       // takePhotoDelayed(500)
+
+        // takePhotoDelayed(500)
 
     }
 
@@ -400,7 +402,8 @@ class CameraFragment : Fragment() {
                         QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
                             override fun onQRCodeFound(qrCode: String?) {
                                 Log.i(TAG, "onQRCodeFound")
-
+                                globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.QR_CODE_DETECTED)
+                                // globalStateViewModel.setCurrentLog(qrCode)
                                 if (qrCodeAlreadySet()) {
                                     // should this block be synchronized?
 
@@ -744,7 +747,7 @@ class CameraFragment : Fragment() {
 
     companion object {
 
-        private const val qrCodeWaitingTime: Long = 10000 // maximum allowed fragment Lifetime
+        private const val qrCodeWaitingTime: Long = 5000 // maximum allowed fragment Lifetime
 
         private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
