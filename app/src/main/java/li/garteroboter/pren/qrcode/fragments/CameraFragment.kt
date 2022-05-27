@@ -412,7 +412,6 @@ class CameraFragment : Fragment() {
 
                                       //  navigateBack()
 
-
                                 } else {
 
                                    //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
@@ -422,13 +421,10 @@ class CameraFragment : Fragment() {
                                     takePhotoOnce(::startAPICallAndUploadImage)
 
                                 }
-
                             }
                             override fun qrCodeNotFound() {
                                 // nope
                             }
-
-
                         })
                     )
                 }

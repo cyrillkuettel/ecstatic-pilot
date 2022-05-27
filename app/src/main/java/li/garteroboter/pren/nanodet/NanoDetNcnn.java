@@ -31,7 +31,6 @@ public class NanoDetNcnn {
 
 
 
-
     static {
         System.loadLibrary("nanodetncnn");
     }
