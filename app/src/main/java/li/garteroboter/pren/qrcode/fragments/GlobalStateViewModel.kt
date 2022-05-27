@@ -20,7 +20,7 @@ class GlobalStateViewModel : ViewModel() {
     private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
 
-    private val currentLog = MutableLiveData<String>()
+    private val currentLog = MutableLiveData<LogType>()
 
     fun setCurrentImage(image: File) {
         Log.i(TAG, "setCurrentImage: postvalue")
@@ -47,12 +47,23 @@ class GlobalStateViewModel : ViewModel() {
         return currentSpecies
     }
 
+    fun setCurrentLog(newLog: LogType ) {
+        currentLog.value = newLog
+    }
+
+    fun getCurrentLog() : MutableLiveData<LogType> {
+        return currentLog
+    }
+
 
     enum class LogType(val state: String) {
         STARTED("STARTED"),
         FINISHED("FINISHED"),
         OBJECT_DETECTION_TRIGGERED("OBJECT_DETECTION_TRIGGERED"),
         PLANT_SPECIES_DETECTED("PLANT_SPECIES_DETECTED"),
+        NO_PLANT_SPECIES_DETECTED(
+            "NO_PLANT_SPECIES_DETECTED"),
+
         QR_CODE_DETECTED("QR_CODE_DETECTED")
     }
 }
