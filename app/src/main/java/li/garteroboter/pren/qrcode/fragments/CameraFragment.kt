@@ -80,47 +80,49 @@ import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundList
 
 
 /**
- * Main fragment for this app. Implements all camera operations including:
- * - Viewfinder
- * - Photo taking
- * - Image analysis
+ * Main fragment for QR-Code detection and programmatically taking photo, and species detection.
+ *
+ * - ImageAnalysis: [QRCodeImageAnalyzer] can check QR-Codes. For this, imageAnalysis.Analyzer
+ * function is implemented here, where it can access image data for application analysis via an ImageProxy.
+ * - Photo taking by manually controlling the camera.
+ *  -> Photo added to the [GlobalStateViewModel] which results in uploading it to out webserver.
+ *
+ *  Additionally, Species detection has been implemented using the Pl@nt net API with Retrofit
  */
 class CameraFragment : Fragment() {
 
     private val globalStateViewModel: GlobalStateViewModel by activityViewModels()
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
-
     private val fragmentCameraBinding get() = _fragmentCameraBinding!!
 
-    private var cameraUiContainerBinding: CameraUiContainerBinding? = null
+    /** Timer for fragment lifetime.  */
+    private var TimerForFragmentTermination: TimerTask? = null
 
-    private lateinit var outputDirectory: File
-    private lateinit var broadcastManager: LocalBroadcastManager
-
-    private val timeStampFragmentStarted: Long = System.currentTimeMillis()
 
     //TODO:
     // remove this in the final act. This is just for debugging.
     private var dataBaseThread: Thread = clearAllTablesThread()
-
     private var qrCodeInsertionThread: Thread? = null
 
     private val imageTaken: AtomicBoolean = AtomicBoolean(false)
-    private val callsToNavigateBack: AtomicBoolean = AtomicBoolean(false)
+    private val navigateBackHasBeenCalled: AtomicBoolean = AtomicBoolean(false)
 
     @Volatile private var qrString: String = ""
 
-
     val queue = LinkedBlockingQueue<Long>()
 
+
+    private lateinit var outputDirectory: File
+    private lateinit var broadcastManager: LocalBroadcastManager
     private var displayId: Int = -1
-    private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
+    private var lensFacingBack: Int = CameraSelector.LENS_FACING_BACK
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
+    private var cameraUiContainerBinding: CameraUiContainerBinding? = null
 
 
     @Synchronized fun setQRString(qrCode: String?) {
@@ -130,7 +132,7 @@ class CameraFragment : Fragment() {
     }
 
     @Synchronized fun qrCodeAlreadySet() : Boolean {
-        return false;
+        return true;
         // disabled for testing purposes
        // return qrString != ""
     }
@@ -144,7 +146,7 @@ class CameraFragment : Fragment() {
     }
 
     /** Blocking camera operations are performed using this executor */
-    private lateinit var cameraExecutor: ExecutorService
+    private lateinit var cameraExecutor: ExecutorService // similar to java.util.concurrent.executor
 
 
     /**
@@ -174,14 +176,12 @@ class CameraFragment : Fragment() {
                     CameraFragmentDirections.actionCameraToPermissions()
             )
         }
-        Log.v(TAG, "onResume")
-
-        Timer("Navigate back in any case", false).schedule(qrCodeWaitingTime) {
-          //   cameraExecutor.shutdown()
-            navigateBack()
-        }
         globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.OBJECT_DETECTION_TRIGGERED)
 
+
+         TimerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
+            navigateBackOnUIThread()
+        }
 
         // takePhotoDelayed(500)
 
@@ -257,7 +257,8 @@ class CameraFragment : Fragment() {
             }
         }
     }
-
+    /** This is a function used for debugging purposes.
+     * Delete the database for every new test. (Called once per Fragment Lifetime) */
     private fun clearAllTablesThread() : Thread {
         Log.i(TAG, "clearAllTablesThread")
         return object : Thread("clearAllTables") {
@@ -314,16 +315,11 @@ class CameraFragment : Fragment() {
      * Inflate camera controls and update the UI manually upon config changes to avoid removing
      * and re-adding the view finder from the view hierarchy; this provides a seamless rotation
      * transition on devices that support it.
-     *
-     * NOTE: The flag is supported starting in Android 8 but there still is a small flash on the
-     * screen for devices that run Android 9 or below.
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
         // Rebind the camera with the updated display metrics
         bindCameraUseCases()
-
     }
 
     /** Initialize CameraX, and prepare to bind the camera use cases  */
@@ -331,18 +327,15 @@ class CameraFragment : Fragment() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
         cameraProviderFuture.addListener(Runnable {
 
-            // CameraProvider
             cameraProvider = cameraProviderFuture.get()
 
-            // Select lensFacing depending on the available cameras
-            lensFacing = when {
+            // For our use-case, it's always LENS_FACING_BACK
+            lensFacingBack = when {
                 hasBackCamera() -> CameraSelector.LENS_FACING_BACK
                 hasFrontCamera() -> CameraSelector.LENS_FACING_FRONT
                 else -> throw IllegalStateException("Back and front camera are unavailable")
             }
 
-
-            // Build and bind the camera use cases
             bindCameraUseCases()
         }, ContextCompat.getMainExecutor(requireContext()))
     }
@@ -367,7 +360,7 @@ class CameraFragment : Fragment() {
                 ?: throw IllegalStateException("Camera initialization failed.")
 
         // CameraSelector
-        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacingBack).build()
 
         // Preview
         preview = Preview.Builder()
@@ -404,6 +397,19 @@ class CameraFragment : Fragment() {
                                 Log.i(TAG, "onQRCodeFound")
                                 globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.QR_CODE_DETECTED)
                                 // globalStateViewModel.setCurrentLog(qrCode)
+                                /** QR-Code has been detected.
+                                 * If the last plant position plant has not yet been reached, we can
+                                 * now navigateBack(). If we know for sure we've reached last
+                                 * plant position, we can stay in this fragment, we can increase
+                                 * the lifetime variable [QR_CODE_WAITING_TIME]
+                                 * Then stay in this fragment, while (True) watch for the next
+                                 * QR-code 'STOP'.
+                                 *
+                                 *
+                                 * A better idea is to not call `navigateBack() directly but use
+                                 * a smart little trick: Just re-initialize the Timer [TimerForFragmentTermination]
+                                 * and set the delay to 1ms. That will immediately call navigateBack()
+                                 * */
                                 if (qrCodeAlreadySet()) {
                                     // should this block be synchronized?
 
@@ -412,11 +418,14 @@ class CameraFragment : Fragment() {
                                         Toast.makeText(context, "qrCodeAlreadyExists", Toast.LENGTH_LONG)
                                             .show()
                                     })
-
-                                      //  navigateBack()
-
+                                    /** This navigates back immediately */
+                                    Log.e(TAG, "Navigate back immediately worked ")
+                                    TimerForFragmentTermination = Timer("adieu", false)
+                                        .schedule(1) {
+                                        navigateBackOnUIThread()
+                                    }
                                 } else {
-
+                                    // Inserting into database might cause too much overhead.
                                    //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                    //  qrCodeInsertionThread!!.join()
 
@@ -566,14 +575,16 @@ class CameraFragment : Fragment() {
         }
     }
 
-
-    private fun navigateBack() {
-
-        if (callsToNavigateBack.get()) return // only run once to prevent issues
-        if (callsToNavigateBack.compareAndSet(false, true)) {
+    /** Different threads can call this method. Since  calling this method more than
+     * once (per lifetime) is prone to cause crashes, we set a AtomicBoolean Flag to ensure it's
+     * called once and only once. */
+    private fun navigateBackOnUIThread() {
+        if (navigateBackHasBeenCalled.get()) return
+        if (navigateBackHasBeenCalled.compareAndSet(false, true)) {
             requireActivity().runOnUiThread(Runnable {
                 try {
-                    Log.e(TAG, "callsToNavigateBack.compareAndSet")
+                    Log.d(TAG, "navigateBack() has been called. " +
+                            "Therefore, callsToNavigateBack.compareAndSet(false, true) is called")
                     Navigation.findNavController(requireActivity(), R.id.fragment_container)
                         .navigate(
                             CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
@@ -587,11 +598,8 @@ class CameraFragment : Fragment() {
 
 
 
-
-
-
     private fun takePhotoOnce(myActionOnImageSaved: (savedImage: File) -> Unit) {
-        if (callsToNavigateBack.get()) return // to prevent error of "Photo capture failed: Camera is closed"
+        if (navigateBackHasBeenCalled.get()) return // to prevent error of "Photo capture failed: Camera is closed"
         if (imageTaken.get()) return // only call once
         if (imageTaken.compareAndSet(false, true)) {
             Log.v(TAG, "takePhotoOnce")
@@ -606,7 +614,7 @@ class CameraFragment : Fragment() {
                 val metadata = Metadata().apply {
 
                     // Mirror image when using the front camera
-                    isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+                    isReversedHorizontal = lensFacingBack == CameraSelector.LENS_FACING_FRONT
                 }
 
                 // Create output options object which contains file + metadata
@@ -746,8 +754,8 @@ class CameraFragment : Fragment() {
 
 
     companion object {
-
-        private const val qrCodeWaitingTime: Long = 5000 // maximum allowed fragment Lifetime
+        /** Maximum activity Lifetime */
+        private const val QR_CODE_WAITING_TIME: Long = 5000 // maximum allowed fragment Lifetime
 
         private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
