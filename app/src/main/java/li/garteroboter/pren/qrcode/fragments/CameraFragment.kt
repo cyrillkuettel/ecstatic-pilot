@@ -180,7 +180,7 @@ class CameraFragment : Fragment() {
 
 
          TimerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
-            navigateBackOnUIThread()
+            navigateBack_OnUIThread()
         }
 
         // takePhotoDelayed(500)
@@ -398,6 +398,7 @@ class CameraFragment : Fragment() {
                                 globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.QR_CODE_DETECTED)
                                 // globalStateViewModel.setCurrentLog(qrCode)
                                 /** QR-Code has been detected.
+                                 *
                                  * If the last plant position plant has not yet been reached, we can
                                  * now navigateBack(). If we know for sure we've reached last
                                  * plant position, we can stay in this fragment, we can increase
@@ -409,6 +410,7 @@ class CameraFragment : Fragment() {
                                  * A better idea is to not call `navigateBack() directly but use
                                  * a smart little trick: Just re-initialize the Timer [TimerForFragmentTermination]
                                  * and set the delay to 1ms. That will immediately call navigateBack()
+                                 * and avoid calling it twice.
                                  * */
                                 if (qrCodeAlreadySet()) {
                                     // should this block be synchronized?
@@ -422,7 +424,7 @@ class CameraFragment : Fragment() {
                                     Log.e(TAG, "Navigate back immediately worked ")
                                     TimerForFragmentTermination = Timer("adieu", false)
                                         .schedule(1) {
-                                        navigateBackOnUIThread()
+                                        navigateBack_OnUIThread()
                                     }
                                 } else {
                                     // Inserting into database might cause too much overhead.
@@ -578,7 +580,7 @@ class CameraFragment : Fragment() {
     /** Different threads can call this method. Since  calling this method more than
      * once (per lifetime) is prone to cause crashes, we set a AtomicBoolean Flag to ensure it's
      * called once and only once. */
-    private fun navigateBackOnUIThread() {
+    private fun navigateBack_OnUIThread() {
         if (navigateBackHasBeenCalled.get()) return
         if (navigateBackHasBeenCalled.compareAndSet(false, true)) {
             requireActivity().runOnUiThread(Runnable {

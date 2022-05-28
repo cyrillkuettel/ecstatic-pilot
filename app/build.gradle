@@ -1,6 +1,13 @@
+buildscript {
+    dependencies {
+        classpath "com.dipien:bye-bye-jetifier:1.2.0"
+    }
+}
+
+
 plugins {
     // https://www.geeksforgeeks.org/how-to-hide-api-and-secret-keys-in-android-studio/
-    // this allows to read the key from local.properties
+    // this allows to read the key from local.properties at runtime
     id 'com.google.secrets_gradle_plugin' version '0.4'
 }
 
@@ -8,6 +15,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
+apply plugin: "com.dipien.byebyejetifier"
 
 android {
 
