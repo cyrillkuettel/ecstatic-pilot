@@ -132,9 +132,8 @@ class CameraFragment : Fragment() {
     }
 
     @Synchronized fun qrCodeAlreadySet() : Boolean {
-        return true;
-        // disabled for testing purposes
-       // return qrString != ""
+
+       return qrString != ""
     }
 
     private lateinit var windowInfoTracker: WindowInfoTracker
@@ -430,6 +429,7 @@ class CameraFragment : Fragment() {
                                     // Inserting into database might cause too much overhead.
                                    //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
                                    //  qrCodeInsertionThread!!.join()
+                                    Log.d(TAG, "This is a new QR-Code.")
 
                                     setQRString(qrCode)
                                     takePhotoOnce(::startAPICallAndUploadImage)
@@ -504,18 +504,6 @@ class CameraFragment : Fragment() {
         return _id
 
     }
-
-    private fun qrCodeAlreadyExists(qrCode: String) : Boolean {
-
-
-        val db = context?.let { it1 -> getDatabase(it1) }
-        val plantDao = db?.plantDataAccessObject()
-        val allPlants: List<Plant> = plantDao?.getAll() ?: Collections.emptyList()
-        return allPlants.any{ it.qrString == qrCode }
-
-
-    }
-
 
 
 
