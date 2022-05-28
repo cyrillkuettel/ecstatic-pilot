@@ -116,7 +116,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         setupSpinnerOnClick(binding.spinnerModel)
         setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
 
-        binding.mainButtonExit.setOnClickListener { simulateCrash() }
+        // binding.mainButtonExit.setOnClickListener { simulateCrash() }
+        binding.mainButtonQrCode.setOnClickListener {navigateCameraFragment() }
 
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
@@ -325,7 +326,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         shrinkSufaceView()
 
         // TODO: the following block is probably not optional.
-        // It may be better to make use of shared viewmodel aswell,
+        // It may be better to make use of shared ViewModel as well
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
         val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
         val intermediateFragment = fragment as IntermediateFragment
