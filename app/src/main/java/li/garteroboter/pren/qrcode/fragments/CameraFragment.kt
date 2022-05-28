@@ -562,7 +562,7 @@ class CameraFragment : Fragment() {
         }
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-             takePhotoOnce(::onImageSavedPrepareUpload)
+             takePhotoOnce(::startAPICallAndUploadImage)
         }
 
         // Listener for button used to view the most recent photo
