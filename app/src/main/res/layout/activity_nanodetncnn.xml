@@ -40,10 +40,10 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/main_button_exit"
-            android:text="Exit"
+            android:id="@+id/main_button_qr_code"
+            android:text="QR-Code"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:layout_width="100dp"
             android:layout_height="37dp"
             android:background="@drawable/switch_buttonshape"
@@ -84,9 +84,7 @@
         android:layout_height="fill_parent" />
 
 
-    <androidx.fragment.app.FragmentContainerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.fragment.app.FragmentContainerView xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/fragment_container"
         android:name="androidx.navigation.fragment.NavHostFragment"

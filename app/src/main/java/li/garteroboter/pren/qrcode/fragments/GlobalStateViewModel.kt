@@ -20,8 +20,17 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     private val currentImage = MutableLiveData<File>()
     private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
-
+    private val _triggerNavigateToCameraFragment = MutableLiveData<Boolean>(false)
     private val currentLog = MutableLiveData<LogType>()
+
+    fun set_triggerNavigateToCameraFragment(value: Boolean) {
+        Log.d(TAG, "set_triggerNavigateToCameraFragment")
+        _triggerNavigateToCameraFragment.value = value
+    }
+
+    fun get_triggerNavigateToCameraFragment(): MutableLiveData<Boolean> {
+        return _triggerNavigateToCameraFragment
+    }
 
     fun setCurrentImage(image: File) {
         Log.i(TAG, "setCurrentImage: postvalue")

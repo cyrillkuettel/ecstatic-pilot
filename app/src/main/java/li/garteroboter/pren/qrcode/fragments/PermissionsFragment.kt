@@ -66,7 +66,9 @@ class PermissionsFragment : Fragment() {
     }
 
     private fun navigateToIntermediate() {
+
         lifecycleScope.launchWhenStarted {
+            Log.e(TAG, "actionPermissionsToIntermediate")
             Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
                     PermissionsFragmentDirections.actionPermissionsToIntermediate("PermissionsFragment"))
         }

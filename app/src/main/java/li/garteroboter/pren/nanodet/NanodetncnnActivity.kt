@@ -19,10 +19,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
@@ -30,7 +28,6 @@ import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
-import li.garteroboter.pren.qrcode.fragments.IntermediateFragment
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment.Companion.RETURNING_FROM_INTERMEDIATE
 import li.garteroboter.pren.socket.SocketType
 import li.garteroboter.pren.socket.WebSocketManager
@@ -117,7 +114,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
 
         // binding.mainButtonExit.setOnClickListener { simulateCrash() }
-        binding.mainButtonQrCode.setOnClickListener {navigateCameraFragment() }
+        binding.mainButtonQrCode.setOnClickListener {navigateToCameraFragment() }
 
         val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         ringtone = RingtoneManager.getRingtone(applicationContext, notification)
@@ -278,7 +275,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                     terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)  // stop driving
 
                     if (switchQr) {
-                        navigateCameraFragment()
+                        navigateToCameraFragment()
                     }
 
                     updateDescription(
@@ -320,17 +317,25 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         )
     }
 
-    private fun navigateCameraFragment() {
+    private fun navigateToCameraFragment() {
         nanodetncnn.closeCamera()
 
         shrinkSufaceView()
 
+       // Navigation.findNavController(this, R.id.fragment_container).navigate(PermissionsFragmentDirections.actionPermissionsToIntermediate())
+
+        globalStateViewModel.set_triggerNavigateToCameraFragment(true)
+
+
+        /*
         // TODO: the following block is probably not optional.
         // It may be better to make use of shared ViewModel as well
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
         val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
         val intermediateFragment = fragment as IntermediateFragment
+
         intermediateFragment.navigateToCameraFragment()
+*/
 
     }
 
