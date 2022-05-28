@@ -319,10 +319,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private fun navigateToCameraFragment() {
         nanodetncnn.closeCamera()
-
         shrinkSufaceView()
-
-       // Navigation.findNavController(this, R.id.fragment_container).navigate(PermissionsFragmentDirections.actionPermissionsToIntermediate())
 
         globalStateViewModel.set_triggerNavigateToCameraFragment(true)
 

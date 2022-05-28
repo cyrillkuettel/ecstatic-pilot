@@ -52,6 +52,7 @@ class IntermediateFragment: Fragment() {
         globalStateViewModel.get_triggerNavigateToCameraFragment().observe(viewLifecycleOwner) { value ->
             Log.d(TAG, "get_triggerNavigateToCameraFragment().observe")
             if (value) {
+                globalStateViewModel.set_triggerNavigateToCameraFragment(false) // set to false again to prevent loops
                 navigateToCameraFragment()
             }
         }
