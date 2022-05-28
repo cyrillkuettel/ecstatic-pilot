@@ -70,31 +70,31 @@ public class NumberPickerPreferenceDialogFragment extends PreferenceDialogFragme
         // set the values for the NumberPicker view - min, max, default/value to show and if scrollable
         mNumberPicker.setMinValue(getNumberPickerPreference().getMinValue());
         mNumberPicker.setMaxValue(getNumberPickerPreference().getMaxValue());
-        mValue = Integer.parseInt(restorePreferences("number_picker_preference"));
+        mValue = Integer.parseInt(restorePreferences());
         mNumberPicker.setValue(mValue);
         mNumberPicker.setWrapSelectorWheel(getNumberPickerPreference().getSelectorWheelValue());
     }
 
     // This method to store the custom preferences changes
-    private void savePreferences(String key, String value) {
+    private void savePreferences(String value) {
         Activity activity = getActivity();
         SharedPreferences myPreferences;
         if (activity != null) {
             myPreferences = activity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
             SharedPreferences.Editor myEditor = myPreferences.edit();
-            myEditor.putString(key, value);
+            myEditor.putString("number_picker_preference", value);
             myEditor.apply();
         }
     }
 
     // This method to restore the custom preferences data
-    private String restorePreferences(String key) {
+    private String restorePreferences() {
         Activity activity = getActivity();
         SharedPreferences myPreferences;
         if (activity != null) {
             myPreferences = activity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
-            if (myPreferences.contains(key))
-                return myPreferences.getString(key, "");
+            if (myPreferences.contains("number_picker_preference"))
+                return myPreferences.getString("number_picker_preference", "");
             else return "";
         } else return "";
     }
@@ -105,7 +105,7 @@ public class NumberPickerPreferenceDialogFragment extends PreferenceDialogFragme
         if (positiveResult) {
             mNumberPicker.clearFocus();
             final String value = String.valueOf(mNumberPicker.getValue());
-            savePreferences("number_picker_preference", value);
+            savePreferences(value);
 
             if (getNumberPickerPreference().callChangeListener(value)) {
                 getNumberPickerPreference().setValue(Integer.parseInt(value));

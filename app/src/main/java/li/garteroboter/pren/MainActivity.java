@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     private static final String TAG = "MainActivity";
 
 
-    private WebSocketManager manager = null;
+    private final WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
 
 

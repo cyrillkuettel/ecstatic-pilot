@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 public final class CustomSettingsBundle  {
 
     private final int confirmations;
-    private  boolean usingBluetooth;
-    private  boolean showFPS;
+    private final boolean usingBluetooth;
+    private final boolean showFPS;
     private final float prob_threshold;
     private final boolean switchToQr;
     private final int plantCount;

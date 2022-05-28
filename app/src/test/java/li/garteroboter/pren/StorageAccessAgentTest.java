@@ -8,7 +8,6 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -21,10 +20,6 @@ public class StorageAccessAgentTest  {
 
     Context mContext;
 
-    @BeforeAll
-    public static void setup() {
-        
-    }
 
     @BeforeEach
     public void setupContext() {

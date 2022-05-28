@@ -13,7 +13,6 @@ import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
@@ -31,10 +30,6 @@ public class WebSocketManagerTest {
     MainActivity main = new MainActivity();
     Context context;
 
-    @BeforeAll
-    public static void setup() {
-        
-    }
 
     @Before
     public void setupContext() {

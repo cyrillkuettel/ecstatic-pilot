@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.io.IOException;
@@ -36,9 +37,9 @@ public class SerialService extends Service implements SerialListener {
     private enum QueueType {Connect, ConnectError, Read, IoError}
 
     private static class QueueItem {
-        QueueType type;
-        byte[] data;
-        Exception e;
+        final QueueType type;
+        final byte[] data;
+        final Exception e;
 
         QueueItem(QueueType type, byte[] data, Exception e) { this.type=type; this.data=data; this.e=e; }
     }
@@ -127,6 +128,7 @@ public class SerialService extends Service implements SerialListener {
         queue2.clear();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     public void detach() {
         if(connected)
             createNotification();
@@ -136,13 +138,12 @@ public class SerialService extends Service implements SerialListener {
         listener = null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     private void createNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel nc = new NotificationChannel(Constants.NOTIFICATION_CHANNEL, "Background service", NotificationManager.IMPORTANCE_LOW);
-            nc.setShowBadge(false);
-            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            nm.createNotificationChannel(nc);
-        }
+        NotificationChannel nc = new NotificationChannel(Constants.NOTIFICATION_CHANNEL, "Background service", NotificationManager.IMPORTANCE_LOW);
+        nc.setShowBadge(false);
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.createNotificationChannel(nc);
         Intent disconnectIntent = new Intent()
                 .setAction(Constants.INTENT_ACTION_DISCONNECT);
         Intent restartIntent = new Intent()

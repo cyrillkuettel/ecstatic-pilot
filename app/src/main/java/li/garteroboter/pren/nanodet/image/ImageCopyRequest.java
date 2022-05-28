@@ -17,7 +17,7 @@ public class ImageCopyRequest implements ImageProcessor{
     private static final String TAG = "ImageCopyRequest";
 
 
-    SurfaceView cameraview;
+    final SurfaceView cameraview;
     PixelCopyCallback pixelCopyCallback;
     boolean setHasPermissionToSave;
 

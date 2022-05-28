@@ -46,7 +46,7 @@ public class WebSocketManager {
 
     private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you " +
             "online? ";
-    Context context;
+    final Context context;
     /**
      * The timeout value in milliseconds for socket connection.
      */

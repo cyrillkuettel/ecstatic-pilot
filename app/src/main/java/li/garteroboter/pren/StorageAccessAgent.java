@@ -27,7 +27,7 @@ public class StorageAccessAgent {
 
     private static final String TAG = "StorageAccessAgent";
     private final Context context;
-    private AssetManager assetManager;
+    private final AssetManager assetManager;
 
     public StorageAccessAgent(final Context context) {
         this.context = context;

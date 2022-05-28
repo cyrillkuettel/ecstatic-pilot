@@ -320,20 +320,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private fun navigateToCameraFragment() {
         nanodetncnn.closeCamera()
         shrinkSufaceView()
-
         globalStateViewModel.set_triggerNavigateToCameraFragment(true)
-
-
-        /*
-        // TODO: the following block is probably not optional.
-        // It may be better to make use of shared ViewModel as well
-        val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
-        val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
-        val intermediateFragment = fragment as IntermediateFragment
-
-        intermediateFragment.navigateToCameraFragment()
-*/
-
     }
 
     /** This is a little trick I use so that the CameraFragment gets displayed. */
