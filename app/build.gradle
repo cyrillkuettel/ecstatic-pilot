@@ -60,7 +60,6 @@ dependencies {
 
 
     implementation group: 'com.jcabi', name: 'jcabi-log', version: '0.20.1'
-    // implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
@@ -69,7 +68,7 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     // https://mvnrepository.com/artifact/com.squareup.assertj/assertj-android
 
-    implementation group: 'com.squareup.assertj', name: 'assertj-android', version: '1.2.0'
+     // implementation group: 'com.squareup.assertj', name: 'assertj-android', version: '1.2.0'
 
 
 
@@ -148,7 +147,7 @@ dependencies {
     // CameraX Extensions library
     // implementation "androidx.camera:camera-extensions:$camerax_version"
 
-    //WindowManager
+    //WindowManager: (!) build fails when upgrading
      implementation 'androidx.window:window:1.0.0-alpha09'
     // implementation "androidx.window:window-java:1.0.0-alpha09"
     // implementation 'androidx.window:window:1.0.0-alpha06'
