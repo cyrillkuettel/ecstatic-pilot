@@ -1,7 +1,7 @@
 package li.garteroboter.pren;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import android.content.Context;
@@ -16,9 +16,6 @@ import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -51,9 +48,9 @@ public class WebSocketManagerTest {
     public void testOpenSocketConnectionInThread() {
         WebSocketManager manager = createWebSocket();
         WebSocket socket = manager.getSocketFromMap(SocketType.Text);
-          // Check the Websocket state as well for good measure
-           // Possible values CREATED,CONNECTING,OPEN,CLOSING,CLOSED
-        assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
+        // Possible values: CREATED, CONNECTING, OPEN, CLOSING, CLOSED
+        assertEquals(socket.getState(), WebSocketState.OPEN);
+
     }
 
     /**
@@ -62,11 +59,7 @@ public class WebSocketManagerTest {
     public WebSocketManager  createWebSocket() {
         WebSocketManager manager = new WebSocketManager(context, Constants.WEBSOCKET_URI);
 
-        Callable<Boolean> callableObj = () -> {
-            boolean managerResult =
-                    manager.createAndOpenWebSocketConnection(SocketType.Text);
-            return managerResult;
-        };
+        Callable<Boolean> callableObj = () -> manager.createAndOpenWebSocketConnection(SocketType.Text);
         ExecutorService service = Executors.newSingleThreadExecutor();
         Future<Boolean> future = service.submit(callableObj);
         Boolean OpenSocketConnectionResult = false;
@@ -85,21 +78,13 @@ public class WebSocketManagerTest {
     }
 
 
-    public static Date parseDate(String date) {
-        try {
-            return new SimpleDateFormat("mm:ss.SSS").parse(date);
-        } catch (ParseException e) {
-            Log.e(TAG, "Could not parse date! ");
-            return null;
-        }
-    }
-
 
     @Test
     public void sendTextData_ListenerOnMessageShouldFire() {
         WebSocketManager manager = createWebSocket();
         WebSocket socket = manager.getSocketFromMap(SocketType.Text);
-        assertThat(socket.getState()).isEqualTo(WebSocketState.OPEN);
+        assertEquals(socket.getState(), WebSocketState.OPEN);
+
         manager.sendText("Test");
 
 
@@ -115,7 +100,7 @@ public class WebSocketManagerTest {
     @Test
     public void testisWebserverUp() {
         WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI);
-        assertThat(manager.isWebserverUp()).isTrue();
+        assertTrue(manager.isWebserverUp());
     }
 
 
@@ -135,10 +120,5 @@ public class WebSocketManagerTest {
         // System.out.println(System.getProperty("java.class.path"));
 
     }
-
-
-
-
-
 
 }
