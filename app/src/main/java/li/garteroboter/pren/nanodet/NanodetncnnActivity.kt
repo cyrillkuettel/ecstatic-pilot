@@ -330,7 +330,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val navHostFragment = binding.fragmentContainer.getFragment<NavHostFragment>()
         val fragment: Fragment = navHostFragment.childFragmentManager.fragments[0]
         val intermediateFragment = fragment as IntermediateFragment
-        intermediateFragment.navigateToCamera()
+        intermediateFragment.navigateToCameraFragment()
 
     }
 
@@ -429,7 +429,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             applicationContext
         )
         val useBluetooth = preferences.getBoolean("key_bluetooth", false)
-        val drawFps = preferences.getBoolean("key_fps", false)
+        val drawFps = preferences.getBoolean("key_fps", true)
         val _value = preferences.getString("key_prob_threshold", "0.40")
         val probThreshold = _value!!.toFloat()
         val plantCount = preferences.getInt("number_picker_preference", 6)
