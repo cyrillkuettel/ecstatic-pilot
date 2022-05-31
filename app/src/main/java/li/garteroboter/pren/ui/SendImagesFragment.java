@@ -74,7 +74,6 @@ public class SendImagesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_websocket_send_images, container, false);
         generateDropDownItems(view);
 
-        Log.d(TAG, "onCreateView");
 
         Button btnSelectImageAndSend = view.findViewById(R.id.btnSelectImageAndSend);
         btnSelectImageAndSend.setEnabled(false);

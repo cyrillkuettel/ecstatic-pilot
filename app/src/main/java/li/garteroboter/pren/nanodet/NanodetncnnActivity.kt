@@ -411,8 +411,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
-    // creates an object, which is a container for some preferences. This bundle object is then
-    // passed to the native layer)
+    // creates an object, which is a container for some preferences.
     private fun generatePreferenceBundle(): CustomSettingsBundle {
         val preferences = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
