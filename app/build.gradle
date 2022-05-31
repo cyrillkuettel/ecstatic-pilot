@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath "com.dipien:bye-bye-jetifier:1.2.0"
+        classpath "com.dipien:bye-bye-jetifier:1.2.2"
     }
 }
 
