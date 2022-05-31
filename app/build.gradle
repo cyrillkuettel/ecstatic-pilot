@@ -55,6 +55,10 @@ android {
             path file('src/main/jni/CMakeLists.txt')
         }
     }
+    android {
+        ndkVersion "23.2.8568313"
+    }
+
 }
 
 

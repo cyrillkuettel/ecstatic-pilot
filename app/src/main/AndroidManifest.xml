@@ -59,7 +59,8 @@
         </activity>
         <activity
             android:name=".nanodet.NanodetncnnActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="false">
 
             <!-- Register as a system camera app -->
             <intent-filter>

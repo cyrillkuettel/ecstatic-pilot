@@ -478,8 +478,7 @@ class CameraFragment : Fragment() {
     private fun insertQRCodeAndReturnId(qrCode: String?) : Long {
         val db = context?.let { it1 -> getDatabase(it1) }
         val plantDao = db?.plantDataAccessObject()
-        var allPlants: List<Plant> = plantDao?.getAll() ?: Collections.emptyList()
-
+        var allPlants: List<Plant>
 
 
         val plant = qrCode?.let { it1 -> Plant(it1, "not-populated", "no-species-yet") }
