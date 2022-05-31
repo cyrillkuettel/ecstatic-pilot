@@ -161,6 +161,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             // websocketManagerText.sendText(speciesName)
         })
         globalStateViewModel.getCurrentLog().observe(this, Observer { log ->
+            if (log == GlobalStateViewModel.LogType.QR_CODE_DETECTED) {
+                binding.textViewQRCode.text = log.state
+            }
             websocketManagerText.sendText(log.state)
         })
     }
@@ -177,8 +180,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
         }
     }
-
-
 
     private fun injectPreferences(settingsBundle: CustomSettingsBundle) {
         // creates a reference to the currently active instance
