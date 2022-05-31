@@ -12,20 +12,23 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-package li.garteroboter.pren.qrcodencnn;
+package li.garteroboter.pren.qrcodencnn
 
-import android.content.res.AssetManager;
-import android.view.Surface;
+import android.content.res.AssetManager
+import android.view.Surface
 
-public class NanoDetNcnn
-{
-    public native boolean loadModel(AssetManager mgr);
-    public native boolean openCamera(int facing);
-    public native boolean closeCamera();
-    public native boolean setOutputWindow(Surface surface);
-    public native boolean setObjectReferenceAsGlobal(MainActivityQRCodeNCNN mainActivityQRCodeNCNN);
 
-    static {
-        System.loadLibrary("nanodetncnn");
+
+class NanoDetNcnn {
+    external fun loadModel(mgr: AssetManager?): Boolean
+    external fun openCamera(facing: Int): Boolean
+    external fun closeCamera(): Boolean
+    external fun setOutputWindow(surface: Surface?): Boolean
+    external fun setObjectReferenceAsGlobal(mainActivityQRCodeNCNN: MainActivityQRCodeNCNN?): Boolean
+
+    companion object {
+        init {
+            System.loadLibrary("nanodetncnn")
+        }
     }
 }

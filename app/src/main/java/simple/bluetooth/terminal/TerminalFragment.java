@@ -30,9 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import li.garteroboter.pren.Constants;
-import li.garteroboter.pren.LoggingFragment;
 import li.garteroboter.pren.R;
-import li.garteroboter.pren.qrcodencnn.MainActivityQRCodeNCNN;
 
 public class TerminalFragment extends Fragment implements ServiceConnection, SerialListener, EngineControlListener {
     private static final String TAG = "TerminalFragment";

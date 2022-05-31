@@ -134,8 +134,7 @@ public class SendImagesFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    };
-
+    }
 
 
     @Override

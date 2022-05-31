@@ -55,7 +55,7 @@ public class WebSocketManager extends AppCompatActivity {
      */
     private static final int TIMEOUT = 5000;
     private static final int NUMBER_OF_THREADS = 2;
-    private static boolean allowMultiplePilots = true;
+    private static final boolean allowMultiplePilots = true;
 
     private final ExecutorService executorService;
 
@@ -280,7 +280,7 @@ public class WebSocketManager extends AppCompatActivity {
 
         if (ws.isOpen()) {
             ws.sendBinary(bytes);
-            Log.i(TAG, "I sent the bytes to %s} !".format(URI));
+            Log.i(TAG, String.format(URI));
             return true;
         }
         Log.i(TAG, "Tried to call method 'sendBytes', but Websocket is not open!");
