@@ -1,6 +1,7 @@
 package li.garteroboter.pren.qrcode.qrcode
 
 import android.graphics.ImageFormat
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BinaryBitmap
@@ -35,8 +36,14 @@ class QRCodeImageAnalyzer(private val listener: QRCodeFoundListener? = null) : I
             } catch (e: Exception ) {
                 listener?.qrCodeNotFound()
             }
+        } else {
+            Log.e(TAG, "FATAL: image.format not in yuvFormats")
         }
         image.close()
+    }
+
+    companion object {
+        const val TAG = "QRCodeImageAnalyzer"
     }
 
 }

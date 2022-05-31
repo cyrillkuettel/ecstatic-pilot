@@ -70,6 +70,14 @@
         android:layout_height="28dp">
 
     </TextView>
+    <TextView
+        android:id="@+id/textViewQRCode"
+        android:layout_width="match_parent"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:layout_height="28dp">
+
+    </TextView>
 
     <LinearLayout
         android:orientation="horizontal"

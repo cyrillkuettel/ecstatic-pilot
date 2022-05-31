@@ -61,6 +61,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun setCurrentLog(newLog: LogType ) {
+        Log.d(TAG, "setCurrentLog: $newLog")
         currentLog.value = newLog
     }
 
