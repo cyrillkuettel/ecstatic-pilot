@@ -94,6 +94,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
+        if (!useBluetooth) {
+            globalStateViewModel.ROBOTER_STARTED
+        }
         numerOfConfirmations = settingsBundle.confirmations
         plantCount = settingsBundle.plantCount
         switchQr = settingsBundle.isSwitchToQr
