@@ -16,8 +16,10 @@ import java.io.File
  */
 
 class GlobalStateViewModel(application: Application) : AndroidViewModel(application)  {
-    private val TAG = "GlobalStateViewModel"
-    var ROBOTER_STARTED = false
+
+    var ROBOTER_STARTED = false /** Object detection result is dismissed if util this flag is set
+     to true. */
+
     private val currentImage = MutableLiveData<File>()
     private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
@@ -76,5 +78,8 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
             "NO_PLANT_SPECIES_DETECTED"),
 
         QR_CODE_DETECTED("QR_CODE_DETECTED")
+    }
+    companion object {
+        const val TAG = "GlobalStateViewModel"
     }
 }
