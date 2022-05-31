@@ -30,17 +30,18 @@ import java.util.List;
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
+import li.garteroboter.pren.socket.SocketType;
 import li.garteroboter.pren.socket.WebSocketManager;
 import li.garteroboter.pren.socket.WebSocketManagerInstance;
 import li.garteroboter.pren.ui.LoggingFragment;
 import li.garteroboter.pren.ui.SendImagesFragment;
 
-
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
     private static final String TAG = "MainActivity";
+    private static final String HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
 
 
-    private final WebSocketManager manager = null;
+    private WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
 
 
@@ -64,8 +65,25 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         setupViewPager(logs);
 
         setupButtonOnClickListeners();
+        /** To be able receive data even in the case where [NanodetncnnActivity] is unresponsive*/
+        setupCommandWeboscket();
 
         //startMainActivityNanodetNCNN();
+    }
+
+    private void setupCommandWeboscket() {
+        try {
+            manager = new WebSocketManager(this, HOSTNAME);
+            Thread connectThread = new Thread( () -> {
+                if (manager.createAndOpenWebSocketConnection(SocketType.Command)) {
+                    manager.sendText("hi");
+                }
+            });
+            connectThread.start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private List<String> readLogcat() {

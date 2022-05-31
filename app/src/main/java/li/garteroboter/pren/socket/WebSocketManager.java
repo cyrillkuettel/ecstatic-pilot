@@ -61,7 +61,6 @@ public class WebSocketManager {
      */
     private final Map<SocketType, WebSocket> sockets;
     private final String URI;
-    private String receivedInternetTime = "Not initialized";
 
     public WebSocketManager(Context context, String URI) {
         this.context = context;
@@ -76,7 +75,7 @@ public class WebSocketManager {
         Log.i(TAG, "createAndOpenWebSocketConnection");
 
 
-        final String completeURI = this.URI + socketType.id;
+        final String completeURI = this.URI + socketType.type;
 
         WebSocket ws = null;
 
@@ -158,10 +157,7 @@ public class WebSocketManager {
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
 
-                        if (message.contains("time=")) {
 
-                            receivedInternetTime = message.replace("time=", "");
-                        }
 
                         Log.i(TAG, "WebSocket onTextMessage: " + message);
                     }
@@ -193,20 +189,7 @@ public class WebSocketManager {
     }
 
 
-    public String getInternetTime() {
-        String command = "command=requestTime";
-        sendText(command);
 
-        // wait for the completion
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "sleep interrupted!");
-        }
-
-        return receivedInternetTime;
-
-    }
 
 
     /**
