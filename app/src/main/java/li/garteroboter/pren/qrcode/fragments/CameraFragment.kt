@@ -59,6 +59,7 @@ import li.garteroboter.pren.databinding.FragmentCameraBinding
 import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.database.Plant
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
+import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel.LogType
 import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
@@ -76,7 +77,6 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import li.garteroboter.pren.qrcode.qrcode.QRCodeFoundListener as QRCodeFoundListener1
-
 
 
 /**
@@ -97,7 +97,7 @@ class CameraFragment : Fragment() {
     private val fragmentCameraBinding get() = _fragmentCameraBinding!!
 
     /** Timer for fragment lifetime.  */
-    private var TimerForFragmentTermination: TimerTask? = null
+    private var timerForFragmentTermination: TimerTask? = null
 
 
     //TODO:
@@ -108,7 +108,8 @@ class CameraFragment : Fragment() {
     private val imageTaken: AtomicBoolean = AtomicBoolean(false)
     private val navigateBackHasBeenCalled: AtomicBoolean = AtomicBoolean(false)
 
-    @Volatile private var qrString: String = ""
+    @Volatile
+    private var qrString: String = ""
 
     val queue = LinkedBlockingQueue<Long>()
 
@@ -125,19 +126,20 @@ class CameraFragment : Fragment() {
     private var cameraUiContainerBinding: CameraUiContainerBinding? = null
 
 
-    @Synchronized fun setQRString(qrCode: String?) {
+    @Synchronized
+    fun setQRString(qrCode: String?) {
         if (qrCode != null) {
             qrString = qrCode
         }
     }
 
-    @Synchronized fun qrCodeAlreadySet() : Boolean {
+    @Synchronized
+    fun qrCodeAlreadySet(): Boolean {
 
-       return qrString != ""
+        return qrString != ""
     }
 
     private lateinit var windowInfoTracker: WindowInfoTracker
-
 
 
     private val displayManager by lazy {
@@ -172,13 +174,12 @@ class CameraFragment : Fragment() {
         // user could have removed them while the app was in paused state.
         if (!PermissionsFragment.hasPermissions(requireContext())) {
             Navigation.findNavController(requireActivity(), R.id.fragment_container).navigate(
-                    CameraFragmentDirections.actionCameraToPermissions()
+                CameraFragmentDirections.actionCameraToPermissions()
             )
         }
-        globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.OBJECT_DETECTION_TRIGGERED)
+        globalStateViewModel.setCurrentLog(LogType.OBJECT_DETECTION_TRIGGERED)
 
-
-         TimerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
+        timerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
             navigateBack_OnUIThread()
         }
 
@@ -201,7 +202,7 @@ class CameraFragment : Fragment() {
 
 
     fun placeHolder(input: File) {
-        Log.i(TAG, "placeHolder");
+        Log.i(TAG, "placeHolder")
     }
 
     fun onImageSavedPrepareUpload(input: File) {
@@ -211,13 +212,15 @@ class CameraFragment : Fragment() {
     }
 
 
-    private fun getAPIKey() : String {
+    private fun getAPIKey(): String {
         val applicationInfo: ApplicationInfo = requireActivity().applicationContext.packageManager
-            .getApplicationInfo(requireActivity().applicationContext.packageName, PackageManager.GET_META_DATA)
+            .getApplicationInfo(
+                requireActivity().applicationContext.packageName,
+                PackageManager.GET_META_DATA
+            )
         val key = applicationInfo.metaData["plantapi"]
         return key.toString()
     }
-
 
 
     override fun onDestroyView() {
@@ -250,15 +253,16 @@ class CameraFragment : Fragment() {
 
                 // Load thumbnail into circular button using Glide
                 Glide.with(photoViewButton)
-                        .load(uri)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(photoViewButton)
+                    .load(uri)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(photoViewButton)
             }
         }
     }
+
     /** This is a function used for debugging purposes.
      * Delete the database for every new test. (Called once per Fragment Lifetime) */
-    private fun clearAllTablesThread() : Thread {
+    private fun clearAllTablesThread(): Thread {
         Log.i(TAG, "clearAllTablesThread")
         return object : Thread("clearAllTables") {
             override fun run() {
@@ -288,8 +292,7 @@ class CameraFragment : Fragment() {
 
         //Initialize WindowManager to retrieve display metrics
         // windowManager = WindowManager(view.context)
-        windowInfoTracker =  WindowInfoTracker.getOrCreate(requireActivity())
-
+        windowInfoTracker = WindowInfoTracker.getOrCreate(requireActivity())
 
 
         // Determine the output directory
@@ -356,92 +359,100 @@ class CameraFragment : Fragment() {
 
         // CameraProvider
         val cameraProvider = cameraProvider
-                ?: throw IllegalStateException("Camera initialization failed.")
+            ?: throw IllegalStateException("Camera initialization failed.")
 
         // CameraSelector
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacingBack).build()
 
         // Preview
         preview = Preview.Builder()
-                // We request aspect ratio but no resolution
-                .setTargetAspectRatio(screenAspectRatio)
-                // Set initial target rotation
-                .setTargetRotation(rotation)
-                .build()
+            // We request aspect ratio but no resolution
+            .setTargetAspectRatio(screenAspectRatio)
+            // Set initial target rotation
+            .setTargetRotation(rotation)
+            .build()
 
         // ImageCapture
         imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                // We request aspect ratio but no resolution to match preview config, but letting
-                // CameraX optimize for whatever specific resolution best fits our use cases
-                .setTargetAspectRatio(screenAspectRatio)
-                // Set initial target rotation, we will have to call this again if rotation changes
-                // during the lifecycle of this use case
-                .setTargetRotation(rotation)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            // We request aspect ratio but no resolution to match preview config, but letting
+            // CameraX optimize for whatever specific resolution best fits our use cases
+            .setTargetAspectRatio(screenAspectRatio)
+            // Set initial target rotation, we will have to call this again if rotation changes
+            // during the lifecycle of this use case
+            .setTargetRotation(rotation)
 
-                .build()
+            .build()
 
         imageAnalyzer = ImageAnalysis.Builder()
-                // .setTargetAspectRatio(screenAspectRatio)
-                .setTargetRotation(rotation)
-                .setTargetResolution(Size(1280, 720))
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // TODO: experiment with this
-                .build()
-                // The analyzer can then be assigned to the instance
-                .also {
-                    it.setAnalyzer(
-                        cameraExecutor,
-                        QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
-                            override fun onQRCodeFound(qrCode: String?) {
-                                Log.i(TAG, "onQRCodeFound")
-                                globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.QR_CODE_DETECTED)
-                                // globalStateViewModel.setCurrentLog(qrCode)
-                                /** QR-Code has been detected.
-                                 *
-                                 * If the last plant position plant has not yet been reached, we can
-                                 * now navigateBack(). If we know for sure we've reached last
-                                 * plant position, we can stay in this fragment, we can increase
-                                 * the lifetime variable [QR_CODE_WAITING_TIME]
-                                 * Then stay in this fragment, while (True) watch for the next
-                                 * QR-code 'STOP'.
-                                 *
-                                 *
-                                 * A better idea is to not call `navigateBack() directly but use
-                                 * a smart little trick: Just re-initialize the Timer [TimerForFragmentTermination]
-                                 * and set the delay to 1ms. That will immediately call navigateBack()
-                                 * and avoid calling it twice.
-                                 * */
-                                if (qrCodeAlreadySet()) {
-                                    // should this block be synchronized?
+            // .setTargetAspectRatio(screenAspectRatio)
+            .setTargetRotation(rotation)
+            .setTargetResolution(Size(1280, 720))
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // TODO: experiment with this
+            .build()
+            // The analyzer can then be assigned to the instance
+            .also {
+                it.setAnalyzer(
+                    cameraExecutor,
+                    QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
+                        override fun onQRCodeFound(qrCode: String?) {
+                            Log.e(TAG, "onQRCodeFound")
+                            globalStateViewModel.setCurrentLog(LogType.QR_CODE_DETECTED)
+                            // globalStateViewModel.setCurrentLog(qrCode)
+                            /** QR-Code has been detected.
+                             *
+                             * If the last plant position plant has not yet been reached, we can
+                             * now navigateBack(). If we know for sure we've reached last
+                             * plant position, we can stay in this fragment, we can increase
+                             * the lifetime variable [QR_CODE_WAITING_TIME]
+                             * Then stay in this fragment, while (True) watch for the next
+                             * QR-code 'STOP'.
+                             *
+                             *
+                             * A better idea is to not call `navigateBack() directly but use
+                             * a smart little trick: Just re-initialize the Timer [timerForFragmentTermination]
+                             * and set the delay to 1ms. That will immediately call navigateBack()
+                             * and avoid calling it twice.
+                             * */
+                            if (qrCodeAlreadySet()) {
+                                // should this block be synchronized?
 
-                                    Log.e(TAG, "QR-Code '$qrCode' qrCodeAlreadyExists, not inserting.")
-                                    activity?.runOnUiThread(Runnable {
-                                        Toast.makeText(context, "qrCodeAlreadyExists", Toast.LENGTH_LONG)
-                                            .show()
-                                    })
-                                    /** This navigates back immediately */
-                                    Log.e(TAG, "Navigate back immediately worked ")
-                                    TimerForFragmentTermination = Timer("adieu", false)
-                                        .schedule(1) {
+                                Log.e(TAG, "QR-Code '$qrCode' qrCodeAlreadyExists, not inserting.")
+                                activity?.runOnUiThread(Runnable {
+                                    Toast.makeText(
+                                        context,
+                                        "qrCodeAlreadyExists",
+                                        Toast.LENGTH_LONG
+                                    )
+                                        .show()
+                                })
+                                /** This navigates back immediately. The timer is used to
+                                 *  override the previous timer instance, to avoid conflicts. */
+                                Log.e(TAG, "Navigate back immediately worked ")
+                                timerForFragmentTermination = Timer("adieu", false)
+                                    .schedule(1) {
                                         navigateBack_OnUIThread()
                                     }
-                                } else {
-                                    // Inserting into database might cause too much overhead.
-                                   //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
-                                   //  qrCodeInsertionThread!!.join()
-                                    Log.d(TAG, "This is a new QR-Code.")
+                            } else {
+                                // Inserting into database might cause too much overhead.
+                                //  qrCodeInsertionThread = createQRCodeInsertionThread(qrCode)
+                                //  qrCodeInsertionThread!!.join()
+                                Log.d(TAG, "This is a new QR-Code.")
 
-                                    setQRString(qrCode)
-                                    takePhotoOnce(::startAPICallAndUploadImage)
+                                setQRString(qrCode)
+                                takePhotoOnce(::startAPICallAndUploadImage)
 
-                                }
                             }
-                            override fun qrCodeNotFound() {
-                                // nope
-                            }
-                        })
-                    )
-                }
+                        }
+
+                        override fun qrCodeNotFound() {
+                            // nope
+                           // Log.d(TAG, "qrCodeNotFound")
+
+                        }
+                    })
+                )
+            }
 
         // Must unbind the use-cases before rebinding them
         cameraProvider.unbindAll()
@@ -450,7 +461,8 @@ class CameraFragment : Fragment() {
             // A variable number of use-cases can be passed here -
             // camera provides access to CameraControl & CameraInfo
             camera = cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture, imageAnalyzer)
+                this, cameraSelector, preview, imageCapture, imageAnalyzer
+            )
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(fragmentCameraBinding.previewView.surfaceProvider)
@@ -459,13 +471,13 @@ class CameraFragment : Fragment() {
         }
     }
 
-    fun createQRCodeInsertionThread(qrCode: String?) : Thread {
+    fun createQRCodeInsertionThread(qrCode: String?): Thread {
         Log.i(TAG, "createQRCodeInsertionThread")
         return object : Thread("createQRCodeInsertionThread") {
             override fun run() {
                 try {
 
-                queue.put(insertQRCodeAndReturnId(qrCode))
+                    queue.put(insertQRCodeAndReturnId(qrCode))
 
                 } catch (e: InterruptedException) {
                     Log.d(TAG, "caught Interrupted exception!")
@@ -475,7 +487,7 @@ class CameraFragment : Fragment() {
     }
 
 
-    private fun insertQRCodeAndReturnId(qrCode: String?) : Long {
+    private fun insertQRCodeAndReturnId(qrCode: String?): Long {
         val db = context?.let { it1 -> getDatabase(it1) }
         val plantDao = db?.plantDataAccessObject()
         var allPlants: List<Plant>
@@ -484,8 +496,9 @@ class CameraFragment : Fragment() {
         val plant = qrCode?.let { it1 -> Plant(it1, "not-populated", "no-species-yet") }
 
         val insert = plantDao?.insert(plant)
-        val _id = if (insert != null) { insert }
-        else {
+        val _id = if (insert != null) {
+            insert
+        } else {
             Log.d(TAG, "Somehow failed to obtain id from inserted plant object. ")
             -1L
         }
@@ -503,7 +516,6 @@ class CameraFragment : Fragment() {
         return _id
 
     }
-
 
 
     /**
@@ -534,9 +546,9 @@ class CameraFragment : Fragment() {
         }
 
         cameraUiContainerBinding = CameraUiContainerBinding.inflate(
-                LayoutInflater.from(requireContext()),
-                fragmentCameraBinding.root,
-                true
+            LayoutInflater.from(requireContext()),
+            fragmentCameraBinding.root,
+            true
         )
 
         // In the background, load latest photo taken (if any) for gallery thumbnail
@@ -549,7 +561,7 @@ class CameraFragment : Fragment() {
         }
 
         cameraUiContainerBinding?.cameraCaptureButton?.setOnClickListener {
-             takePhotoOnce(::startAPICallAndUploadImage)
+            takePhotoOnce(::startAPICallAndUploadImage)
         }
 
         // Listener for button used to view the most recent photo
@@ -557,9 +569,11 @@ class CameraFragment : Fragment() {
             // Only navigate when the gallery has photos
             if (true == outputDirectory.listFiles()?.isNotEmpty()) {
                 Navigation.findNavController(
-                        requireActivity(), R.id.fragment_container
-                ).navigate(CameraFragmentDirections
-                        .actionCameraToGallery(outputDirectory.absolutePath))
+                    requireActivity(), R.id.fragment_container
+                ).navigate(
+                    CameraFragmentDirections
+                        .actionCameraToGallery(outputDirectory.absolutePath)
+                )
             }
         }
     }
@@ -572,8 +586,10 @@ class CameraFragment : Fragment() {
         if (navigateBackHasBeenCalled.compareAndSet(false, true)) {
             requireActivity().runOnUiThread(Runnable {
                 try {
-                    Log.d(TAG, "navigateBack() has been called. " +
-                            "Therefore, callsToNavigateBack.compareAndSet(false, true) is called")
+                    Log.d(
+                        TAG, "navigateBack() has been called. " +
+                                "Therefore, callsToNavigateBack.compareAndSet(false, true) is called"
+                    )
                     Navigation.findNavController(requireActivity(), R.id.fragment_container)
                         .navigate(
                             CameraFragmentDirections.actionCameraToIntermediate("CameraFragment")
@@ -584,7 +600,6 @@ class CameraFragment : Fragment() {
             })
         }
     }
-
 
 
     private fun takePhotoOnce(myActionOnImageSaved: (savedImage: File) -> Unit) {
@@ -643,37 +658,36 @@ class CameraFragment : Fragment() {
                         }
                     })
 
-            displayFlashAnimation()
+                displayFlashAnimation()
 
             }
         }
     }
 
 
-
-    fun startAPICallAndUploadImage(file: File)  {
+    fun startAPICallAndUploadImage(file: File) {
         Log.i(TAG, "startAPICallAndUploadImage")
         globalStateViewModel.setCurrentImage(file)
 
-           thread(start = true) {
-               var speciesName = "failed"
-               try {
-                   val savedUri = file.toString()
-                   speciesName = startApiCallForSpecies(savedUri)
-                   activity?.runOnUiThread {
-                       globalStateViewModel.setCurrentSpecies(speciesName)
-                   }
+        thread(start = true) {
+            var speciesName = "failed"
+            try {
+                val savedUri = file.toString()
+                speciesName = startApiCallForSpecies(savedUri)
+                activity?.runOnUiThread {
+                    globalStateViewModel.setCurrentSpecies(speciesName)
+                }
 
-               } catch (e: InterruptedException) {
-                   Log.d(TAG, "caught Interrupted exception!")
-               } finally {
-                   Log.v(TAG, "updating database with scientific name $speciesName")
-               }
-           }
+            } catch (e: InterruptedException) {
+                Log.d(TAG, "caught Interrupted exception!")
+            } finally {
+                Log.v(TAG, "updating database with scientific name $speciesName")
+            }
+        }
     }
 
 
-    fun savePictureUriToPlantObjectAndStartApiCall(file: File) : Thread {
+    fun savePictureUriToPlantObjectAndStartApiCall(file: File): Thread {
         Log.i(TAG, "savePictureUriToPlantObjectAndStartApiCall")
         return object : Thread("savePictureUriToPlantObjectAndStartApiCall") {
             override fun run() {
@@ -684,7 +698,7 @@ class CameraFragment : Fragment() {
                     Log.v(TAG, "starting retroFitWrapper")
 
                     val speciesName = startApiCallForSpecies(savedUri)
-                    activity?.runOnUiThread  {
+                    activity?.runOnUiThread {
                         Toast.makeText(context, "Species: $speciesName", Toast.LENGTH_LONG)
                             .show()
                     }
@@ -696,7 +710,7 @@ class CameraFragment : Fragment() {
                     } else {
                         if (speciesName == "failed") run {
                             Log.e(TAG, "speciesName == failed")
-                            activity?.runOnUiThread  {
+                            activity?.runOnUiThread {
                                 Toast.makeText(context, "speciesName == failed", Toast.LENGTH_LONG)
                                     .show()
                             }
@@ -709,7 +723,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-    fun startApiCallForSpecies(savedUri: String) : String  {
+    fun startApiCallForSpecies(savedUri: String): String {
         Log.i(TAG, "startApiCall")
         val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
         val name = retroFitWrapper.requestLocalPlantIdentificationSynchronously(savedUri)
@@ -727,7 +741,6 @@ class CameraFragment : Fragment() {
     }
 
 
-
     private fun displayFlashAnimation(color: Int = Color.WHITE) {
         // We can only change the foreground Drawable using API level 23+ API
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -736,7 +749,8 @@ class CameraFragment : Fragment() {
             fragmentCameraBinding.root.postDelayed({
                 fragmentCameraBinding.root.foreground = ColorDrawable(color)
                 fragmentCameraBinding.root.postDelayed(
-                    { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS)
+                    { fragmentCameraBinding.root.foreground = null }, ANIMATION_FAST_MILLIS
+                )
             }, ANIMATION_SLOW_MILLIS)
         }
     }
@@ -754,7 +768,9 @@ class CameraFragment : Fragment() {
 
         /** Helper function used to create a timestamped file */
         private fun createFile(baseFolder: File, format: String, extension: String) =
-                File(baseFolder, SimpleDateFormat(format, Locale.US)
-                        .format(System.currentTimeMillis()) + extension)
+            File(
+                baseFolder, SimpleDateFormat(format, Locale.US)
+                    .format(System.currentTimeMillis()) + extension
+            )
     }
 }
