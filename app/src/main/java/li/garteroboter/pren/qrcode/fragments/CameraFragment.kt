@@ -296,10 +296,10 @@ class CameraFragment : Fragment() {
         outputDirectory = NanodetncnnActivity.getOutputDirectory(requireContext())
 
         // Wait for the views to be properly laid out
-        fragmentCameraBinding.viewFinder.post {
+        fragmentCameraBinding.previewView.post {
 
             // Keep track of the display in which this view is attached
-            displayId = fragmentCameraBinding.viewFinder.display.displayId
+            displayId = fragmentCameraBinding.previewView.display.displayId
 
             // Build UI controls
             updateCameraUi()
@@ -352,7 +352,7 @@ class CameraFragment : Fragment() {
         val screenAspectRatio = aspectRatio(maxWidth, maxHeight)
         Log.d(TAG, "Preview aspect ratio: $screenAspectRatio")
 
-        val rotation = fragmentCameraBinding.viewFinder.display.rotation
+        val rotation = fragmentCameraBinding.previewView.display.rotation
 
         // CameraProvider
         val cameraProvider = cameraProvider
@@ -453,7 +453,7 @@ class CameraFragment : Fragment() {
                     this, cameraSelector, preview, imageCapture, imageAnalyzer)
 
             // Attach the viewfinder's surface provider to preview use case
-            preview?.setSurfaceProvider(fragmentCameraBinding.viewFinder.surfaceProvider)
+            preview?.setSurfaceProvider(fragmentCameraBinding.previewView.surfaceProvider)
         } catch (exc: Exception) {
             Log.e(TAG, "Use case binding failed", exc)
         }
