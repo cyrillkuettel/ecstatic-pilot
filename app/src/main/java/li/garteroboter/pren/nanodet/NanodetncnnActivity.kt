@@ -135,6 +135,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
             /** Start Driving*/
             if (state == RECEIVED_CHAR_START_COMMAND_ESP32) {
+                globalStateViewModel.ROBOTER_STARTED = true
                 terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)  // send initial driving command
                 Log.v(TAG, "state == START_COMMAND_ESP32")
                 websocketManagerText.sendText("received start command")
@@ -143,7 +144,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 /** Here we are returning from the Qr-Code reading State in
                  * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
                  * in any case, resume driving. */
-                terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)  // resume driving
+                terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
 
                 reOpenNanodetCamera()
             }
@@ -253,13 +254,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     override fun surfaceDestroyed(holder: SurfaceHolder) {}
 
     /** This method is called by the native layer.
-     * It is in a sense the most important part of this application.
+     * It is called if a potted plant has been detected.
      * Note that this is effectively called by a different thread.
      * It _is_ a different thread. that also means you cannot change the UI from this method directly */
-
     fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
         val count = atomicCounter.incrementAndGet()
-
+        if (!globalStateViewModel.ROBOTER_STARTED) {
+            return
+        }
         if (count != 0) {
             // Log.v(TAG,String.format("current number of confirmations = %d", _count))
         }

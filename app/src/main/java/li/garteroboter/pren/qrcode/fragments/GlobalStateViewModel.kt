@@ -17,6 +17,7 @@ import java.io.File
 
 class GlobalStateViewModel(application: Application) : AndroidViewModel(application)  {
     private val TAG = "GlobalStateViewModel"
+    var ROBOTER_STARTED = false
     private val currentImage = MutableLiveData<File>()
     private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
