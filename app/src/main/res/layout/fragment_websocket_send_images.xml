@@ -33,7 +33,6 @@
 
         <Button
             android:id="@+id/btnSelectImageAndSend"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="300dp"
             android:layout_height="45dp"
             android:layout_gravity="center_horizontal|center"
@@ -42,8 +41,7 @@
 
         <Button
             android:id="@+id/btnSendImagesFromDisk"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center"
             android:text="Test batch sending a bunch of images" />

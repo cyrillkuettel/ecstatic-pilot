@@ -10,9 +10,13 @@ import com.google.zxing.qrcode.QRCodeReader
 
 class QRCodeImageAnalyzer(private val listener: QRCodeFoundListener? = null) : ImageAnalysis.Analyzer {
 
+    private val yuvFormats = listOf(ImageFormat.YUV_420_888, ImageFormat.YUV_422_888, ImageFormat.YUV_444_888)
+
+
     override fun analyze(image: ImageProxy) {
 
-        if (image.format == ImageFormat.YUV_420_888 || image.format == ImageFormat.YUV_422_888 || image.format == ImageFormat.YUV_444_888) {
+        if (image.format in yuvFormats) {
+
             val byteBuffer = image.planes[0].buffer
             val imageData = ByteArray(byteBuffer.capacity())
             byteBuffer[imageData]
