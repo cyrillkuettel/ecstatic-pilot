@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
@@ -35,13 +35,17 @@ import org.apache.commons.io.FileUtils
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalStartStopViewModel
 import java.io.File
+import java.lang.Runnable
 import java.lang.System.exit
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.CoroutineContext
 
 
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
+
+
 
     private val globalStateViewModel: GlobalStateViewModel by viewModels()
     private val terminalStartStopViewModel: TerminalStartStopViewModel  by viewModels()
@@ -92,22 +96,18 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val settingsBundle = generatePreferenceBundle()
-        useBluetooth = settingsBundle.isUsingBluetooth
-        if (!useBluetooth) {
-            Log.e(TAG, "not using bluetooth")
-            globalStateViewModel.ROBOTER_STARTED = true
+        GlobalScope.launch {
+            val settingsBundle = generatePreferenceBundle()
+            setupSettings(settingsBundle)
+            injectPreferences(settingsBundle)
         }
-        numerOfConfirmations = settingsBundle.confirmations
-        plantCount = settingsBundle.plantCount
-        switchQr = settingsBundle.isSwitchToQr
-        prob_threshhold = settingsBundle.prob_threshold
+
 
         setupFragmentBluetoothChain()
 
         observeViewModels()
 
-        injectPreferences(settingsBundle)
+        Thread.sleep(500)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         cameraView = binding.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
@@ -124,6 +124,18 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
 
         reload()
+    }
+
+    private fun setupSettings(settingsBundle: CustomSettingsBundle) {
+        useBluetooth = settingsBundle.isUsingBluetooth
+        if (!useBluetooth) {
+            Log.e(TAG, "not using bluetooth")
+            globalStateViewModel.ROBOTER_STARTED = true
+        }
+        numerOfConfirmations = settingsBundle.confirmations
+        plantCount = settingsBundle.plantCount
+        switchQr = settingsBundle.isSwitchToQr
+        prob_threshhold = settingsBundle.prob_threshold
     }
 
     private fun simulateCrash() {
@@ -194,14 +206,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
     private fun setupFragmentBluetoothChain() {
-        val devicesFragment = DevicesFragment.newInstance()
-        val autoConnectBluetooth = setupBluetoothPermission()
-        devicesFragment.arguments = autoConnectBluetooth
+        lifecycleScope.launch {
+            val devicesFragment = DevicesFragment.newInstance()
+            val autoConnectBluetooth = setupBluetoothPermission()
+            devicesFragment.arguments = autoConnectBluetooth
 
-        supportFragmentManager.beginTransaction().add(
-            R.id.fragmentBluetoothChain,
-            devicesFragment, DEVICES_FRAGMENT
-        ).commit()
+            supportFragmentManager.beginTransaction().add(
+                R.id.fragmentBluetoothChain,
+                devicesFragment, DEVICES_FRAGMENT_TAG
+            ).commit()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -274,26 +288,21 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         if (count >= numerOfConfirmations) { // count = number of confirmations. The lower, the faster
             atomicCounter.set(0) // reset the counter back
             if (lastTimeWasNSecondsAGo()) {
-                lastTimePlantCallback = System.currentTimeMillis()
-                Log.d(TAG, "Accept potted plant detection with $count confirmations")
-
-                startRingtone()
-
                 runOnUiThread(Runnable {
                     terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)  // stop driving
-
                     if (switchQr) {
                         navigateToCameraFragment()
                     }
-
                     updateDescription(
                         "detected %s, latest probability == %s".format(
                             objectLabel,
                             probability
                         )
                     )
-
                 })
+                lastTimePlantCallback = System.currentTimeMillis()
+                Log.d(TAG, "Accept potted plant detection with $count confirmations")
+                startRingtone()
             }
         }
     }
@@ -327,12 +336,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     private fun navigateToCameraFragment() {
         nanodetncnn.closeCamera()
-        shrinkSufaceView()
+        shrinkSurfaceView()
         globalStateViewModel.set_triggerNavigateToCameraFragment(true)
     }
 
     /** This is a little trick I use so that the CameraFragment gets displayed. */
-    private fun shrinkSufaceView() {
+    private fun shrinkSurfaceView() {
         currentSurfaceViewWidth = cameraView!!.layoutParams.width // save to restore later
         currentSurfaceViewHeight = cameraView!!.layoutParams.height
 
@@ -446,12 +455,15 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         super.onPause()
         nanodetncnn.closeCamera()
     }
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 
 
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
-        const val DEVICES_FRAGMENT = "devices"
+        const val DEVICES_FRAGMENT_TAG = "devices"
 
         private const val TAG = "NanodetncnnActivity"
         const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
