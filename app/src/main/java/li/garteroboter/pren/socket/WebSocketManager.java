@@ -157,7 +157,7 @@ public class WebSocketManager {
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
 
-
+                        createToast(message, context);
 
                         Log.i(TAG, "WebSocket onTextMessage: " + message);
                     }
@@ -209,8 +209,6 @@ public class WebSocketManager {
         if (ws.isOpen()) {
             ws.sendText(message);
             return true;
-        } else {
-            Log.e(TAG, "Websocket not open");
         }
 
         Log.e(TAG, "Tried to call method 'sendText', but Websocket is not open!");

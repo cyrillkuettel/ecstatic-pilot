@@ -55,11 +55,9 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide_main_acivity);
-
         final List<String> logs = readLogcat();
 
         setupViewPager(logs);
@@ -75,11 +73,12 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         try {
             manager = new WebSocketManager(this, HOSTNAME);
             Thread connectThread = new Thread( () -> {
-                if (manager.createAndOpenWebSocketConnection(SocketType.Command)) {
-                    manager.sendText("hi");
-                }
+              manager.createAndOpenWebSocketConnection(SocketType.Command);
             });
             connectThread.start();
+            connectThread.join();
+
+            manager.sendText("hi");
 
         } catch (Exception e) {
             e.printStackTrace();
