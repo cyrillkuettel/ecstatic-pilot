@@ -95,7 +95,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val settingsBundle = generatePreferenceBundle()
         useBluetooth = settingsBundle.isUsingBluetooth
         if (!useBluetooth) {
-            globalStateViewModel.ROBOTER_STARTED
+            Log.e(TAG, "not using bluetooth")
+            globalStateViewModel.ROBOTER_STARTED = true
         }
         numerOfConfirmations = settingsBundle.confirmations
         plantCount = settingsBundle.plantCount
@@ -161,7 +162,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             // websocketManagerText.sendText(speciesName)
         })
         globalStateViewModel.getCurrentLog().observe(this, Observer { log ->
+            Log.e(TAG,"globalStateViewModel.getCurrentLog().observe" )
             if (log == GlobalStateViewModel.LogType.QR_CODE_DETECTED) {
+                Log.d(TAG, "globalStateViewModel.getCurrentLog().observe triggered LogType.QR_CODE_DETECTED")
                 binding.textViewQRCode.text = log.state
             }
             websocketManagerText.sendText(log.state)
@@ -262,6 +265,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
         val count = atomicCounter.incrementAndGet()
         if (!globalStateViewModel.ROBOTER_STARTED) {
+            Log.e(TAG,"globalStateViewModel.ROBOTER_STARTED == false" )
             return
         }
         if (count != 0) {
@@ -449,8 +453,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         const val CAMERA_ORIENTATION = 1
         const val DEVICES_FRAGMENT = "devices"
 
-        private const val TAG = "MainActivityNanodetNCNN"
-        private const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
+        private const val TAG = "NanodetncnnActivity"
+        const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
 
