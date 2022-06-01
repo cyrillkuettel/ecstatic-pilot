@@ -1,10 +1,15 @@
 package li.garteroboter.pren.qrcode.fragments
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import java.io.File
+import kotlin.concurrent.thread
 
 /** This ViewModel is used to track the current state of the Roboter.
  *
@@ -15,7 +20,10 @@ import java.io.File
 
  */
 
-class GlobalStateViewModel(application: Application) : AndroidViewModel(application)  {
+class GlobalStateViewModel(application: Application) : AndroidViewModel(application) {
+
+    @SuppressLint("StaticFieldLeak")
+    private val context = getApplication<Application>().applicationContext
 
     var ROBOTER_STARTED = false /** Object detection result is dismissed if util this flag is set
      to true. */
@@ -67,6 +75,41 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
     fun getCurrentLog() : MutableLiveData<LogType> {
         return currentLog
+    }
+
+    fun startAPICall(file: File) {
+        thread(start = true) {
+            var speciesName = "failed"
+            try {
+                val savedUri = file.toString()
+                speciesName = startApiCallForSpecies(savedUri)
+
+                setCurrentSpecies(speciesName)
+
+
+            } catch (e: InterruptedException) {
+                Log.d(TAG, "caught Interrupted exception!")
+            } finally {
+                Log.v(TAG, "updating database with scientific name $speciesName")
+            }
+        }
+    }
+
+    fun startApiCallForSpecies(savedUri: String): String {
+        Log.i(TAG, "startApiCall")
+        val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+        val name = retroFitWrapper.requestLocalPlantIdentificationSynchronously(savedUri)
+        return name;
+    }
+
+    private fun getAPIKey(): String {
+        val applicationInfo: ApplicationInfo = context.packageManager
+            .getApplicationInfo(
+                context.packageName,
+                PackageManager.GET_META_DATA
+            )
+        val key = applicationInfo.metaData["plantapi"]
+        return key.toString()
     }
 
 
