@@ -56,10 +56,10 @@ public class WebSocketManager {
     private final ExecutorService executorService;
 
     /**
-     * Stores the current active socket connections. There are at most two. (Textual and Binary
-     * data)
+     * Stores the current active socket connections.
      */
     private final Map<SocketType, WebSocket> sockets;
+    private SocketType socketType;
     private final String URI;
 
     public WebSocketManager(Context context, String URI) {
@@ -73,7 +73,7 @@ public class WebSocketManager {
 
     public boolean createAndOpenWebSocketConnection(SocketType socketType) {
         Log.i(TAG, "createAndOpenWebSocketConnection");
-
+        this.socketType = socketType;
 
         final String completeURI = this.URI + socketType.type;
 
@@ -198,7 +198,7 @@ public class WebSocketManager {
      * Run createAndOpenWebSocketConnection before this !
      */
     public boolean sendText(String message) {
-        WebSocket ws = sockets.get(SocketType.Text);
+        WebSocket ws = sockets.get(this.socketType);
 
         if (message.equals("") || ws == null) {
             if (ws == null) {

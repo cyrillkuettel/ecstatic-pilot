@@ -2,7 +2,6 @@ package li.garteroboter.pren;
 
 
 import static li.garteroboter.pren.ui.LogcatFragment.newLogcatFragmentInstance;
-
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,22 +10,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
@@ -77,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
             });
             connectThread.start();
             connectThread.join();
-
+            Thread.sleep(500);
             manager.sendText("hi");
 
         } catch (Exception e) {
@@ -182,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     }
 
     /***
-     * Fires when the user has allowed or denied camera access during runtime.
+     * Fires when the user has allowed or denied camera access at runtime.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,

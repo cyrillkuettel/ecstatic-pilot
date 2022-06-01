@@ -22,7 +22,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
@@ -35,12 +36,10 @@ import org.apache.commons.io.FileUtils
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalStartStopViewModel
 import java.io.File
-import java.lang.Runnable
 import java.lang.System.exit
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.coroutines.CoroutineContext
 
 
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
@@ -455,10 +454,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         super.onPause()
         nanodetncnn.closeCamera()
     }
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
 
     companion object {
         const val REQUEST_CAMERA = 100

@@ -73,7 +73,7 @@ class SerialSocket implements Runnable {
         this.listener = listener;
         context.registerReceiver(disconnectBroadcastReceiver,
                 new IntentFilter(Constants.INTENT_ACTION_DISCONNECT));
-        Executors.newFixedThreadPool(10).submit(this);
+        Executors.newSingleThreadExecutor().submit(this);
     }
 
     void disconnect() {

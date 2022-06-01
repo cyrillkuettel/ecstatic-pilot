@@ -71,7 +71,7 @@ public class LoggingFragment extends Fragment {
         });
 
         Button btnStartStopTimer = view.findViewById(R.id.btnStartStop);
-        btnStartStopTimer.setEnabled(false);
+        // btnStartStopTimer.setEnabled(false);
         btnStartStopTimer.setOnClickListener(v -> {
             btnStartStopTimer.setEnabled((false));
             sendStartSignalToWebServer();
