@@ -124,33 +124,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         binding.mainButtonQrCode.setOnClickListener {navigateToCameraFragment() }
         binding.mainButtonExit.setOnClickListener { exit() }
 
-        ringtone.play()
         setupAtomicCounterInterval()
 
-        playCustomSoundWithNotificationChannel()
 
+        // not working
+        // playCustomSoundWithNotificationChannel()
 
         reload()
     }
 
 
-    private fun playCustomSoundWithNotificationChannel() {
-        val sound: Uri =
-            Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                    + applicationContext.packageName + "/" + R.raw.notification)
-        val attributes = AudioAttributes.Builder    ()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-            .build()
-
-        val descriptionText = getString(li.garteroboter.pren.R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val mChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
-        mChannel.description = descriptionText
-        mChannel.setSound(sound, attributes) // This is IMPORTANT
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(mChannel)
-
-    }
 
     private fun setupSettings(settingsBundle: CustomSettingsBundle) {
         useBluetooth = settingsBundle.isUsingBluetooth
@@ -489,6 +472,30 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         nanodetncnn.closeCamera()
     }
 
+    private fun playCustomSoundWithNotificationChannel() {
+        val sound: Uri =
+            Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                    + applicationContext.packageName + "/" + R.raw.notification)
+        val attributes = AudioAttributes.Builder    ()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+            .build()
+
+        val descriptionText = getString(li.garteroboter.pren.R.string.channel_description)
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val mChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
+
+        mChannel.description = descriptionText
+        mChannel.enableLights(true);
+        mChannel.enableVibration(true);
+
+        // notification.defaults = Notification.DEFAULT_LIGHTS or Notification.DEFAULT_VIBRATE
+
+        mChannel.setSound(sound, attributes) // This is IMPORTANT
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(mChannel)
+
+    }
+
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
@@ -511,4 +518,5 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 mediaDir else appContext.filesDir
         }
     }
+
 }
