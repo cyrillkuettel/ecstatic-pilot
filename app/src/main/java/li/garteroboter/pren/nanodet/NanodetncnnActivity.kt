@@ -95,18 +95,18 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        GlobalScope.launch {
-            val settingsBundle = generatePreferenceBundle()
-            setupSettings(settingsBundle)
-            injectPreferences(settingsBundle)
-        }
+
+        val settingsBundle = generatePreferenceBundle()
+        setupSettings(settingsBundle)
+        injectPreferences(settingsBundle)
+
 
 
         setupFragmentBluetoothChain()
 
         observeViewModels()
 
-        Thread.sleep(500)
+        // Thread.sleep(500)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         cameraView = binding.cameraview
         cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
