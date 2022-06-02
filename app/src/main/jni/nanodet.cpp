@@ -207,11 +207,12 @@ static void generate_plant_vase_proposals(const ncnn::Mat &cls_pred, const ncnn:
             float probability_vase = scores[vase_label];
             // Success! Found plant or vase with probability > threshold
             if (probability_potted_plant >= prob_threshold) {
-                NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth, probability_potted_plant);
+                NanoDet::invoke_class_from_static("potted_plant", toggleBluetooth,
+                                                  probability_potted_plant, stride);
                 box_prediction(j, i, stride, dis_pred, reg_max_1, idx, potted_plant_label, probability_potted_plant, objects);
 
             } else if (probability_vase >= prob_threshold) {
-                NanoDet::invoke_class_from_static("vase", toggleBluetooth, probability_vase);
+                NanoDet::invoke_class_from_static("vase", toggleBluetooth, probability_vase, stride);
                 box_prediction(j, i, stride, dis_pred, reg_max_1, idx, vase_label, probability_vase, objects);
             }
 
@@ -374,7 +375,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
 
     // stride 8
     {
-
+        /*
         ncnn::Mat cls_pred;
         ncnn::Mat dis_pred;
         ex.extract("cls_pred_stride_8", cls_pred);
@@ -384,7 +385,7 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
         generate_plant_vase_proposals(cls_pred, dis_pred, 8, in_pad, prob_threshold, objects8);
 
         proposals.insert(proposals.end(), objects8.begin(), objects8.end());
-
+    */
     }
 
     // stride 16
@@ -493,7 +494,10 @@ JavaVM *javaVM_global;
 static jint JNI_VERSION = JNI_VERSION_1_4;
 
 
-void NanoDet::invoke_class_from_static(char *objectLabel, bool useBluetooth, float probabilityOfLabel) {
+void
+NanoDet::invoke_class_from_static(char *objectLabel, bool useBluetooth, float probabilityOfLabel,
+                                  int stride) {
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "stride: %d", stride);
 
     double start_time = ncnn::get_current_time();
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {

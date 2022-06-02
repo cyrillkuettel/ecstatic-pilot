@@ -1,4 +1,4 @@
-package li.garteroboter.pren.qrcode.fragments
+package li.garteroboter.pren
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -68,7 +68,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
         return currentSpecies
     }
 
-    fun setCurrentLog(newLog: LogType ) {
+    fun setCurrentLog(newLog: LogType) {
         Log.d(TAG, "setCurrentLog: $newLog")
         currentLog.value = newLog
     }
