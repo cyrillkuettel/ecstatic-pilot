@@ -44,12 +44,13 @@ import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import li.garteroboter.pren.GlobalStateViewModel
+import li.garteroboter.pren.GlobalStateViewModel.LogType
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.CameraUiContainerBinding
 import li.garteroboter.pren.databinding.FragmentCameraBinding
 import li.garteroboter.pren.nanodet.NanodetncnnActivity
 import li.garteroboter.pren.qrcode.database.PlantRoomDatabase.Companion.getDatabase
-import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel.LogType
 import li.garteroboter.pren.qrcode.qrcode.QRCodeImageAnalyzer
 import li.garteroboter.pren.qrcode.utils.ANIMATION_FAST_MILLIS
 import li.garteroboter.pren.qrcode.utils.ANIMATION_SLOW_MILLIS
@@ -364,18 +365,29 @@ class CameraFragment : Fragment() {
                             actionOnQrCode(qrCode)
                         }
 
+                        /**
+                         * This block is synchronized because it's a simple solution.
+                         * It's not entirely necessary, but then you would have to set some AtomicBoolean
+                         * variables to prevent this Callback from calling methods twice which should
+                         * not be called twice.
+                         * This introduces whole new level of complexity which we're trying to avoid.
+                         */
                         @Synchronized
                         private fun actionOnQrCode(qrCode: String?) {
                             /** QR-Code has been detected.
                              *
-                             * If the last plant position plant has not yet been reached, we can
-                             * now navigateBack. How to know it's the last position? lot's of
-                             * assumptions.
+                             * If the last plant position plant has _not_ yet been reached, we can
+                             * now navigateBack. How to know it's the last position? Here we get
+                             * into the real of pure speculation.
+                             *
+                             *
                              * */
                             if (qrDetected.get()) return
                             if (qrDetected.compareAndSet(false, true)) {
                                 Log.e(TAG, "onQRCodeFound")
-                                /** If found QR-Code, extend CameraFragmentLifeTime  */
+                                /** Extend the CameraFragment LifeTime for a few seconds in order
+                                 * to avoid exiting the Fragment too early while we're still in the
+                                 * process of taking an image. (This would result in a crash) */
                                 timerForFragmentTermination = Timer("adieu", false)
                                     .schedule(QR_CODE_WAITING_TIME) {
                                         navigateBack_OnUIThread()
