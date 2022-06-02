@@ -16,6 +16,7 @@
         android:freezesText="true"
         android:gravity="bottom"
         android:scrollbars="vertical"
+        android:textSize="25sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
     <View
