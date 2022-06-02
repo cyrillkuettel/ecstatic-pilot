@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
+import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.FragmentIntermediateBinding
 

@@ -43,6 +43,7 @@
     <string name="key_prob_threshold">key_prob_threshold</string>
     <string name="change_probability_for_plant_dialog_title">You can set the probability threshold for plant object detection.  </string>
     <string name="title_prob_threshold">Probability threshold for halting</string>
+    <string name="channel_description">plays sound on plant detection</string>
 
     <string-array name="threshold_probability_entries">
         <item>0.40</item>

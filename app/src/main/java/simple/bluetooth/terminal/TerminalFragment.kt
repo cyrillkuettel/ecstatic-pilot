@@ -23,8 +23,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import li.garteroboter.pren.Constants
 import li.garteroboter.pren.Constants.RECEIVED_CHAR_START_COMMAND_ESP32
+import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.R
-import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import simple.bluetooth.terminal.SerialService.SerialBinder
 import simple.bluetooth.terminal.TextUtil.HexWatcher
 
@@ -184,7 +184,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
         sendBtn.setOnClickListener { v: View? ->
-            send(sendText?.getText().toString())
+            send(sendText?.text.toString())
         }
     }
 
@@ -212,7 +212,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
     fun send(str: String) {
         if (connected != Connected.True) {
-            Log.wtf(TAG, "Tried to send message but not connected!!")
+            Log.e(TAG, "Tried to send message but not connected!!")
             return
         }
         try {
@@ -227,6 +227,9 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
             } else {
                 msg = str
                 data = (str + newline).toByteArray()
+                Log.v(TAG, "sent char $data")
+                service!!.write(data)
+
             }
             val spn = SpannableStringBuilder(
                 """
@@ -241,7 +244,6 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             receiveText!!.append(spn)
-            service!!.write(data)
         } catch (e: Exception) {
             Log.d(TAG, "exception while sending Text in method send(String str)")
             onSerialIoError(e)

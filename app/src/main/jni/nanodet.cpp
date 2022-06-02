@@ -497,7 +497,7 @@ static jint JNI_VERSION = JNI_VERSION_1_4;
 void
 NanoDet::invoke_class_from_static(char *objectLabel, bool useBluetooth, float probabilityOfLabel,
                                   int stride) {
-    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "stride: %d", stride);
+    // __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "stride: %d", stride);
 
     double start_time = ncnn::get_current_time();
     if (javaVM_global->GetEnv(reinterpret_cast<void **>(&env2), JNI_VERSION) != JNI_OK) {
