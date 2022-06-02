@@ -1,11 +1,15 @@
 package li.garteroboter.pren.nanodet
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.PixelFormat
-import android.media.Ringtone
+import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
@@ -22,13 +26,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
+import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
-import li.garteroboter.pren.qrcode.fragments.GlobalStateViewModel
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment.Companion.RETURNING_FROM_INTERMEDIATE
 import li.garteroboter.pren.socket.SocketType
 import li.garteroboter.pren.socket.WebSocketManager
@@ -58,8 +61,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var currentModel = 0
     private var currentCPUGPU = 0
     private var cameraView: SurfaceView? = null
-    private var ringtone: Ringtone? = null
 
+    private val ringtone by lazy {
+        RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
+            applicationContext, RingtoneManager.TYPE_NOTIFICATION))
+    }
 
     private var currentSurfaceViewWidth = 0
     private var currentSurfaceViewHeight = 0
@@ -116,13 +122,34 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         // binding.mainButtonExit.setOnClickListener { simulateCrash() }
         binding.mainButtonQrCode.setOnClickListener {navigateToCameraFragment() }
+        binding.mainButtonExit.setOnClickListener { exit() }
 
-        val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        ringtone = RingtoneManager.getRingtone(applicationContext, notification)
+        ringtone.play()
         setupAtomicCounterInterval()
+
+        playCustomSoundWithNotificationChannel()
 
 
         reload()
+    }
+
+
+    private fun playCustomSoundWithNotificationChannel() {
+        val sound: Uri =
+            Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                    + applicationContext.packageName + "/" + R.raw.notification)
+        val attributes = AudioAttributes.Builder    ()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
+
+        val descriptionText = getString(li.garteroboter.pren.R.string.channel_description)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val mChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
+        mChannel.description = descriptionText
+        mChannel.setSound(sound, attributes) // This is IMPORTANT
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(mChannel)
+
     }
 
     private fun setupSettings(settingsBundle: CustomSettingsBundle) {
@@ -132,12 +159,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             globalStateViewModel.ROBOTER_STARTED = true
         }
         numerOfConfirmations = settingsBundle.confirmations
+        if (numerOfConfirmations != 3) {
+            Log.d(TAG, "numerOfConfirmations UPDATED to $numerOfConfirmations")
+
+        }
         plantCount = settingsBundle.plantCount
         switchQr = settingsBundle.isSwitchToQr
         prob_threshhold = settingsBundle.prob_threshold
     }
 
-    private fun simulateCrash() {
+    private fun exit() {
         //finish()
         /** For testing purposes: Simulate a Crash of NanodetncnnActivity
          *  Terminates the currently running java virtual machine.  */
@@ -211,7 +242,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             devicesFragment.arguments = autoConnectBluetooth
 
             supportFragmentManager.beginTransaction().add(
-                R.id.fragmentBluetoothChain,
+                li.garteroboter.pren.R.id.fragmentBluetoothChain,
                 devicesFragment, DEVICES_FRAGMENT_TAG
             ).commit()
         }
@@ -227,7 +258,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             val devicesFragment = DevicesFragment.newInstance()
             devicesFragment.arguments = args
             supportFragmentManager.beginTransaction().add(
-                R.id.fragmentBluetoothChain,
+                li.garteroboter.pren.R.id.fragmentBluetoothChain,
                 devicesFragment, "devices"
             ).commit()
         }
@@ -384,8 +415,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     override fun startRingtone() {
         if (TOGGLE_RINGTONE) {
             try {
-                ringtone!!.play()
+                ringtone.play()
+                Log.e(TAG, "played the ringtone.")
+
             } catch (e: Exception) {
+                Log.e(TAG, "Playing the ringtone failed.")
                 e.printStackTrace()
             }
         }
@@ -458,6 +492,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
+        const val NOTIFICATION_CHANNEL_NAME = "PING"
+        const val NOTIFICATION_CHANNEL_ID = "SOUND"
         const val DEVICES_FRAGMENT_TAG = "devices"
 
         private const val TAG = "NanodetncnnActivity"
@@ -469,7 +505,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         fun getOutputDirectory(context: Context): File {
             val appContext = context.applicationContext
             val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
-                File(it, appContext.resources.getString(R.string.app_name)).apply { mkdirs() }
+                File(it, appContext.resources.getString(li.garteroboter.pren.R.string.app_name)).apply { mkdirs() }
             }
             return if (mediaDir != null && mediaDir.exists())
                 mediaDir else appContext.filesDir
