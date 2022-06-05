@@ -1,15 +1,10 @@
 package li.garteroboter.pren.nanodet
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.PixelFormat
-import android.media.AudioAttributes
 import android.media.RingtoneManager
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceHolder
@@ -29,7 +24,6 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.GlobalStateViewModel
-import li.garteroboter.pren.R
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment.Companion.RETURNING_FROM_INTERMEDIATE
@@ -492,37 +486,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         nanodetncnn.closeCamera()
     }
 
-    private fun playCustomSoundWithNotificationChannel() {
-        val sound: Uri =
-            Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                    + applicationContext.packageName + "/" + R.raw.notification)
-        val attributes = AudioAttributes.Builder    ()
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-            .build()
 
-        val descriptionText = getString(li.garteroboter.pren.R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_HIGH
-        val mChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
-
-        mChannel.description = descriptionText
-        mChannel.enableLights(true);
-        mChannel.enableVibration(true);
-
-        // notification.defaults = Notification.DEFAULT_LIGHTS or Notification.DEFAULT_VIBRATE
-
-        mChannel.setSound(sound, attributes) // This is IMPORTANT
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(mChannel)
-
-    }
 
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
-        const val NOTIFICATION_CHANNEL_NAME = "PING"
-        const val NOTIFICATION_CHANNEL_ID = "SOUND"
         const val DEVICES_FRAGMENT_TAG = "devices"
-
         private const val TAG = "NanodetncnnActivity"
         const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
         var TOGGLE_RINGTONE = true
