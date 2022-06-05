@@ -163,7 +163,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     // Room
-    def roomVersion = '2.5.0-alpha01'
+    def roomVersion = '2.5.0-alpha02'
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 
