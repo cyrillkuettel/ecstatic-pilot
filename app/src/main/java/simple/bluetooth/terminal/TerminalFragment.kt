@@ -174,13 +174,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
                 Constants.START_COMMAND_ESP32
             )
         }
-        val mainButtonsimulateIOError = view.findViewById<View>(R.id.bluetooth_crash_simulate)
-        mainButtonsimulateIOError.setOnClickListener { v: View? ->
 
-            // simulate connection loss for testing
-            onSerialIoError(java.lang.Exception("Totally a SerialIOError"))
-
-        }
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
         sendBtn.setOnClickListener { v: View? ->

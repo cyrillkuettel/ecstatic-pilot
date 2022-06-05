@@ -70,7 +70,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var currentSurfaceViewWidth = 0
     private var currentSurfaceViewHeight = 0
 
-    // Initialization by lazy { ... } is thread-safe by default
+    /** Initialization by lazy { ... } is thread-safe by default */
     private val websocketManagerByte: WebSocketManager by lazy {
         WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
             lifecycleScope.launch {
@@ -101,28 +101,17 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         binding = ActivityNanodetncnnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         val settingsBundle = generatePreferenceBundle()
+
         setupSettings(settingsBundle)
+
         injectPreferences(settingsBundle)
-
-
 
         setupFragmentBluetoothChain()
 
         observeViewModels()
 
-        // Thread.sleep(500)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        cameraView = binding.cameraview
-        cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
-        cameraView!!.holder.addCallback(this)
-        setupSpinnerOnClick(binding.spinnerModel)
-        setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
-
-        // binding.mainButtonExit.setOnClickListener { simulateCrash() }
-        binding.mainButtonQrCode.setOnClickListener {navigateToCameraFragment() }
-        binding.mainButtonExit.setOnClickListener { exit() }
+        setupUI()
 
         setupAtomicCounterInterval()
 
@@ -133,6 +122,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         reload()
     }
 
+    private fun setupUI() {
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        cameraView = binding.cameraview
+        cameraView!!.holder.setFormat(PixelFormat.RGBA_8888)
+        cameraView!!.holder.addCallback(this)
+        setupSpinnerOnClick(binding.spinnerModel)
+        setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
+        binding.mainButtonQrCode.setOnClickListener { navigateToCameraFragment() }
+        binding.mainButtonExit.setOnClickListener { exit() }
+    }
 
 
     private fun setupSettings(settingsBundle: CustomSettingsBundle) {
@@ -151,31 +150,21 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         prob_threshhold = settingsBundle.prob_threshold
     }
 
+
+    /** Restart [NanodetncnnActivity], assuming MainActivity creates [NanodetncnnActivity] in onCreate]
+     * Effect: Flushing ViewModel, depending on the scope of the ViewModel. */
     private fun exit() {
         //finish()
-        /** For testing purposes: Simulate a Crash of NanodetncnnActivity
-         *  Terminates the currently running java virtual machine.  */
+         /**
+          * Terminates the currently running java virtual machine.
+          *  finish() is a Possibility, although a considerable and dramatic form is : exit() .*/
         exit(0)
+
     }
 
-    private fun observeViewModels() {
-        globalStateViewModel.getCurrentDriveState().observe(this, Observer { state ->
-            /** Start Driving*/
-            if (state == RECEIVED_CHAR_START_COMMAND_ESP32) {
-                globalStateViewModel.ROBOTER_STARTED = true
-                terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)  // send initial driving command
-                Log.v(TAG, "state == START_COMMAND_ESP32")
-                websocketManagerText.sendText("received start command")
-                websocketManagerText.startTimer()
-            } else if (state == RETURNING_FROM_INTERMEDIATE){
-                /** Here we are returning from the Qr-Code reading State in
-                 * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
-                 * in any case, resume driving. */
-                terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
 
-                reOpenNanodetCamera()
-            }
-        })
+    private fun observeViewModels() {
+
 
         globalStateViewModel.getCurrentImage().observe(this, Observer { image ->
             Log.i(TAG, "viewModel.getCurrentImage().observe")
@@ -194,11 +183,34 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             websocketManagerText.sendText(log.state)
         })
+
+
+        globalStateViewModel.getCurrentDriveState().observe(this, Observer { currentGlobalScope ->
+        /**  Initialization First start signal: <Drive> */
+        if (currentGlobalScope == RECEIVED_CHAR_START_COMMAND_ESP32) {
+            globalStateViewModel.ROBOTER_STARTED = true
+            terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
+            Log.v(TAG, "state == START_COMMAND_ESP32")
+            websocketManagerText.sendText("received start command")
+            websocketManagerText.startTimer()
+        } else if (currentGlobalScope == RETURNING_FROM_INTERMEDIATE){
+            /** Here we are returning from the Qr-Code reading State in
+             * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
+             * in any case, resume driving. */
+            terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
+
+            reOpenNanodetCamera()
+        }
+    })
     }
 
+
+    /**
+     * Converts an image File Path to bytes, afterwards
+     * fetching binary data through the currently running instance of [WebSocketManager]
+     */
     private fun uploadPlantFromFile(file: File?) {
         Log.i(TAG,"uploadPlantFromFile" )
-
         file?.let { it ->
             try {
                 val bytes = FileUtils.readFileToByteArray(it)
@@ -209,9 +221,15 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
+
+    /** Monkeypatching the native Layer.
+     * Override hyperparamter in object detection in the C++ Layer.
+
+    ╔═══════════╤═════╗                      ╔═════════════════════╤═════╗
+    ║ C++ Layer │ NDK ║<---------------------║ Android / JVM Layer │ SDK ║
+    ╚═══════════╧═════╝                      ╚═════════════════════╧═════╝
+*/
     private fun injectPreferences(settingsBundle: CustomSettingsBundle) {
-        // creates a reference to the currently active instance
-        // of MainActivityNanodetNCNN in the C++ layer
         nanodetncnn.setObjectReferenceAsGlobal(this)
         nanodetncnn.injectBluetoothSettings(settingsBundle.isUsingBluetooth)
         nanodetncnn.injectFPSPreferences(settingsBundle.isShowFPS)
@@ -285,10 +303,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     override fun surfaceCreated(holder: SurfaceHolder) {}
     override fun surfaceDestroyed(holder: SurfaceHolder) {}
 
-    /** This method is called by the native layer.
-     * It is called if a potted plant has been detected.
-     * Note that this is effectively called by a different thread.
-     * It _is_ a different thread. that also means you cannot change the UI from this method directly */
+    /**
+           ╔═══════════╤═════╗      Object detected     ╔═════════════════════╤═════╗
+           ║ C++ Layer │ NDK ║------------------------->║ Android / JVM Layer │ SDK ║
+           ╚═══════════╧═════╝                          ╚═════════════════════╧═════╝
+     * */
+
     fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
         val count = atomicCounter.incrementAndGet()
         if (!globalStateViewModel.ROBOTER_STARTED) {
