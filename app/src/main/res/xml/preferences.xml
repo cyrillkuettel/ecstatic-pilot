@@ -28,6 +28,7 @@
         <li.garteroboter.pren.preferences.plantnumber.NumberPickerPreference
             android:key="number_picker_preference"
             android:summary="pick_a_number"
+            android:enabled="false"
             android:title="Pick the number of plants" />
 
         <ListPreference
