@@ -1,6 +1,5 @@
 package li.garteroboter.pren
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -22,25 +21,24 @@ import kotlin.concurrent.thread
 
 class GlobalStateViewModel(application: Application) : AndroidViewModel(application) {
 
-    @SuppressLint("StaticFieldLeak")
-    private val context = getApplication<Application>().applicationContext
-
     /** Object detection result is dismissed as long as this flag  this flag is set to true. */
     var ROBOTER_STARTED = false
+
+    private val context = getApplication<Application>().applicationContext
 
     private val currentImage = MutableLiveData<File>()
     private val currentSpecies = MutableLiveData<String>()
     private val mutableDriveState = MutableLiveData<String>()
-    private val _triggerNavigateToCameraFragment = MutableLiveData<Boolean>(false)
+    private val triggerNavigateToCameraFragment = MutableLiveData<Boolean>(false)
     private val currentLog = MutableLiveData<LogType>()
 
     fun set_triggerNavigateToCameraFragment(value: Boolean) {
         Log.d(TAG, "set_triggerNavigateToCameraFragment")
-        _triggerNavigateToCameraFragment.value = value
+        triggerNavigateToCameraFragment.value = value
     }
 
     fun get_triggerNavigateToCameraFragment(): MutableLiveData<Boolean> {
-        return _triggerNavigateToCameraFragment
+        return triggerNavigateToCameraFragment
     }
 
     fun setCurrentImage(image: File) {
@@ -83,9 +81,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
             try {
                 val savedUri = file.toString()
                 speciesName = startApiCallForSpecies(savedUri)
-
                 setCurrentSpecies(speciesName)
-
 
             } catch (e: InterruptedException) {
                 Log.d(TAG, "caught Interrupted exception!")
@@ -97,7 +93,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
     fun startApiCallForSpecies(savedUri: String): String {
         Log.i(TAG, "startApiCall")
-        val retroFitWrapper = RetroFitWrapper(getAPIKey(), context)
+        val retroFitWrapper = RetroFitWrapper(getAPIKey())
         val name = retroFitWrapper.requestLocalPlantIdentificationSynchronously(savedUri)
         return name;
     }
@@ -114,12 +110,10 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
 
     enum class LogType(val state: String) {
-        STARTED("STARTED"),
-        FINISHED("FINISHED"),
-        OBJECT_DETECTION_TRIGGERED("OBJECT_DETECTION_TRIGGERED"),
-        PLANT_SPECIES_DETECTED("PLANT_SPECIES_DETECTED"),
-        NO_PLANT_SPECIES_DETECTED(
-            "NO_PLANT_SPECIES_DETECTED"),
+        STARTED("Roboter started"),
+        FINISHED("Roboter halts."),
+        OBJECT_DETECTION_TRIGGERED("Object detection: Potted Plant"),
+        PLANT_SPECIES_DETECTED("Species detected."),
 
         QR_CODE_DETECTED("QR_CODE_DETECTED")
     }

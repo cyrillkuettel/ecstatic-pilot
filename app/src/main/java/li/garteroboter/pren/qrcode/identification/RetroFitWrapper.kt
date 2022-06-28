@@ -1,6 +1,5 @@
 package li.garteroboter.pren.qrcode.identification
 
-import android.content.Context
 import android.util.Log
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -13,7 +12,7 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.util.*
 
-class RetroFitWrapper(private val apiKey: String, val context: Context?) {
+class RetroFitWrapper(private val apiKey: String) {
 
     private val TAG = "RetroFitWrapper"
     private val testUrl = "https://pren.garteroboter.li/static/img/plant1.jpg"
