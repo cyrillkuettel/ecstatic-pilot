@@ -167,14 +167,14 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     }
 
     private fun setupButtonOnClickListener(view: View) {
-        // Hardcoded Start/Stop Signal Buttons. Sends "start" / "stop to ESP32
-        val sendStartSignalButton = view.findViewById<View>(R.id.bluetooth_send_start)
-        sendStartSignalButton.setOnClickListener { v: View? ->
+        val simulateStartSignalButton = view.findViewById<View>(R.id.bluetooth_send_start)
+        simulateStartSignalButton.setOnClickListener { v: View? ->
             send(
                 Constants.START_COMMAND_ESP32
             )
+            // this is used for testing, simulate start
+            globalStateViewModel.ROBOTER_STARTED = true
         }
-
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
         sendBtn.setOnClickListener { v: View? ->

@@ -25,8 +25,8 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     @SuppressLint("StaticFieldLeak")
     private val context = getApplication<Application>().applicationContext
 
-    var ROBOTER_STARTED = false /** Object detection result is dismissed if util this flag is set
-     to true. */
+    /** Object detection result is dismissed as long as this flag  this flag is set to true. */
+    var ROBOTER_STARTED = false
 
     private val currentImage = MutableLiveData<File>()
     private val currentSpecies = MutableLiveData<String>()
