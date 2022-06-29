@@ -63,16 +63,6 @@ class MainActivityQRCodeNCNN : FragmentActivity(), SurfaceHolder.Callback,
             facing = new_facing
         }
 
-        // Initialize a little menu at the edge of the screen, to connect to a Bluetooth Device.
-        /*
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().add(
-                R.id.fragmentBluetoothChain,
-                DevicesFragment(), "devices"
-            ).commit()
-        }
-
-         */
         if (!hasPermissions(mContext, *EXTERNAL_STORAGE_PERMISSIONS)) {
             ActivityCompat.requestPermissions(
                 (mContext as Activity), EXTERNAL_STORAGE_PERMISSIONS,
