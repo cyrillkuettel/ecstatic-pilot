@@ -2,6 +2,7 @@ package li.garteroboter.pren;
 
 
 import static li.garteroboter.pren.ui.LogcatFragment.newLogcatFragmentInstance;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,31 +11,34 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
 import li.garteroboter.pren.preferences.PreferenceActivity;
-import li.garteroboter.pren.socket.SocketType;
-import li.garteroboter.pren.socket.WebSocketManager;
-import li.garteroboter.pren.socket.WebSocketManagerInstance;
+import li.garteroboter.pren.network.SocketType;
+import li.garteroboter.pren.network.WebSocketManager;
+import li.garteroboter.pren.network.WebSocketManagerInstance;
 import li.garteroboter.pren.ui.LoggingFragment;
 import li.garteroboter.pren.ui.SendImagesFragment;
 
 public class MainActivity extends AppCompatActivity implements WebSocketManagerInstance {
     private static final String TAG = "MainActivity";
     private static final String HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
-
 
     private WebSocketManager manager = null;
     private static final int MY_CAMERA_REQUEST_CODE = 2;     // the image gallery
@@ -58,22 +62,22 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         setupViewPager(logs);
 
         setupButtonOnClickListeners();
-        /** To be able receive data even in the case where [NanodetncnnActivity] is unresponsive*/
-        setupCommandWeboscket();
+
+        // GlobalStateViewModel globalStateViewModel = new ViewModelProvider(this).get(GlobalStateViewModel.class);
+
+        // setupCommandWeboscket(globalStateViewModel);
 
         //startMainActivityNanodetNCNN();
     }
 
-    private void setupCommandWeboscket() {
+    private void setupCommandWeboscket(GlobalStateViewModel globalStateViewModel) {
         try {
-            manager = new WebSocketManager(this, HOSTNAME);
-            Thread connectThread = new Thread( () -> {
-              manager.createAndOpenWebSocketConnection(SocketType.Command);
-            });
+            manager = new WebSocketManager(this, HOSTNAME, globalStateViewModel);
+            Thread connectThread = new Thread( () ->
+                    manager.createAndOpenWebSocketConnection(SocketType.Command));
             connectThread.start();
             connectThread.join();
             Thread.sleep(500);
-            manager.sendText("hi");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
     protected void onDestroy() {
         super.onDestroy();
         if (!(manager == null)) {
+            Log.d(TAG, "DISCONNECTING WEBSOCKET MANAGER");
             manager.disconnectAll();
         }
     }
