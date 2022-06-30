@@ -85,7 +85,7 @@
 
     </TextView>
     <TextView
-        android:id="@+id/textViewQRCode"
+        android:id="@+id/debuggingMessages"
         android:layout_width="match_parent"
         android:textSize="15sp"
         android:textColor="@color/black"
