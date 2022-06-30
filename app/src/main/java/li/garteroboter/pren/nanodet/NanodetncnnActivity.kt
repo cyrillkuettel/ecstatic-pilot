@@ -117,11 +117,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         setupAtomicCounterInterval()
 
-        websocketManagerCommand.sendText("test")
-
         // not working
         // playCustomSoundWithNotificationChannel()
 
+        // seems to be needed to initialize the lazy object
+        websocketManagerCommand.sendText("initialize")
         reload()
     }
 
@@ -186,20 +186,22 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             websocketManagerText.sendText(log.state)
         })
-        globalStateViewModel.getCurrentDebuggingLog().observe(this, Observer { log ->
+        globalStateViewModel.getCurrentDebuggingLog().observe(this, Observer { log -> // STOP_FINISH_LINE
+            Log.i(TAG, "globalStateViewModel.getCurrentDebuggingLog().observe")
             binding.debuggingMessages.text = log
         })
 
 
         globalStateViewModel.getCurrentDriveState().observe(this, Observer { currentGlobalScope ->
+            Log.i(TAG, "globalStateViewModel.getCurrentDriveState().observe(this")
         /**  Initialization First start signal: <Drive> */
-        if (currentGlobalScope == RECEIVED_CHAR_START_COMMAND_ESP32) {
+        if (currentGlobalScope.equals(RECEIVED_CHAR_START_COMMAND_ESP32)) {
             globalStateViewModel.ROBOTER_STARTED = true
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
             Log.v(TAG, "state == START_COMMAND_ESP32")
             websocketManagerText.sendText("received start command")
             websocketManagerText.startTimer()
-        } else if (currentGlobalScope == RETURNING_FROM_INTERMEDIATE){
+        } else if (currentGlobalScope.equals(RETURNING_FROM_INTERMEDIATE)) {
             /** Here we are returning from the Qr-Code reading State in
              * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
              * in any case, resume driving. */
@@ -207,7 +209,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
             reOpenNanodetCamera()
             /** Finish Line */
-        } else if (currentGlobalScope == STOP_FINISH_LINE) {
+        } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.sendText("received stop command")
             exit()

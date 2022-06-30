@@ -171,6 +171,9 @@ public class WebSocketManager {
 
                         Log.d(TAG, "WebSocket onTextMessage: " + message);
                         if (message.contains("stop")) {
+                            Log.d(TAG, "message.contains(\"stop\")");
+
+                            globalStateViewModel.setCurrentDebuggingLog("stop");
                             globalStateViewModel.stop();
                         }
                     }

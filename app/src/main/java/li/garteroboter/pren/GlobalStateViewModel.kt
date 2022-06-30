@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import li.garteroboter.pren.Constants.STOP_FINISH_LINE
 import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import java.io.File
 import kotlin.concurrent.thread
@@ -21,7 +22,7 @@ import kotlin.concurrent.thread
 
 class GlobalStateViewModel(application: Application) : AndroidViewModel(application) {
 
-    /** Object detection result is dismissed as long as this flag  this flag is set to true. */
+    /** Object detection result is dismissed as long as this flag this flag is set to true. */
     var ROBOTER_STARTED = false
 
     private val context = getApplication<Application>().applicationContext
@@ -36,7 +37,8 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
     /** Stops the roboter, finish line. */
     fun stop() {
-        mutableDriveState.value = "STOP_FINISH_LINE"
+        Log.e(TAG ,"stop()")
+        mutableDriveState.value = STOP_FINISH_LINE
     }
 
 
