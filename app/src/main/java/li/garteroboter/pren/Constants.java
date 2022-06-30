@@ -11,6 +11,7 @@ public final class Constants {
     public static final String START_COMMAND_ESP32 = "1";
     public static final String STOP_COMMAND_ESP32 = "0";
     public static final String RECEIVED_CHAR_START_COMMAND_ESP32 = "^A";
+    public static final String STOP_FINISH_LINE = "STOP";
     public static final String WEBSOCKET_URI =   "wss://pren.garteroboter.li:80/ws/";
     public static final String LOCAL_WEBSOCKET_URI =   "ws://192.168.188.38:80/ws/";
     public static final String GARTEROBOTERLI_HOSTNAME = "pren.garteroboter.li";

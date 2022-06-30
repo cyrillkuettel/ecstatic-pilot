@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import li.garteroboter.pren.socket.SocketType;
-import li.garteroboter.pren.socket.WebSocketManager;
+import li.garteroboter.pren.network.SocketType;
+import li.garteroboter.pren.network.WebSocketManager;
 
 public class WebSocketManagerTest {
     private static final String TAG = "WebSocketManagerTest";

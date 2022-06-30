@@ -32,6 +32,14 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     private val triggerNavigateToCameraFragment = MutableLiveData<Boolean>(false)
     private val currentLog = MutableLiveData<LogType>()
 
+    private val currentDeubggingLog = MutableLiveData<String>()
+
+    /** Stops the roboter, finish line. */
+    fun stop() {
+        mutableDriveState.value = "STOP_FINISH_LINE"
+    }
+
+
     fun set_triggerNavigateToCameraFragment(value: Boolean) {
         Log.d(TAG, "set_triggerNavigateToCameraFragment")
         triggerNavigateToCameraFragment.value = value
@@ -74,6 +82,15 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     fun getCurrentLog() : MutableLiveData<LogType> {
         return currentLog
     }
+
+    fun setCurrentDebuggingLog(message: String) {
+        currentDeubggingLog.value = message
+    }
+
+    fun getCurrentDebuggingLog() : MutableLiveData<String> {
+        return currentDeubggingLog
+    }
+
 
     fun startAPICall(file: File) {
         thread(start = true) {

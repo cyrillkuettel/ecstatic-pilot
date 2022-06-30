@@ -3,75 +3,56 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="../Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.3365036231884058" />
-        <entry key="../Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_item.xml" value="0.3365036231884058" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.240625" />
-        <entry key="app/src/main/res/drawable/api.xml" value="0.224" />
         <entry key="app/src/main/res/drawable/bluetooth.xml" value="0.3712820512820513" />
-        <entry key="app/src/main/res/drawable/button_round_corners.xml" value="0.191" />
-        <entry key="app/src/main/res/drawable/exit_buttonshape.xml" value="0.2235" />
         <entry key="app/src/main/res/drawable/hamburger.xml" value="0.3861111111111111" />
         <entry key="app/src/main/res/drawable/ic_baseline_signal_cellular_alt_24.xml" value="0.3861111111111111" />
         <entry key="app/src/main/res/drawable/ic_delete_white_24dp.xml" value="0.3861111111111111" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3861111111111111" />
         <entry key="app/src/main/res/drawable/ic_send_start_24dp.xml" value="0.3712820512820513" />
         <entry key="app/src/main/res/drawable/ic_send_white_24dp.xml" value="0.1" />
-        <entry key="app/src/main/res/drawable/ic_shutter.xml" value="0.224" />
-        <entry key="app/src/main/res/drawable/ic_shutter_normal.xml" value="0.224" />
-        <entry key="app/src/main/res/drawable/mainbuttonshape.xml" value="0.191" />
         <entry key="app/src/main/res/drawable/splash_screen.xml" value="0.240625" />
         <entry key="app/src/main/res/drawable/start_buttonshape.xml" value="0.3712820512820513" />
         <entry key="app/src/main/res/drawable/stop_buttonshape.xml" value="0.3712820512820513" />
-        <entry key="app/src/main/res/drawable/switch_buttonshape.xml" value="0.2385" />
         <entry key="app/src/main/res/drawable/upadte_buttonshape.xml" value="0.3921875" />
         <entry key="app/src/main/res/drawable/update_buttonshape.xml" value="0.3861111111111111" />
         <entry key="app/src/main/res/drawable/update_buttonshape2.xml" value="0.3921875" />
         <entry key="app/src/main/res/layout/activity_bluetooth.xml" value="0.34646739130434784" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.11851851851851852" />
-        <entry key="app/src/main/res/layout/activity_nanodetncnn.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/activity_qrcode.xml" value="0.37604166666666666" />
-        <entry key="app/src/main/res/layout/activity_screen_slide.xml" value="0.18548387096774194" />
-        <entry key="app/src/main/res/layout/activity_screen_slide_main_acivity.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_nanodetncnn.xml" value="0.37864583333333335" />
+        <entry key="app/src/main/res/layout/activity_screen_slide.xml" value="0.22962962962962963" />
+        <entry key="app/src/main/res/layout/activity_screen_slide_main_acivity.xml" value="0.2" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/activity_simple.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_simple_uiactivity.xml" value="0.3609375" />
-        <entry key="app/src/main/res/layout/camera_ui_container.xml" value="0.3365036231884058" />
-        <entry key="app/src/main/res/layout/content_qrcode.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/camera_ui_container.xml" value="0.4037487335359676" />
         <entry key="app/src/main/res/layout/content_simple_uiactivity.xml" value="0.3609375" />
         <entry key="app/src/main/res/layout/device_list_header.xml" value="0.25" />
         <entry key="app/src/main/res/layout/device_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_prompt_user.xml" value="0.317481884057971" />
-        <entry key="app/src/main/res/layout/fragment_camera.xml" value="0.3365036231884058" />
+        <entry key="app/src/main/res/layout/fragment_camera.xml" value="0.4037487335359676" />
         <entry key="app/src/main/res/layout/fragment_camerax.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.3609375" />
-        <entry key="app/src/main/res/layout/fragment_gallery.xml" value="0.3365036231884058" />
-        <entry key="app/src/main/res/layout/fragment_logcat.xml" value="0.3229166666666667" />
-        <entry key="app/src/main/res/layout/fragment_logcat_list.xml" value="0.3229166666666667" />
         <entry key="app/src/main/res/layout/fragment_nanodet.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_screen_slide_page.xml" value="0.17983789260385005" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.3609375" />
-        <entry key="app/src/main/res/layout/fragment_terminal.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_terminal.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_terminal2.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/fragment_terminal2_dummy.xml" value="0.37604166666666666" />
-        <entry key="app/src/main/res/layout/fragment_terminal_light.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_websocket_send_images.xml" value="0.3609375" />
         <entry key="app/src/main/res/layout/fragment_websocket_send_logs.xml" value="0.25" />
         <entry key="app/src/main/res/layout/layout.xml" value="0.3609375" />
         <entry key="app/src/main/res/layout/main.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/layout/main2.xml" value="0.3609375" />
-        <entry key="app/src/main/res/layout/main_nanodet_activit.xml" value="0.2760416666666667" />
-        <entry key="app/src/main/res/layout/main_nanodet_activity.xml" value="0.26403985507246375" />
         <entry key="app/src/main/res/layout/menu_devices.xml" value="0.24583333333333332" />
         <entry key="app/src/main/res/layout/menu_terminal.xml" value="0.24583333333333332" />
-        <entry key="app/src/main/res/layout/number_picker_layout.xml" value="0.333786231884058" />
-        <entry key="app/src/main/res/layout/previewview_qrcode.xml" value="0.37604166666666666" />
         <entry key="app/src/main/res/menu/addnewalertstitlebar.xml" value="0.3609375" />
         <entry key="app/src/main/res/menu/mainpagemenu.xml" value="0.3609375" />
         <entry key="app/src/main/res/menu/menu_devices.xml" value="0.3609375" />
         <entry key="app/src/main/res/menu/menu_terminal.xml" value="0.2015625" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2203125" />
-        <entry key="app/src/main/res/xml/preferences.xml" value="0.25" />
+        <entry key="app/src/main/res/xml/preferences.xml" value="0.23541666666666666" />
       </map>
     </option>
   </component>

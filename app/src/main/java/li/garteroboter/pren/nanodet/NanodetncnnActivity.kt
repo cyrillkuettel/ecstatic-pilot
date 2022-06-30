@@ -25,10 +25,10 @@ import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
+import li.garteroboter.pren.network.SocketType
+import li.garteroboter.pren.network.WebSocketManager
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
 import li.garteroboter.pren.qrcode.fragments.IntermediateFragment.Companion.RETURNING_FROM_INTERMEDIATE
-import li.garteroboter.pren.socket.SocketType
-import li.garteroboter.pren.socket.WebSocketManager
 import org.apache.commons.io.FileUtils
 import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalStartStopViewModel
@@ -81,6 +81,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
+    private val websocketManagerCommand: WebSocketManager by lazy {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, globalStateViewModel).apply {
+            lifecycleScope.launch {
+                createAndOpenWebSocketConnection(SocketType.Command)
+            }
+        }
+    }
+
 
     // preferences
     private var useBluetooth = false
@@ -109,6 +117,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         setupAtomicCounterInterval()
 
+        websocketManagerCommand.sendText("test")
 
         // not working
         // playCustomSoundWithNotificationChannel()
@@ -173,9 +182,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             Log.e(TAG,"globalStateViewModel.getCurrentLog().observe" )
             if (log == GlobalStateViewModel.LogType.QR_CODE_DETECTED) {
                 Log.d(TAG, "globalStateViewModel.getCurrentLog().observe triggered LogType.QR_CODE_DETECTED")
-                binding.textViewQRCode.text = log.state
+                binding.debuggingMessages.text = log.state
             }
             websocketManagerText.sendText(log.state)
+        })
+        globalStateViewModel.getCurrentDebuggingLog().observe(this, Observer { log ->
+            binding.debuggingMessages.text = log
         })
 
 
@@ -194,6 +206,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
 
             reOpenNanodetCamera()
+            /** Finish Line */
+        } else if (currentGlobalScope == STOP_FINISH_LINE) {
+            terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
+            websocketManagerText.sendText("received stop command")
+            exit()
         }
     })
     }

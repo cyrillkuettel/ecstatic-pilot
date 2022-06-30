@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 
 import li.garteroboter.pren.R;
 import li.garteroboter.pren.StorageAccessAgent;
-import li.garteroboter.pren.socket.SocketType;
-import li.garteroboter.pren.socket.WebSocketManager;
-import li.garteroboter.pren.socket.WebSocketManagerInstance;
+import li.garteroboter.pren.network.SocketType;
+import li.garteroboter.pren.network.WebSocketManager;
+import li.garteroboter.pren.network.WebSocketManagerInstance;
 
 
 /**

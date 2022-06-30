@@ -27,7 +27,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -121,7 +120,6 @@ class CameraFragment : Fragment() {
 
     @Synchronized
     fun qrCodeAlreadySet(): Boolean {
-
         return qrString != ""
     }
 
@@ -353,7 +351,7 @@ class CameraFragment : Fragment() {
         imageAnalyzer = ImageAnalysis.Builder()
             // .setTargetAspectRatio(screenAspectRatio)
             .setTargetRotation(rotation)
-            .setTargetResolution(Size(1280, 720))
+            //.setTargetResolution(Size(700, 700)) // 1280, 720)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // TODO: experiment with this
             .build()
             // The analyzer can then be assigned to the instance
@@ -362,6 +360,8 @@ class CameraFragment : Fragment() {
                     cameraExecutor,
                     QRCodeImageAnalyzer(object : QRCodeFoundListener1 {
                         override fun onQRCodeFound(qrCode: String?) {
+                            Log.e(TAG, "onQRCodeFound")
+                            cameraUiContainerBinding?.textViewDebugging!!.text = "QR-Code detected"
                             actionOnQrCode(qrCode)
                         }
 
@@ -372,7 +372,7 @@ class CameraFragment : Fragment() {
                          * not be called twice.
                          * This introduces whole new level of complexity which we're trying to avoid.
                          */
-                        @Synchronized
+                       // @Synchronized
                         private fun actionOnQrCode(qrCode: String?) {
                             /** QR-Code has been detected.
                              *
@@ -399,8 +399,6 @@ class CameraFragment : Fragment() {
 
                                 if (qrCodeAlreadySet()) {
                                     Log.e(TAG, "qrCodeAlreadySet")
-                                    /** This navigates back immediately. The timer is used to
-                                     *  override the previous timer instance, to avoid conflicts. */
 
                                     Log.e(TAG, "starting timerForFragmentTermination")
                                     navigateBack_OnUIThread()

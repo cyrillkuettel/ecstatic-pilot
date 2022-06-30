@@ -1,4 +1,4 @@
-package li.garteroboter.pren.socket;
+package li.garteroboter.pren.network;
 
 import android.content.Context;
 import android.os.Handler;
@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import li.garteroboter.pren.Constants;
+import li.garteroboter.pren.GlobalStateViewModel;
 
 
 /**
@@ -43,9 +44,6 @@ import li.garteroboter.pren.Constants;
 
 public class WebSocketManager {
     private static final String TAG = "WebSocketManager";
-
-    private static final String INTERNET_NOT_AVAILABLE = "Internet is not available. Are you " +
-            "online? ";
     final Context context;
     /**
      * The timeout value in milliseconds for socket connection.
@@ -62,12 +60,26 @@ public class WebSocketManager {
     private SocketType socketType;
     private final String URI;
 
+
+    private GlobalStateViewModel globalStateViewModel;
+
+
     public WebSocketManager(Context context, String URI) {
         this.context = context;
         this.URI = URI;
         this.sockets = new HashMap<>();
         Log.i(TAG, "Creating new fixed Threadpool!");
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    }
+
+    /** We pass in the ViewModel, so that information can flow outwards */
+    public WebSocketManager(Context context, String URI, GlobalStateViewModel globalStateViewModel) {
+        this.context = context;
+        this.URI = URI;
+        this.sockets = new HashMap<>();
+        Log.i(TAG, "Creating new fixed Threadpool!");
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        this.globalStateViewModel = globalStateViewModel;
     }
 
 
@@ -157,9 +169,10 @@ public class WebSocketManager {
                                               String message) throws Exception {
                         super.onTextMessage(websocket, message);
 
-                        createToast(message, context);
-
-                        Log.i(TAG, "WebSocket onTextMessage: " + message);
+                        Log.d(TAG, "WebSocket onTextMessage: " + message);
+                        if (message.contains("stop")) {
+                            globalStateViewModel.stop();
+                        }
                     }
 
                     @Override
@@ -272,7 +285,6 @@ public class WebSocketManager {
         } catch (UnknownHostException e) {
             String msg = "Internet does not seem to be available";
             Log.i(TAG, msg);
-            // Utils.LogAndToast(WebSocketManager.this, ,msg);
         }
         return false; // no internet
     }

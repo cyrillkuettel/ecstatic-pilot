@@ -1,4 +1,4 @@
-package li.garteroboter.pren.socket;
+package li.garteroboter.pren.network;
 
 /**
  * Context: We want to be able to access the Websocket Manger from other places. Like,

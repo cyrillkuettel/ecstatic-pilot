@@ -1,4 +1,4 @@
-package li.garteroboter.pren.socket;
+package li.garteroboter.pren.network;
 
 public enum SocketType {
     /* different use cases for Websocket */
