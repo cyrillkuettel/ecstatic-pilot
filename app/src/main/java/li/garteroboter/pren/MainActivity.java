@@ -29,10 +29,9 @@ import java.util.List;
 
 import li.garteroboter.pren.log.LogcatDataReader;
 import li.garteroboter.pren.nanodet.NanodetncnnActivity;
-import li.garteroboter.pren.preferences.PreferenceActivity;
-import li.garteroboter.pren.network.SocketType;
 import li.garteroboter.pren.network.WebSocketManager;
 import li.garteroboter.pren.network.WebSocketManagerInstance;
+import li.garteroboter.pren.preferences.PreferenceActivity;
 import li.garteroboter.pren.ui.LoggingFragment;
 import li.garteroboter.pren.ui.SendImagesFragment;
 
@@ -63,26 +62,11 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
 
         setupButtonOnClickListeners();
 
-        // GlobalStateViewModel globalStateViewModel = new ViewModelProvider(this).get(GlobalStateViewModel.class);
-
-        // setupCommandWeboscket(globalStateViewModel);
 
         //startMainActivityNanodetNCNN();
     }
 
-    private void setupCommandWeboscket(GlobalStateViewModel globalStateViewModel) {
-        try {
-            manager = new WebSocketManager(this, HOSTNAME, globalStateViewModel);
-            Thread connectThread = new Thread( () ->
-                    manager.createAndOpenWebSocketConnection(SocketType.Command));
-            connectThread.start();
-            connectThread.join();
-            Thread.sleep(500);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private List<String> readLogcat() {
         LogcatDataReader logcatDataReader = new LogcatDataReader();

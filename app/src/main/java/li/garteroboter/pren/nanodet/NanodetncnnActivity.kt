@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
+import li.garteroboter.pren.network.GlobalStateListener
 import li.garteroboter.pren.network.SocketType
 import li.garteroboter.pren.network.WebSocketManager
 import li.garteroboter.pren.preferences.bundle.CustomSettingsBundle
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener {
+class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener, GlobalStateListener {
 
 
 
@@ -82,7 +83,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
     private val websocketManagerCommand: WebSocketManager by lazy {
-        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, globalStateViewModel).apply {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
             lifecycleScope.launch {
                 createAndOpenWebSocketConnection(SocketType.Command)
             }
@@ -186,8 +187,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             websocketManagerText.sendText(log.state)
         })
+
         globalStateViewModel.getCurrentDebuggingLog().observe(this, Observer { log -> // STOP_FINISH_LINE
-            Log.i(TAG, "globalStateViewModel.getCurrentDebuggingLog().observe")
+            Log.e(TAG, "globalStateViewModel.getCurrentDebuggingLog().observe")
             binding.debuggingMessages.text = log
         })
 
@@ -516,7 +518,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
 
-        /** Use external media if it is available, our app's file directory otherwise */
+        /** Use external media if it is available, our app's file directory ogetCurrentDebuggingLogtherwise */
         fun getOutputDirectory(context: Context): File {
             val appContext = context.applicationContext
             val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
@@ -524,6 +526,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             return if (mediaDir != null && mediaDir.exists())
                 mediaDir else appContext.filesDir
+        }
+    }
+
+    override fun triggerStop() {
+        Log.d(TAG, "triggerStop")
+        runOnUiThread {  // this is necessary because we're calling this method from a different thread
+            globalStateViewModel.setCurrentDebuggingLog("stop")
+            globalStateViewModel.stop()
         }
     }
 

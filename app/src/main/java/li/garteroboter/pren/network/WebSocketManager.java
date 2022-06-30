@@ -30,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import li.garteroboter.pren.Constants;
-import li.garteroboter.pren.GlobalStateViewModel;
 
 
 /**
@@ -60,27 +59,18 @@ public class WebSocketManager {
     private SocketType socketType;
     private final String URI;
 
-
-    private GlobalStateViewModel globalStateViewModel;
+    private final GlobalStateListener globalStateListener;
 
 
     public WebSocketManager(Context context, String URI) {
         this.context = context;
+        this.globalStateListener = (GlobalStateListener) context;
         this.URI = URI;
         this.sockets = new HashMap<>();
         Log.i(TAG, "Creating new fixed Threadpool!");
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
-    /** We pass in the ViewModel, so that information can flow outwards */
-    public WebSocketManager(Context context, String URI, GlobalStateViewModel globalStateViewModel) {
-        this.context = context;
-        this.URI = URI;
-        this.sockets = new HashMap<>();
-        Log.i(TAG, "Creating new fixed Threadpool!");
-        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-        this.globalStateViewModel = globalStateViewModel;
-    }
 
 
     public boolean createAndOpenWebSocketConnection(SocketType socketType) {
@@ -172,9 +162,7 @@ public class WebSocketManager {
                         Log.d(TAG, "WebSocket onTextMessage: " + message);
                         if (message.contains("stop")) {
                             Log.d(TAG, "message.contains(\"stop\")");
-
-                            globalStateViewModel.setCurrentDebuggingLog("stop");
-                            globalStateViewModel.stop();
+                            globalStateListener.triggerStop();
                         }
                     }
 
