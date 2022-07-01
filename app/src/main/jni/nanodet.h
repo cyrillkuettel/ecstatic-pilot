@@ -42,8 +42,6 @@ class NanoDet{
 
     int load(AAssetManager* mgr, const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false);
 
-    int detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold = 0.4f, float nms_threshold = 0.5f);
-
     int detect_plant_vase(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold = 0.4f, float nms_threshold = 0.5f);
 
     int draw(cv::Mat& rgb, const std::vector<Object>& objects);
@@ -60,8 +58,6 @@ private:
     float norm_vals[3];
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
-
-    void invoke_class(char* lable);
 };
 
 #endif // NANODET_H
