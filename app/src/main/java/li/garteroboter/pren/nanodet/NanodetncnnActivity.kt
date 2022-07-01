@@ -122,8 +122,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         setupAtomicCounterInterval()
 
-        // not working
-        // playCustomSoundWithNotificationChannel()
 
         // seems to be needed to initialize the lazy object
         websocketManagerCommand.sendText("initialize")
@@ -146,13 +144,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         useBluetooth = settingsBundle.isUsingBluetooth
         if (!useBluetooth) {
             Log.e(TAG, "not using bluetooth")
-            globalStateViewModel.ROBOTER_DRIVING = true
+            globalStateViewModel.ROBOTER_DRIVING = true // if the start command is not received
+            // via bluetooth, just start as soon as this Activity starts.
         }
         numerOfConfirmations = settingsBundle.confirmations
-        if (numerOfConfirmations != 3) {
-            Log.d(TAG, "numerOfConfirmations UPDATED to $numerOfConfirmations")
-
-        }
         plantCount = settingsBundle.plantCount
         switchQr = settingsBundle.isSwitchToQr
         prob_threshhold = settingsBundle.prob_threshold
@@ -213,10 +208,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
             /** We have to wait a bit before detecting again, to prevent detecting the same plant twice */
             Log.e(TAG, "Setting timer")
+            globalStateViewModel.ROBOTER_DRIVING = false // wait a bit
             timerForDelay = Timer("delay_object_detection", false)
                 .schedule(OBJECT_DETECTION_DELAY_MILLIS) {
                     runOnUiThread {
-                        reOpenNanodetCamera()
+                        globalStateViewModel.ROBOTER_DRIVING = true
                     }
             }
             /** Finish Line */
@@ -522,14 +518,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
-        const val OBJECT_DETECTION_DELAY_MILLIS: Long = 3000
+        const val OBJECT_DETECTION_DELAY_MILLIS: Long = 2000
         const val DEVICES_FRAGMENT_TAG = "devices"
         private const val TAG = "NanodetncnnActivity"
         const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/"
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
 
-        /** Use external media if it is available, our app's file directory ogetCurrentDebuggingLogtherwise */
+        /** Use external media if it is available */
         fun getOutputDirectory(context: Context): File {
             val appContext = context.applicationContext
             val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
