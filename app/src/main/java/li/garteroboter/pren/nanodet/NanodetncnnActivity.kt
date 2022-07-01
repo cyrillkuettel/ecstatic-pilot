@@ -35,9 +35,11 @@ import simple.bluetooth.terminal.DevicesFragment
 import simple.bluetooth.terminal.TerminalStartStopViewModel
 import java.io.File
 import java.lang.System.exit
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.schedule
 
 
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener, GlobalStateListener {
@@ -57,6 +59,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private var currentCPUGPU = 0
     private var cameraView: SurfaceView? = null
 
+    private var timerForDelay: TimerTask? = null
+
     private val ringtone by lazy {
         RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
             applicationContext, RingtoneManager.TYPE_NOTIFICATION))
@@ -67,25 +71,25 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     /** Initialization by lazy { ... } is thread-safe by default */
     private val websocketManagerByte: WebSocketManager by lazy {
-        WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, SocketType.Binary).apply {
             lifecycleScope.launch {
-                createAndOpenWebSocketConnection(SocketType.Binary)
+                createAndOpenWebSocketConnection()
             }
         }
     }
 
     private val websocketManagerText: WebSocketManager by lazy {
-        WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, SocketType.Text).apply {
             lifecycleScope.launch {
-                createAndOpenWebSocketConnection(SocketType.Text)
+                createAndOpenWebSocketConnection()
             }
         }
     }
 
     private val websocketManagerCommand: WebSocketManager by lazy {
-        WebSocketManager(this@NanodetncnnActivity, HOSTNAME).apply {
+        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, SocketType.Command).apply {
             lifecycleScope.launch {
-                createAndOpenWebSocketConnection(SocketType.Command)
+                createAndOpenWebSocketConnection()
             }
         }
     }
@@ -205,14 +209,22 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
              * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
              * in any case, resume driving. */
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
-            websocketManagerText.sendText("Resume Driving")
+            globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.RESUME)
 
-            reOpenNanodetCamera()
+            /** We have to wait a bit before detecting again, to prevent detecting the same plant twice */
+            Log.e(TAG, "Setting timer")
+            timerForDelay = Timer("delay_object_detection", false)
+                .schedule(OBJECT_DETECTION_DELAY_MILLIS) {
+                    runOnUiThread {
+                        reOpenNanodetCamera()
+                    }
+            }
             /** Finish Line */
         } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.sendText("received stop command")
-           // exit()
+            Thread.sleep(500)
+            exit()
         }
     })
     }
@@ -510,9 +522,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     companion object {
         const val REQUEST_CAMERA = 100
         const val CAMERA_ORIENTATION = 1
+        const val OBJECT_DETECTION_DELAY_MILLIS: Long = 3000
         const val DEVICES_FRAGMENT_TAG = "devices"
         private const val TAG = "NanodetncnnActivity"
-        const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/";
+        const val HOSTNAME = "wss://pren.garteroboter.li:443/ws/"
         var TOGGLE_RINGTONE = true
         private const val REQUEST_PERMISSIONS_CODE_BLUETOOTH_CONNECT = 11
 

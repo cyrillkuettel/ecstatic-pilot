@@ -146,9 +146,9 @@ public class LoggingFragment extends Fragment {
         } else {
             Log.i(TAG, "Opening new Socket connection");
         }
-        manager = new WebSocketManager(getContext(), hostname);
+        manager = new WebSocketManager(getContext(), hostname, SocketType.Text);
         // TODO: change this so be more optimal
-        new Thread(() -> manager.createAndOpenWebSocketConnection(SocketType.Text)).start();
+        new Thread(() -> manager.createAndOpenWebSocketConnection()).start();
     }
 
     public final void generateDropDownItems(View view) {

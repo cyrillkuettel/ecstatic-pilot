@@ -52,9 +52,9 @@ public class WebSocketManagerTest {
      * Utility Method to create WebSocket. Currently only used for testing.
      */
     public WebSocketManager  createWebSocket() {
-        WebSocketManager manager = new WebSocketManager(context, Constants.WEBSOCKET_URI);
+        WebSocketManager manager = new WebSocketManager(context, Constants.WEBSOCKET_URI, SocketType.Text);
 
-        Callable<Boolean> callableObj = () -> manager.createAndOpenWebSocketConnection(SocketType.Text);
+        Callable<Boolean> callableObj = manager::createAndOpenWebSocketConnection;
         ExecutorService service = Executors.newSingleThreadExecutor();
         Future<Boolean> future = service.submit(callableObj);
         Boolean OpenSocketConnectionResult = false;
@@ -87,14 +87,14 @@ public class WebSocketManagerTest {
 
     @Test
     public void testIsInternetAvailable() {
-        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI);
+        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI, SocketType.Text);
         assertTrue(manager.isInternetAvailable());
         // Internet should at all times be available. If not we are fucked
     }
 
     @Test
     public void testisWebserverUp() {
-        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI);
+        WebSocketManager manager = new WebSocketManager(context,Constants.WEBSOCKET_URI, SocketType.Text);
         assertTrue(manager.isWebserverUp());
     }
 

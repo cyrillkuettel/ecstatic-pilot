@@ -62,20 +62,26 @@ public class WebSocketManager {
     private final GlobalStateListener globalStateListener;
 
 
-    public WebSocketManager(Context context, String URI) {
+
+
+    public WebSocketManager(Context context, String URI, SocketType socketType) {
         this.context = context;
-        this.globalStateListener = (GlobalStateListener) context;
         this.URI = URI;
         this.sockets = new HashMap<>();
+        this.socketType = socketType;
+        if (socketType.equals(SocketType.Command)) {
+            this.globalStateListener = (GlobalStateListener) context;
+        } else {
+            this.globalStateListener = null;
+        }
         Log.i(TAG, "Creating new fixed Threadpool!");
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     }
 
 
 
-    public boolean createAndOpenWebSocketConnection(SocketType socketType) {
+    public boolean createAndOpenWebSocketConnection() {
         Log.i(TAG, "createAndOpenWebSocketConnection");
-        this.socketType = socketType;
 
         final String completeURI = this.URI + socketType.type;
 
