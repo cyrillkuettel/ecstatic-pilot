@@ -142,7 +142,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         useBluetooth = settingsBundle.isUsingBluetooth
         if (!useBluetooth) {
             Log.e(TAG, "not using bluetooth")
-            globalStateViewModel.ROBOTER_STARTED = true
+            globalStateViewModel.ROBOTER_DRIVING = true
         }
         numerOfConfirmations = settingsBundle.confirmations
         if (numerOfConfirmations != 3) {
@@ -188,17 +188,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             websocketManagerText.sendText(log.state)
         })
 
-        globalStateViewModel.getCurrentDebuggingLog().observe(this, Observer { log -> // STOP_FINISH_LINE
-            Log.e(TAG, "globalStateViewModel.getCurrentDebuggingLog().observe")
-            binding.debuggingMessages.text = log
-        })
 
 
-        globalStateViewModel.getCurrentDriveState().observe(this, Observer { currentGlobalScope ->
+        globalStateViewModel.getMutableDriveState().observe(this, Observer { currentGlobalScope ->
             Log.i(TAG, "globalStateViewModel.getCurrentDriveState().observe(this")
+
         /**  Initialization First start signal: <Drive> */
         if (currentGlobalScope.equals(RECEIVED_CHAR_START_COMMAND_ESP32)) {
-            globalStateViewModel.ROBOTER_STARTED = true
+            globalStateViewModel.ROBOTER_DRIVING = true
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
             Log.v(TAG, "state == START_COMMAND_ESP32")
             websocketManagerText.sendText("received start command")
@@ -208,13 +205,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
              * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
              * in any case, resume driving. */
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
+            websocketManagerText.sendText("Resume Driving")
 
             reOpenNanodetCamera()
             /** Finish Line */
         } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.sendText("received stop command")
-            exit()
+           // exit()
         }
     })
     }
@@ -326,7 +324,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
     fun plantVaseDetectedCallback(objectLabel: String?, probability: String?) {
         val count = atomicCounter.incrementAndGet()
-        if (!globalStateViewModel.ROBOTER_STARTED) {
+        if (!globalStateViewModel.ROBOTER_DRIVING) {
             Log.e(TAG,"globalStateViewModel.ROBOTER_STARTED == false" )
             return
         }
@@ -532,7 +530,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     override fun triggerStop() {
         Log.d(TAG, "triggerStop")
         runOnUiThread {  // this is necessary because we're calling this method from a different thread
-            globalStateViewModel.setCurrentDebuggingLog("stop")
             globalStateViewModel.stop()
         }
     }

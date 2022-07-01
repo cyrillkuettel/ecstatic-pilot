@@ -23,7 +23,7 @@ import kotlin.concurrent.thread
 class GlobalStateViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Object detection result is dismissed as long as this flag this flag is set to true. */
-    var ROBOTER_STARTED = false
+    var ROBOTER_DRIVING = false
 
     private val context = getApplication<Application>().applicationContext
 
@@ -38,6 +38,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
     /** Stops the roboter, finish line. */
     fun stop() {
         Log.e(TAG ,"stop()")
+        ROBOTER_DRIVING = false
         mutableDriveState.value = STOP_FINISH_LINE
     }
 
@@ -64,7 +65,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
         mutableDriveState.value = state
     }
 
-    fun getCurrentDriveState() : MutableLiveData<String> {
+    fun getMutableDriveState() : MutableLiveData<String> {
         return mutableDriveState
     }
 
@@ -85,13 +86,6 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
         return currentLog
     }
 
-    fun setCurrentDebuggingLog(message: String) {
-        currentDeubggingLog.value = message
-    }
-
-    fun getCurrentDebuggingLog() : MutableLiveData<String> {
-        return currentDeubggingLog
-    }
 
 
     fun startAPICall(file: File) {

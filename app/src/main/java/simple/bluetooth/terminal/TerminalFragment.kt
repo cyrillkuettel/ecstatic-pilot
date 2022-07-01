@@ -173,7 +173,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
                 Constants.START_COMMAND_ESP32
             )
             // this is used for testing, simulate start
-            globalStateViewModel.ROBOTER_STARTED = true
+            globalStateViewModel.ROBOTER_DRIVING = true
         }
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
