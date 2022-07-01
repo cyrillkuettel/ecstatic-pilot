@@ -49,12 +49,20 @@
 
 
     <Button
-        android:id="@+id/btnStartStop"
+        android:id="@+id/btnStart"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="300dp"
         android:layout_height="45dp"
         android:layout_gravity="center_horizontal|center"
-        android:text="Start/Stopp timer" />
+        android:text="Start Timer" />
+
+    <Button
+        android:id="@+id/btnStop"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal|center"
+        android:text="Stopp Timer" />
 
 
     <Button

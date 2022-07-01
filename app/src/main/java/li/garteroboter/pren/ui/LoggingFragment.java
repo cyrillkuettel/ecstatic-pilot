@@ -70,19 +70,25 @@ public class LoggingFragment extends Fragment {
             manager.sendText("Hello from Android!");
         });
 
-        Button btnStartStopTimer = view.findViewById(R.id.btnStartStop);
+        Button btnSTart = view.findViewById(R.id.btnStart);
         // btnStartStopTimer.setEnabled(false);
-        btnStartStopTimer.setOnClickListener(v -> {
-            btnStartStopTimer.setEnabled((false));
-            sendStartSignalToWebServer();
-
+        btnSTart.setOnClickListener(v -> {
+            btnSTart.setEnabled((false));
+            manager.startTimer();
         });
+
+        Button btnStop = view.findViewById(R.id.btnStop);
+        btnStop.setOnClickListener(v -> {
+            btnSTart.setEnabled((false));
+            manager.stopTimer();
+        });
+
         Button btnOpenConnection = view.findViewById(R.id.btnOpenConnection);
         btnOpenConnection.setOnClickListener(v -> {
             Spinner hostnameDropdown = view.findViewById(R.id.dropdown_menu);
             reOpenSocket(hostnameDropdown.getSelectedItem().toString());
             btnSendMessageToWebSocket.setEnabled(true);
-            btnStartStopTimer.setEnabled((true));
+            btnSTart.setEnabled((true));
             btnClose.setEnabled(true);
         });
 
@@ -166,13 +172,8 @@ public class LoggingFragment extends Fragment {
         }
     }
 
-    /**
-     * tells the webserver that the parkour has begun.
-     * Note that in the end this messsage has to be called as a result of the Bluetooth message
-     */
-    public void sendStartSignalToWebServer() {
-        manager.startTimer();
-    }
+
+
 
 
     public LoggingFragment() {
