@@ -231,6 +231,11 @@ public class WebSocketManager {
         sendText(message);
     }
 
+    public void stopTimer() {
+        String message = "command=stopTime";
+        sendText(message);
+    }
+
 
     /**
      * Sends a image to the webserver

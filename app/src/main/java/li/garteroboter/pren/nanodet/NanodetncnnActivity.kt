@@ -218,6 +218,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             /** Finish Line */
         } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
+            websocketManagerText.stopTimer()
             websocketManagerText.sendText("received stop command")
             Thread.sleep(500)
             exit()
