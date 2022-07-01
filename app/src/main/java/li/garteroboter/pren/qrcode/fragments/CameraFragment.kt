@@ -87,9 +87,6 @@ class CameraFragment : Fragment() {
     /** Timer for fragment lifetime.  */
     private var timerForFragmentTermination: TimerTask? = null
 
-    //TODO:
-    // remove this in the final act. This is just for debugging.
-    private var dataBaseThread: Thread = clearAllTablesThread()
 
     private val imageTaken: AtomicBoolean = AtomicBoolean(false)
     private val navigateBackHasBeenCalled: AtomicBoolean = AtomicBoolean(false)
@@ -397,13 +394,16 @@ class CameraFragment : Fragment() {
                                     globalStateViewModel.setCurrentLog(LogType.QR_CODE_DETECTED)
                                 }
 
+                                if (qrCode?.contains("STOP") == true) {
+                                    globalStateViewModel.stop()
+
+                                }
                                 if (qrCodeAlreadySet()) {
                                     Log.e(TAG, "qrCodeAlreadySet")
 
                                     Log.e(TAG, "starting timerForFragmentTermination")
                                     navigateBack_OnUIThread()
                                 } else {
-
                                     Log.d(TAG, "This is a new QR-Code.")
                                     setQRString(qrCode)
                                     takePhotoOnce(::setCurrentImage)
