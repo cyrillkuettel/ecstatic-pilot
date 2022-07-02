@@ -376,6 +376,8 @@ int NanoDet::detect_plant_vase(const cv::Mat &rgb, std::vector<Object> &objects,
     // stride 8
     {
         /*
+         This is disabled because for our use-case it rarely applies
+
         ncnn::Mat cls_pred;
         ncnn::Mat dis_pred;
         ex.extract("cls_pred_stride_8", cls_pred);

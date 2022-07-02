@@ -124,7 +124,7 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
     enum class LogType(val state: String) {
         STARTED("Roboter started"),
-        FINISHED("Roboter halts."),
+        STOP("Received Stop"),
         RESUME("Resume driving"),
         OBJECT_DETECTION_TRIGGERED("Object detection: Potted Plant"),
         PLANT_SPECIES_DETECTED("Species detected."),

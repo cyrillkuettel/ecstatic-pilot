@@ -232,7 +232,8 @@ public class WebSocketManager {
     }
 
     public void stopTimer() {
-        String message = "command=stopTime";
+        String value_now = getDeviceTimeStampAsMilliseconds();
+        String message = String.format("command=stopTime=%s", value_now);
         sendText(message);
     }
 

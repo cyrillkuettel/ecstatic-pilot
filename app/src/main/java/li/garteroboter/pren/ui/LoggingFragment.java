@@ -62,6 +62,13 @@ public class LoggingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_websocket_send_logs, container, false);
         generateDropDownItems(view);
 
+        setupOnClickListeners(view);
+
+
+        return view;
+    }
+
+    private void setupOnClickListeners(View view) {
         Button btnClose =  view.findViewById(R.id.btnCloseConnection);
 
         Button btnSendMessageToWebSocket = view.findViewById(R.id.btnSendMessageToWebSocket);
@@ -139,11 +146,7 @@ public class LoggingFragment extends Fragment {
             }
 
         });
-
-
-        return view;
     }
-
 
 
     public void reOpenSocket(final String hostname) {
@@ -171,9 +174,6 @@ public class LoggingFragment extends Fragment {
             e.printStackTrace();
         }
     }
-
-
-
 
 
     public LoggingFragment() {
