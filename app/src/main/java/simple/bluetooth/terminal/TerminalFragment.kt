@@ -168,7 +168,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
 
     private fun setupButtonOnClickListener(view: View) {
         val simulateStartSignalButton = view.findViewById<View>(R.id.bluetooth_send_start)
-        simulateStartSignalButton.setOnClickListener { v: View? ->
+        simulateStartSignalButton.setOnClickListener {
             send(
                 Constants.START_COMMAND_ESP32
             )
@@ -177,7 +177,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         }
 
         val sendBtn = view.findViewById<View>(R.id.send_btn)
-        sendBtn.setOnClickListener { v: View? ->
+        sendBtn.setOnClickListener {
             send(sendText?.text.toString())
         }
     }

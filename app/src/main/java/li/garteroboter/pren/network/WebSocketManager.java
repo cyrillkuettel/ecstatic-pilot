@@ -35,8 +35,8 @@ import li.garteroboter.pren.Constants;
 /**
  * This Class realises the Websocket connections, and sending and receiving Data from the Server
  * pren.garteroboter.li
- * There are two distinct websocket connections in this application:
- * image data and text data.
+ * There are three distinct websocket connections in this application:
+ * image data and text data and commands
  * I have both textual (e.g. Logs and Commands) and binary data (Images) and don't want to bother
  * with adding my own protocol layer to distinguish. That's why we have two connections.
  */
@@ -56,11 +56,10 @@ public class WebSocketManager {
      * Stores the current active socket connections.
      */
     private final Map<SocketType, WebSocket> sockets;
-    private SocketType socketType;
+    private final SocketType socketType;
     private final String URI;
 
     private final GlobalStateListener globalStateListener;
-
 
 
 
