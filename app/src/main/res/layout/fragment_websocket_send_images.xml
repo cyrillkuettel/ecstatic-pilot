@@ -46,5 +46,12 @@
             android:layout_gravity="center_horizontal|center"
             android:text="Test batch sending a bunch of images" />
 
+        <Button
+            android:id="@+id/btnTestLocalImagesSend"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center"
+            android:text="Send Images to local" />
+
     </LinearLayout>
 </ScrollView>

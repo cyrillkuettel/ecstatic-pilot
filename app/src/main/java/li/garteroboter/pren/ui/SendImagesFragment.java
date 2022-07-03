@@ -99,6 +99,12 @@ public class SendImagesFragment extends Fragment {
             btnSelectImageAndSend.setEnabled(true);
             btnSendImagesFromDisk.setEnabled(true);
         });
+        Button btnSendImagesToLocal =
+                view.findViewById(R.id.btnTestLocalImagesSend);
+        btnSendImagesToLocal.setOnClickListener( v -> {
+            reOpenSocket("ws://192.168.188.38:8000/ws/");
+            uploadSinglePlantTest();
+        });
 
         return view;
     }
@@ -129,7 +135,7 @@ public class SendImagesFragment extends Fragment {
         }
     }
 
-    public void testSendArrayOfPlants() {
+    public List<File> getTestImages()  {
         File[] files = getContext().getFilesDir().listFiles();
         List<String> file_names = Arrays.stream(files)
                 .map(f -> f.getName()).collect(Collectors.toList());
@@ -139,8 +145,22 @@ public class SendImagesFragment extends Fragment {
 
         storageAccessAgent.copyPlantsToInternalDirectory(plants.toArray(new String[0]));
 
-        List<File> plantImages = storageAccessAgent.getAllPlantImages();
+        return storageAccessAgent.getAllPlantImages();
+    }
+
+    public void testSendArrayOfPlants() {
+        List<File> plantImages = getTestImages();
         plantImages.forEach(this::sendSinglePlantImageFromInternalDirectory);
+    }
+
+    public void uploadSinglePlantTest() {
+        List<File> plantImages = getTestImages();
+        List<File> rotated = plantImages.stream()
+                .filter(element -> element.getName()
+                        .contains("rotated"))
+                .collect(Collectors.toList());
+        sendSinglePlantImageFromInternalDirectory(rotated.get(0));
+
     }
 
     public void sendSinglePlantImageFromInternalDirectory(final File file) {
