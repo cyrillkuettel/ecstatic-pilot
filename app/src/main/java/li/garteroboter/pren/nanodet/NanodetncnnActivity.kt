@@ -200,8 +200,8 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             websocketManagerText.sendText("received start command")
             websocketManagerText.startTimer()
         } else if (currentGlobalScope.equals(RETURNING_FROM_INTERMEDIATE)) {
-            /** Here we are returning from the Qr-Code reading State in
-             * CameraFragment. Either we have successfully read the QR-Code, or it took too long,
+            /** Here we are returning from CameraFragment. Either we have successfully read the
+             * QR-Code, or not,
              * in any case, resume driving. */
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
             globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.RESUME)
@@ -213,6 +213,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
                 .schedule(OBJECT_DETECTION_DELAY_MILLIS) {
                     runOnUiThread {
                         globalStateViewModel.ROBOTER_DRIVING = true
+                        reOpenNanodetCamera()
                     }
             }
             /** Finish Line */
@@ -403,6 +404,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         cameraView!!.layoutParams =
             LinearLayout.LayoutParams(currentSurfaceViewWidth, 1) // shrink
     }
+
 
 
     private fun reOpenNanodetCamera() {

@@ -581,7 +581,7 @@ class CameraFragment : Fragment() {
 
 
     fun setCurrentImage(file: File) {
-        Log.i(TAG, "setCurrentImage")
+        Log.i(TAG, "globalStateViewModel.setCurrentImage(file)")
         activity?.runOnUiThread {
             globalStateViewModel.setCurrentImage(file)
         }
