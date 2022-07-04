@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements WebSocketManagerI
         pagerAdapter.setLogcatLines(logs);
 
         viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(1);
         viewPager.setOffscreenPageLimit(3); // important: the fragments stay in memory
         tabLayout = findViewById(R.id.tabLayout);
         tabNames = new String[]{"Logs", "Images", "Logcat"};

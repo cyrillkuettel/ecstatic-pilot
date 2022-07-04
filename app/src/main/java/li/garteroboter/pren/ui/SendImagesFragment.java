@@ -94,16 +94,35 @@ public class SendImagesFragment extends Fragment {
                 view.findViewById(R.id.btnOpenByteSocketConnection);
         btnOpenByteSocketConnection.setOnClickListener(v -> {
             Spinner hostnameDropdown = view.findViewById(R.id.dropdown_menu_byte);
+            Log.e(TAG, hostnameDropdown.getSelectedItem().toString());
             reOpenSocket(hostnameDropdown.getSelectedItem().toString());
 
             btnSelectImageAndSend.setEnabled(true);
             btnSendImagesFromDisk.setEnabled(true);
         });
+
         Button btnSendImagesToLocal =
                 view.findViewById(R.id.btnTestLocalImagesSend);
         btnSendImagesToLocal.setOnClickListener( v -> {
             reOpenSocket("ws://192.168.188.38:8000/ws/");
-            uploadSinglePlantTest();
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            uploadSinglePlantTest("lavender_rotated");
+        });
+
+        Button btnSendThreeImagesToLocal =
+                view.findViewById(R.id.btnSendThreeImagesToLocal);
+        btnSendThreeImagesToLocal.setOnClickListener( v -> {
+            reOpenSocket("ws://192.168.188.38:8000/ws/");
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            uploadSinglePlantTest("three_plants");
         });
 
         return view;
@@ -153,13 +172,17 @@ public class SendImagesFragment extends Fragment {
         plantImages.forEach(this::sendSinglePlantImageFromInternalDirectory);
     }
 
-    public void uploadSinglePlantTest() {
+    public void uploadSinglePlantTest(String filter) {
         List<File> plantImages = getTestImages();
         List<File> rotated = plantImages.stream()
                 .filter(element -> element.getName()
-                        .contains("rotated"))
+                        .contains(filter))
                 .collect(Collectors.toList());
-        sendSinglePlantImageFromInternalDirectory(rotated.get(0));
+        if (rotated.size() > 0) {
+            sendSinglePlantImageFromInternalDirectory(rotated.get(0));
+        } else {
+            throw new IndexOutOfBoundsException("Index out of bounds in uploadSinglePlantTest");
+        }
 
     }
 

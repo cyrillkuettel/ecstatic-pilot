@@ -52,7 +52,8 @@ public class StorageAccessAgent {
     }
 
     public List<File> getAllPlantImages() {
-        Predicate<File> FileNameContainsWEBP = file -> file.getName().contains(".webp");
+        Predicate<File> FileNameContainsWEBP = file ->
+                file.getName().contains(".webp") || file.getName().contains(".jpg");
 
         final File[] files = context.getFilesDir().listFiles();
         Arrays.stream(files)

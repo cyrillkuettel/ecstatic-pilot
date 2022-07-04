@@ -233,7 +233,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
      * fetching binary data through the currently running instance of [WebSocketManager]
      */
     private fun uploadPlantFromFile(file: File?) {
-        Log.i(TAG,"uploadPlantFromFile" )
+        Log.d(TAG,"uploadPlantFromFile" )
         file?.let { it ->
             try {
                 val bytes = FileUtils.readFileToByteArray(it)

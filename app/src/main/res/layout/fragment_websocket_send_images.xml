@@ -53,5 +53,13 @@
             android:layout_gravity="center_horizontal|center"
             android:text="Send Images to local" />
 
+        <Button
+            android:id="@+id/btnSendThreeImagesToLocal"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center"
+            android:text="Send Three Potted Plants" />
+
+
     </LinearLayout>
 </ScrollView>
