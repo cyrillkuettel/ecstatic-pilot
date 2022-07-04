@@ -161,17 +161,16 @@ class CameraFragment : Fragment() {
         timerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
             navigateBack_OnUIThread()
         }
-        // takePhotoDelayed(500)
+        takePhotoDelayed(500)
     }
 
-    // not used currently but we might use it later.
     fun takePhotoDelayed(timeoutMillis: Long) {
         thread(start = true) {
             Thread.sleep(timeoutMillis)
             // Camera needs to be initialized. The sleep call is necessary,
             // otherwise it does not work. Better would be callback method as soon as CameraDevice
             // initialization is finished.
-            takePhotoOnce(::placeHolder)
+            takePhotoOnce(::setCurrentImage)
         }
     }
 
@@ -514,8 +513,7 @@ class CameraFragment : Fragment() {
 
     private fun navigateBack() {
         Log.e(TAG,"navigateBack()")
-
-        requireActivity().runOnUiThread(Runnable {
+        requireActivity().runOnUiThread {
             try {
                 Log.d(
                     TAG, "navigateBack() has been called. " +
@@ -528,7 +526,7 @@ class CameraFragment : Fragment() {
             } catch (e: Exception) {
                 Log.v(TAG, e.toString())
             }
-        })
+        }
     }
 
 
