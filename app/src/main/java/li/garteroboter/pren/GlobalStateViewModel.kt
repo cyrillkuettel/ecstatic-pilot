@@ -86,7 +86,8 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
         RESUME("Weiterfahren."),
         OBJECT_DETECTION_TRIGGERED("Object detection: Potted Plant"),
         PLANT_SPECIES_DETECTED("Spezies erkannt."),
-        QR_CODE_DETECTED("QR-Code erkannt")
+        QR_CODE_DETECTED("QR-Code erkannt"),
+        ZOOM("Camera Zoom initialisiert ")
     }
     companion object {
         const val TAG = "GlobalStateViewModel"

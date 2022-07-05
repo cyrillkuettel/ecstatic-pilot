@@ -161,8 +161,8 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     private fun observeViewModel(view: View) {
         setupButtonOnClickListener(view)
         terminalStartStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
-            Log.v(TAG, " startStopViewModel.getNextCommand().observe")
             send(command)
+            Log.v(TAG, " startStopViewModel.getNextCommand().observe")
         })
     }
 

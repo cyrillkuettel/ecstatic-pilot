@@ -1,8 +1,6 @@
 package li.garteroboter.pren.network;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -169,6 +167,8 @@ public class WebSocketManager {
                             Log.d(TAG, "message.contains(\"stop\")");
                             if (globalStateListener != null ) {
                                 globalStateListener.triggerStop();
+                            } else {
+                                Log.d(TAG, "fatal: globalstateListener == null");
                             }
                         }
                     }
@@ -190,8 +190,8 @@ public class WebSocketManager {
                                             Map<String, List<String>> headers) throws Exception {
                         super.onConnected(websocket, headers);
                         Log.i(TAG, "connected!");
-                        new Handler(Looper.getMainLooper()).post(createToast("Websocket " +
-                                "Connected", context));
+                        // new Handler(Looper.getMainLooper()).post(createToast("Websocket " +
+                           //     "Connected", context));
 
                     }
                 })

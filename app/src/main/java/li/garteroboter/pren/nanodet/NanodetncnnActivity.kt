@@ -86,12 +86,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         }
     }
 
-    private val websocketManagerCommand: WebSocketManager by lazy {
-        WebSocketManager(this@NanodetncnnActivity, HOSTNAME, SocketType.Command).apply {
+    private val websocketManagerCommand = WebSocketManager(this@NanodetncnnActivity, HOSTNAME, SocketType.Command).apply {
             lifecycleScope.launch {
                 createAndOpenWebSocketConnection()
             }
-        }
     }
 
 
@@ -122,9 +120,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         setupAtomicCounterInterval()
 
-
         // seems to be needed to initialize the lazy object
-        websocketManagerCommand.sendText("initialize")
+       val result = websocketManagerCommand.sendText("initialize")
+        Log.d(TAG, "websocketManagerCommand.sendText == $result")
         reload()
     }
 
@@ -215,10 +213,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             /** Finish Line */
         } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
+            Log.d(TAG,"STOP_FINISH_LINE" )
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.stopTimer()
             globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.STOP)
-            Thread.sleep(500)
+            // Thread.sleep(500)
             exit()
         }
     })
