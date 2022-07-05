@@ -127,6 +127,7 @@ class CameraFragment : Fragment() {
         requireContext().getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
     }
 
+
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService // similar to java.util.concurrent.executor
 
@@ -425,6 +426,20 @@ class CameraFragment : Fragment() {
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
+            // widest zoom angle
+            try {
+                val zoomState = camera!!.cameraInfo.zoomState.value
+                val zoom = zoomState?.minZoomRatio
+                if (zoom != null) {
+                    camera!!.cameraControl.setZoomRatio(zoom)
+                }
+                requireActivity().runOnUiThread {
+                    globalStateViewModel.setCurrentLog(LogType.ZOOM)
+                }
+            }catch (exc: Exception) {
+                Log.e(TAG, "setZoomRatio failed", exc)
+
+            }
 
             // Attach the viewfinder's surface provider to preview use case
             preview?.setSurfaceProvider(fragmentCameraBinding.previewView.surfaceProvider)
