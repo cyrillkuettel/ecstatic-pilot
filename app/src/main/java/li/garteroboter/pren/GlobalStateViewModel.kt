@@ -1,15 +1,11 @@
 package li.garteroboter.pren
 
 import android.app.Application
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import li.garteroboter.pren.Constants.STOP_FINISH_LINE
-import li.garteroboter.pren.qrcode.identification.RetroFitWrapper
 import java.io.File
-import kotlin.concurrent.thread
 
 /** This ViewModel is used to track the current state of the Roboter.
  *
@@ -69,13 +65,6 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
         return mutableDriveState
     }
 
-    fun setCurrentSpecies(species: String) {
-        currentSpecies.value = species
-    }
-
-    fun getCurrentSpecies() : MutableLiveData<String> {
-        return currentSpecies
-    }
 
     fun setCurrentLog(newLog: LogType) {
         Log.d(TAG, "setCurrentLog: $newLog")
@@ -88,48 +77,16 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
 
 
-    fun startAPICall(file: File) {
-        thread(start = true) {
-            var speciesName = "failed"
-            try {
-                val savedUri = file.toString()
-                speciesName = startApiCallForSpecies(savedUri)
-                setCurrentSpecies(speciesName)
 
-            } catch (e: InterruptedException) {
-                Log.d(TAG, "caught Interrupted exception!")
-            } finally {
-                Log.v(TAG, "updating database with scientific name $speciesName")
-            }
-        }
-    }
-
-    fun startApiCallForSpecies(savedUri: String): String {
-        Log.i(TAG, "startApiCall")
-        val retroFitWrapper = RetroFitWrapper(getAPIKey())
-        val name = retroFitWrapper.requestLocalPlantIdentificationSynchronously(savedUri)
-        return name;
-    }
-
-    private fun getAPIKey(): String {
-        val applicationInfo: ApplicationInfo = context.packageManager
-            .getApplicationInfo(
-                context.packageName,
-                PackageManager.GET_META_DATA
-            )
-        val key = applicationInfo.metaData["plantapi"]
-        return key.toString()
-    }
 
 
     enum class LogType(val state: String) {
-        STARTED("Roboter started"),
-        STOP("Received Stop"),
-        RESUME("Resume driving"),
+        STARTED("Roboter gestartet"),
+        STOP("Roboter stopp. Ende Gelände."),
+        RESUME("Weiterfahren."),
         OBJECT_DETECTION_TRIGGERED("Object detection: Potted Plant"),
-        PLANT_SPECIES_DETECTED("Species detected."),
-
-        QR_CODE_DETECTED("QR_CODE_DETECTED")
+        PLANT_SPECIES_DETECTED("Spezies erkannt."),
+        QR_CODE_DETECTED("QR-Code erkannt")
     }
     companion object {
         const val TAG = "GlobalStateViewModel"

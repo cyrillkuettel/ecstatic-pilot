@@ -172,12 +172,9 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         globalStateViewModel.getCurrentImage().observe(this, Observer { image ->
             Log.i(TAG, "viewModel.getCurrentImage().observe")
             uploadPlantFromFile(image)
+            // websocketManagerText.sendText("update=")
         })
-        globalStateViewModel.getCurrentSpecies().observe(this, Observer { speciesName ->
-            Log.i(TAG, "viewModel.getCurrentSpecies().observe")
-            binding.textViewCurrentSpecies.text = speciesName
-            // websocketManagerText.sendText(speciesName)
-        })
+
         globalStateViewModel.getCurrentLog().observe(this, Observer { log ->
             Log.e(TAG,"globalStateViewModel.getCurrentLog().observe" )
             if (log == GlobalStateViewModel.LogType.QR_CODE_DETECTED) {
