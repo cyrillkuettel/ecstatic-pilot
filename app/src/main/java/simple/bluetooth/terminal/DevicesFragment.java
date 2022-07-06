@@ -1,6 +1,5 @@
 package simple.bluetooth.terminal;
 
-import static li.garteroboter.pren.Constants.ESP32_BLUETOOTH_MAC_ADDRESS;
 import static li.garteroboter.pren.Constants.ESP_MAC_ADRESES;
 import static li.garteroboter.pren.Constants.TESTING_ESP32_BLUETOOTH_MAC_ADDRESS;
 
@@ -173,16 +172,9 @@ public class DevicesFragment extends ListFragment {
             // Probably not, but you never know.
             boolean haveNotFoundDevice = false;
             for (BluetoothDevice device : listItems) {
-                if (Objects.equals(device.getAddress(), ESP32_BLUETOOTH_MAC_ADDRESS)) {
+                if (Objects.equals(device.getAddress(), TESTING_ESP32_BLUETOOTH_MAC_ADDRESS)) {
                     haveNotFoundDevice = true;
                     initializeTerminalFragment(device);
-                }
-            }
-            if (haveNotFoundDevice) {
-                for (BluetoothDevice device : listItems) {
-                    if (Objects.equals(device.getAddress(), TESTING_ESP32_BLUETOOTH_MAC_ADDRESS)) {
-                        initializeTerminalFragment(device);
-                    }
                 }
             }
         }
