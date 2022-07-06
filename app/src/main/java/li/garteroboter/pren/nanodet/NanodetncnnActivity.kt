@@ -121,11 +121,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         setupAtomicCounterInterval()
 
         // seems to be needed to initialize the lazy object
-       val result = websocketManagerCommand.sendText("initialize")
+        val result = websocketManagerCommand.sendText(GlobalStateViewModel.LogType.WEBSOCKET.state)
         Log.d(TAG, "websocketManagerCommand.sendText == $result")
         reload()
     }
-
     private fun setupUI() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         cameraView = binding.cameraview
@@ -192,7 +191,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             globalStateViewModel.ROBOTER_DRIVING = true
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
             Log.v(TAG, "state == START_COMMAND_ESP32")
-            websocketManagerText.sendText("received start command")
+            globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.STARTED)
             websocketManagerText.startTimer()
         } else if (currentGlobalScope.equals(RETURNING_FROM_INTERMEDIATE)) {
             /** Here we are returning from CameraFragment. Either we have successfully read the

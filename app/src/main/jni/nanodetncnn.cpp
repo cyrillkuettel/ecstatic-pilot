@@ -199,6 +199,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     TerminalFragmentClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
     MainActivityNanodetNCNNClass = (jclass) env->NewGlobalRef(tempLocalClassRef);
 
+
+
     // STEP 3/3 : Delete the no longer needed local reference
     env->DeleteLocalRef(tempLocalClassRef);
     env->DeleteLocalRef(tempLocalClassRef2);

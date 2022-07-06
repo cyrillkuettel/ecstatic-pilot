@@ -162,7 +162,7 @@ class CameraFragment : Fragment() {
         timerForFragmentTermination = Timer("adieu", false).schedule(QR_CODE_WAITING_TIME) {
             navigateBack_OnUIThread()
         }
-        takePhotoDelayed(500)
+        takePhotoDelayed(1000)
     }
 
     fun takePhotoDelayed(timeoutMillis: Long) {
@@ -171,6 +171,7 @@ class CameraFragment : Fragment() {
             // Camera needs to be initialized. The sleep call is necessary,
             // otherwise it does not work. Better would be callback method as soon as CameraDevice
             // initialization is finished.
+            // the delay is very important, it is needed to adjust parameters like brightness internally
             takePhotoOnce(::setCurrentImage)
         }
     }
@@ -389,12 +390,13 @@ class CameraFragment : Fragment() {
                                     .schedule(QR_CODE_WAITING_TIME) {
                                         navigateBack_OnUIThread()
                                     }
-
+                            /*
                                 requireActivity().runOnUiThread {
                                     globalStateViewModel.setCurrentLog(LogType.QR_CODE_DETECTED)
-                                }
+                             }
+                             */
 
-                                if (qrCode?.contains("STOP") == true) {
+                                if (qrCode?.uppercase()?.contains("STOP") == true) {
                                     globalStateViewModel.stop()
 
                                 }
@@ -426,16 +428,15 @@ class CameraFragment : Fragment() {
             camera = cameraProvider.bindToLifecycle(
                 this, cameraSelector, preview, imageCapture, imageAnalyzer
             )
-            // widest zoom angle
+
+            // widest zoom angle possible
             try {
                 val zoomState = camera!!.cameraInfo.zoomState.value
                 val zoom = zoomState?.minZoomRatio
                 if (zoom != null) {
                     camera!!.cameraControl.setZoomRatio(zoom)
                 }
-                requireActivity().runOnUiThread {
-                    globalStateViewModel.setCurrentLog(LogType.ZOOM)
-                }
+
             }catch (exc: Exception) {
                 Log.e(TAG, "setZoomRatio failed", exc)
 
@@ -632,7 +633,7 @@ class CameraFragment : Fragment() {
 
     companion object {
         /** Maximum activity Lifetime */
-        private const val QR_CODE_WAITING_TIME: Long = 5000 // maximum allowed fragment Lifetime
+        private const val QR_CODE_WAITING_TIME: Long = 4000 // maximum allowed fragment Lifetime
 
         private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"

@@ -81,13 +81,13 @@ class GlobalStateViewModel(application: Application) : AndroidViewModel(applicat
 
 
     enum class LogType(val state: String) {
-        STARTED("Roboter gestartet"),
-        STOP("Roboter stopp. Ende Gelände."),
-        RESUME("Weiterfahren."),
-        OBJECT_DETECTION_TRIGGERED("Object detection: Potted Plant"),
-        PLANT_SPECIES_DETECTED("Spezies erkannt."),
+        STARTED("Knopf gedrückt. Garteroboterli fährt los."),
+        RESUME("Foto gemacht. Weiterfahren."),
+        OBJECT_DETECTION_TRIGGERED("Objekterkennung: Potted Plant"),
         QR_CODE_DETECTED("QR-Code erkannt"),
-        ZOOM("Camera Zoom initialisiert ")
+        WEBSOCKET("Websocket Open: Handshake"),
+        STOP("Roboter Stopp-QR-Code. Ende Gelände. \n Websocket Close: Handshake")
+
     }
     companion object {
         const val TAG = "GlobalStateViewModel"
