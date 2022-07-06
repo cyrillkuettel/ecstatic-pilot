@@ -2,6 +2,7 @@ package simple.bluetooth.terminal;
 
 import static li.garteroboter.pren.Constants.ESP32_BLUETOOTH_MAC_ADDRESS;
 import static li.garteroboter.pren.Constants.ESP_MAC_ADRESES;
+import static li.garteroboter.pren.Constants.TESTING_ESP32_BLUETOOTH_MAC_ADDRESS;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -131,6 +132,8 @@ public class DevicesFragment extends ListFragment {
     void refreshBluetoothDevices() {
         listItems.clear();
         if (bluetoothAdapter != null) {
+            /** Important note: this does not actually get the nearby devices.
+             * There can be devices paired which are not in the environment */
             final Set<BluetoothDevice> scannedDevices = bluetoothAdapter.getBondedDevices();
             if (scannedDevices != null) {
                 for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
@@ -163,13 +166,23 @@ public class DevicesFragment extends ListFragment {
             BluetoothDevice ESP32_Device = listItems.get(0);
             initializeTerminalFragment(ESP32_Device);
         } else {
+            Log.e(TAG, String.format("There are multiple (%s) devices to choose from", listItems.size()));
             // there may be multiple devices with the name "ESP32"
             // here I can check for the MAC Address.
             // This can be useful when there are multiple ESP32 devices in the area.
             // Probably not, but you never know.
+            boolean haveNotFoundDevice = false;
             for (BluetoothDevice device : listItems) {
                 if (Objects.equals(device.getAddress(), ESP32_BLUETOOTH_MAC_ADDRESS)) {
+                    haveNotFoundDevice = true;
                     initializeTerminalFragment(device);
+                }
+            }
+            if (haveNotFoundDevice) {
+                for (BluetoothDevice device : listItems) {
+                    if (Objects.equals(device.getAddress(), TESTING_ESP32_BLUETOOTH_MAC_ADDRESS)) {
+                        initializeTerminalFragment(device);
+                    }
                 }
             }
         }

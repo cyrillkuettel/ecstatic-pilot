@@ -59,10 +59,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         super.onCreate(savedInstanceState)
         retainInstance = true
         deviceAddress = requireArguments().getString("device")
-        Log.d(TAG, String.format("Found device address: %s", deviceAddress))
-
-        // Log.i(TAG, "setting Global reference for JNI ")
-        // setObjectReferenceAsGlobal(this) /* This allows accessing the instance of TerminalFragment from the C++ Layer */
+        Log.d(TAG, String.format("Using device address: %s", deviceAddress))
 
     }
 

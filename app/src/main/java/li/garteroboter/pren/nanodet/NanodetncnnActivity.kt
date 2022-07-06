@@ -65,6 +65,11 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
             applicationContext, RingtoneManager.TYPE_NOTIFICATION))
     }
+    private val ringtone2 by lazy {
+        RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
+            applicationContext, RingtoneManager.TYPE_ALARM))
+    }
+
 
     private var currentSurfaceViewWidth = 0
     private var currentSurfaceViewHeight = 0
@@ -124,6 +129,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         val result = websocketManagerCommand.sendText(GlobalStateViewModel.LogType.WEBSOCKET.state)
         Log.d(TAG, "websocketManagerCommand.sendText == $result")
         reload()
+
     }
     private fun setupUI() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -212,11 +218,12 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             }
             /** Finish Line */
         } else if (currentGlobalScope.equals(STOP_FINISH_LINE)) {
-            Log.d(TAG,"STOP_FINISH_LINE" )
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.stopTimer()
             globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.STOP)
-            // Thread.sleep(500)
+            ringtone2.play()
+            Thread.sleep(1000)
+            /** Terminate the currently running java machine. End with style. */
             exit()
         }
     })
