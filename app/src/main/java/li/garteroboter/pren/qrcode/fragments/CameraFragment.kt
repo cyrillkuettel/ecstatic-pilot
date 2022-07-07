@@ -633,7 +633,7 @@ class CameraFragment : Fragment() {
 
     companion object {
         /** Maximum activity Lifetime */
-        private const val QR_CODE_WAITING_TIME: Long = 4000 // maximum allowed fragment Lifetime
+        private const val QR_CODE_WAITING_TIME: Long = 5000 // maximum allowed fragment Lifetime
 
         private const val TAG = "CameraFragment"
         private const val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"

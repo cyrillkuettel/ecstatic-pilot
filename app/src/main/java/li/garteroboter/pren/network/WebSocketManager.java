@@ -163,7 +163,7 @@ public class WebSocketManager {
                         super.onTextMessage(websocket, message);
 
                         Log.d(TAG, "WebSocket onTextMessage: " + message);
-                        if (message.contains("stop")) {
+                        if (message.contains("jetzt_stop")) {
                             Log.d(TAG, "message.contains(\"stop\")");
                             if (globalStateListener != null ) {
                                 globalStateListener.triggerStop();
@@ -227,12 +227,14 @@ public class WebSocketManager {
     }
 
     public void startTimer() {
+        Log.e(TAG, "startTimer has been called");
         String value_now = getDeviceTimeStampAsMilliseconds();
         String message = String.format("command=startTime=%s", value_now);
         sendText(message);
     }
 
     public void stopTimer() {
+        Log.e(TAG, "stopTimer has been called");
         String value_now = getDeviceTimeStampAsMilliseconds();
         String message = String.format("command=stopTime=%s", value_now);
         sendText(message);

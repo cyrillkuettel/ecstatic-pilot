@@ -41,7 +41,7 @@
         android:id="@+id/btnSendMessageToWebSocket"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="300dp"
-        android:layout_height="45dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|center"
 
         android:text="@string/send_message_to_websocket" />

@@ -78,7 +78,7 @@ public class LoggingFragment extends Fragment {
         });
 
         Button btnSTart = view.findViewById(R.id.btnStart);
-        // btnStartStopTimer.setEnabled(false);
+        btnSTart.setEnabled(false);
         btnSTart.setOnClickListener(v -> {
             btnSTart.setEnabled((false));
             manager.startTimer();
