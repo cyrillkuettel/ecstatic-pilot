@@ -1,12 +1,19 @@
 package li.garteroboter.pren;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public final class Constants {
 
+    public static final String R_COMMAND_ESP32 = "RRR";
+    public static final String PLUS_COMMAND_ESP32 = "++";
+    public static final String F_COMMAND_ESP32 = "F";
+
+    public static final Long SPEED_DRIVING_MILLIS = 12000L;
 
     public static final String START_COMMAND_ESP32 = "1";
     public static final String STOP_COMMAND_ESP32 = "0";
@@ -31,4 +38,6 @@ public final class Constants {
     public static final Set<String> ESP_MAC_ADRESES = new HashSet<>(Arrays.asList(
             ESP32_BLUETOOTH_MAC_ADDRESS,
             TESTING_ESP32_BLUETOOTH_MAC_ADDRESS));
+
+
 }

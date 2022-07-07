@@ -27,6 +27,8 @@ import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.R
 import simple.bluetooth.terminal.SerialService.SerialBinder
 import simple.bluetooth.terminal.TextUtil.HexWatcher
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
@@ -158,6 +160,15 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
     private fun observeViewModel(view: View) {
         setupButtonOnClickListener(view)
         terminalStartStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
+            if (command.equals(Constants.PLUS_COMMAND_ESP32)) {
+                // start timer for sending 'F' in 10 Seconds
+                val t: TimerTask = Timer("send 'F' command in N Seconds", false).schedule(Constants.SPEED_DRIVING_MILLIS) {
+                    val delay = Constants.SPEED_DRIVING_MILLIS
+                    Log.d(TAG, "sending F command after $delay")
+                    send(Constants.F_COMMAND_ESP32)
+                }
+            }
+
             send(command)
             Log.v(TAG, " startStopViewModel.getNextCommand().observe")
         })

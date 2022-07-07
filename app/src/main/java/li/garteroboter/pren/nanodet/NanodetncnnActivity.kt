@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import com.jcabi.log.Logger.info
 import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.GlobalStateViewModel
@@ -45,6 +46,7 @@ import kotlin.concurrent.schedule
 class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySoundListener, GlobalStateListener {
 
 
+    private var firstPlantDetected = false
 
     private val globalStateViewModel: GlobalStateViewModel by viewModels()
     private val terminalStartStopViewModel: TerminalStartStopViewModel  by viewModels()
@@ -194,9 +196,10 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
 
         /**  Initialization First start signal: <Drive> */
         if (currentGlobalScope.equals(RECEIVED_CHAR_START_COMMAND_ESP32)) {
-            globalStateViewModel.ROBOTER_DRIVING = true
+            Log.d(TAG, "RECEIVED_CHAR_START_COMMAND_ESP32")
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
-            Log.v(TAG, "state == START_COMMAND_ESP32")
+            globalStateViewModel.ROBOTER_DRIVING = true
+            terminalStartStopViewModel.setCommand(F_COMMAND_ESP32)
             globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.STARTED)
             websocketManagerText.startTimer()
         } else if (currentGlobalScope.equals(RETURNING_FROM_INTERMEDIATE)) {
@@ -204,8 +207,14 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
              * QR-Code, or not,
              * in any case, resume driving. */
             terminalStartStopViewModel.setCommand(START_COMMAND_ESP32)
-            globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.RESUME)
+            if (!firstPlantDetected) {
 
+                terminalStartStopViewModel.setCommand(PLUS_COMMAND_ESP32)
+                terminalStartStopViewModel.setCommand(R_COMMAND_ESP32)
+                firstPlantDetected =  true
+            }
+
+            globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.RESUME)
             /** We have to wait a bit before detecting again, to prevent detecting the same plant twice */
             Log.e(TAG, "Setting timer")
             globalStateViewModel.ROBOTER_DRIVING = false // wait a bit
@@ -221,8 +230,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             terminalStartStopViewModel.setCommand(STOP_COMMAND_ESP32)
             websocketManagerText.stopTimer()
             globalStateViewModel.setCurrentLog(GlobalStateViewModel.LogType.STOP)
-            ringtone2.play()
-            Thread.sleep(1000)
+            Thread.sleep(500)
             /** Terminate the currently running java machine. End with style. */
             exit()
         }
