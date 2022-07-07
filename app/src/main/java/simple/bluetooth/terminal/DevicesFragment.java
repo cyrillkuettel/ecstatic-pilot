@@ -1,7 +1,7 @@
 package simple.bluetooth.terminal;
 
+import static li.garteroboter.pren.Constants.ESP32_BLUETOOTH_MAC_ADDRESS;
 import static li.garteroboter.pren.Constants.ESP_MAC_ADRESES;
-import static li.garteroboter.pren.Constants.TESTING_ESP32_BLUETOOTH_MAC_ADDRESS;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -170,10 +170,9 @@ public class DevicesFragment extends ListFragment {
             // here I can check for the MAC Address.
             // This can be useful when there are multiple ESP32 devices in the area.
             // Probably not, but you never know.
-            boolean haveNotFoundDevice = false;
+
             for (BluetoothDevice device : listItems) {
-                if (Objects.equals(device.getAddress(), TESTING_ESP32_BLUETOOTH_MAC_ADDRESS)) {
-                    haveNotFoundDevice = true;
+                if (Objects.equals(device.getAddress(), ESP32_BLUETOOTH_MAC_ADDRESS)) {
                     initializeTerminalFragment(device);
                 }
             }
