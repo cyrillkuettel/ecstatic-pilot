@@ -189,8 +189,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
             websocketManagerText.sendText(log.state)
         })
 
-
-
         globalStateViewModel.getMutableDriveState().observe(this, Observer { currentGlobalScope ->
             Log.i(TAG, "globalStateViewModel.getCurrentDriveState().observe(this")
 

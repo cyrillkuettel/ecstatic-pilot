@@ -23,6 +23,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import li.garteroboter.pren.Constants
 import li.garteroboter.pren.Constants.RECEIVED_CHAR_START_COMMAND_ESP32
+import li.garteroboter.pren.Constants.START_COMMAND_ESP32
 import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.R
 import simple.bluetooth.terminal.SerialService.SerialBinder
@@ -162,11 +163,14 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
         terminalStartStopViewModel.getNextCommand().observe(viewLifecycleOwner, Observer { command ->
             if (command.equals(Constants.PLUS_COMMAND_ESP32)) {
                 // start timer for sending 'F' in 10 Seconds
+
                 val t: TimerTask = Timer("send 'F' command in N Seconds", false).schedule(Constants.SPEED_DRIVING_MILLIS) {
                     val delay = Constants.SPEED_DRIVING_MILLIS
                     Log.d(TAG, "sending F command after $delay")
                     send(Constants.F_COMMAND_ESP32)
                 }
+
+
             }
 
             send(command)
@@ -278,6 +282,7 @@ class TerminalFragment : Fragment(), ServiceConnection, SerialListener {
             if (content.contains(RECEIVED_CHAR_START_COMMAND_ESP32)) {
                 Log.d(TAG, content.toString())
                  globalStateViewModel.setDriveState(RECEIVED_CHAR_START_COMMAND_ESP32)
+                 send(START_COMMAND_ESP32)
 
             }
             receiveText!!.append(content)
