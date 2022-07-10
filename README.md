@@ -1,6 +1,13 @@
 # ecstatic-pilot
-## The brain behind an autonomous robot
-## To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
+## The brain behind an autonomous robot. To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
+
+
+# Features
+
+- Real-Time Object Detection on Smartphones thanks to [NanoDet](https://github.com/RangiLyu/nanodet)
+- Bluetooth Chat: [SimpleBluetoothTerminal](https://github.com/kai-morich/SimpleBluetoothTerminal)
+- Capure Images without User input
+
 
 <p align="center">
   <img src="doc/screenshot.png" alt="rover"  width="100%" height="100%"/>
