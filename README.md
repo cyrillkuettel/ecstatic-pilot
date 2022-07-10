@@ -1,19 +1,21 @@
 # ecstatic-pilot
 ## The brain behind an autonomous robot
+## To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
 
 <p align="center">
   <img src="doc/screenshot.png" alt="rover"/>
 </p>
 
-This is the software for a robot. The robot is specifically built to get best scores at a tournament at HSLU.
-It drives trough a parcour. A Smartphone is attached to it. The goal from a software perspective is to detect plants in real-time communicate with hardware to stop. And then read QR-Codes and save to internal database. The app is also able take photos on it's own. The species of the plant will also be determined by calling an API.
-The app will connect to a Bluetooth device in order to send commands. 
+This is the software for a robot.  The robot is specifically built to get best scores at a tournament at HSLU.
+It drives trough a parcour. A Smartphone is attached to it. The goal from a software perspective is to detect plants in real-time and communicate this the with hardware, so that the roboters stops. It then takes a image, which is uploaded to a webserver. The species of the plant will also be determined by calling an API. This is all happening completly autonomous without user input. 
+The app will connect to a Bluetooth device in order to send commands to a microcontroller.
 At the same time this is happening, status updates are sent to the webserver.
-## To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
 
-<p align="left">
-<img src="doc/garteroboterli.jpeg" alt="garteroboterli"  width="60%" height="60%"/>
+## Phone is mounted on Garteroboterli
+<p align="center">
+  <img src="doc/concept.jpg" alt="rover"/>
 </p>
+
 
 
 # Finite State machine
