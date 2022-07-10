@@ -2,7 +2,7 @@
 ## The brain behind an autonomous robot
 
 <p align="center">
-  <img src="app/src/main/res/drawable/rover_transparent_30.png" alt="rover"/>
+  <img src="doc/screenshot.png" alt="rover"/>
 </p>
 
 This is the software for a robot. The robot is specifically built to get best scores at a tournament at HSLU.
