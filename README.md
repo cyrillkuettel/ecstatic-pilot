@@ -3,7 +3,7 @@
 ## To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
 
 <p align="center">
-  <img src="doc/screenshot.png" alt="rover"  width="80%" height="80%"/>
+  <img src="doc/screenshot.png" alt="rover"  width="100%" height="100%"/>
 </p>
 
 This is the software for a robot.  The robot is specifically built to get best scores at a tournament at HSLU.
