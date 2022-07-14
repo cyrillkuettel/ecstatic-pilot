@@ -15,8 +15,6 @@ import android.view.SurfaceView;
  */
 public class ImageCopyRequest implements ImageProcessor{
     private static final String TAG = "ImageCopyRequest";
-
-
     final SurfaceView cameraview;
     PixelCopyCallback pixelCopyCallback;
     boolean setHasPermissionToSave;
@@ -33,42 +31,15 @@ public class ImageCopyRequest implements ImageProcessor{
             return;
         }
         pixelCopyCallback  = new PixelCopyCallback();
-
         try {
             copyBitmapAndAttachListener(cameraview, pixelCopyCallback);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
         // startCopyOnLockAcquired(cameraview);
 
     }
-
-
-
-    public void startCopyOnLockAcquired(SurfaceView cameraView) {
-        Canvas canvas = null;
-        int count = 0;
-        while (canvas == null || count > 100) { // very dubious of course, TODO.need to fix this
-            try {
-                canvas = cameraView.getHolder().lockCanvas(); // maybe try hardware lock
-                Log.v(TAG, "onclick!");
-                if (canvas != null) {
-                    Log.d(TAG, String.format("Got Lock on Canvas after %d tries", count));
-                    copyBitmapAndAttachListener(cameraView, pixelCopyCallback);
-                    cameraView.getHolder().unlockCanvasAndPost(canvas);
-                } else {
-                    Log.v(TAG, "canvas == null");
-                }
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Canvas is locked, try again.");
-                e.printStackTrace();
-            }
-            count++;
-        }
-    }
-
     @Override
     public void copyBitmapAndAttachListener(SurfaceView view, PostTake callback) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),
@@ -91,6 +62,28 @@ public class ImageCopyRequest implements ImageProcessor{
         } catch (Exception e) {
             Log.e(TAG, "failed: PixelCopy.request(view, bitmap, listener, new Handler());");
             e.printStackTrace();
+        }
+    }
+
+    public void startCopyOnLockAcquired(SurfaceView cameraView) {
+        Canvas canvas = null;
+        int count = 0;
+        while (canvas == null || count > 100) { // very dubious of course, TODO.need to fix this
+            try {
+                canvas = cameraView.getHolder().lockCanvas(); // maybe try hardware lock
+                Log.v(TAG, "onclick!");
+                if (canvas != null) {
+                    Log.d(TAG, String.format("Got Lock on Canvas after %d tries", count));
+                    copyBitmapAndAttachListener(cameraView, pixelCopyCallback);
+                    cameraView.getHolder().unlockCanvasAndPost(canvas);
+                } else {
+                    Log.v(TAG, "canvas == null");
+                }
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Canvas is locked, try again.");
+                e.printStackTrace();
+            }
+            count++;
         }
     }
 

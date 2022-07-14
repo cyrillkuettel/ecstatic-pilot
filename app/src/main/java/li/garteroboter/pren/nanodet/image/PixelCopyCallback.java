@@ -31,7 +31,7 @@ public class PixelCopyCallback implements PostTake {
     }
 
     public void saveBitmap(Bitmap bmp)  {
-            final String filename = "testimage2.jpg";
+            final String filename = "test_image_pixel_copy.jpg";
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             bmp.compress(Bitmap.CompressFormat.JPEG, 60, bytes);
@@ -42,7 +42,8 @@ public class PixelCopyCallback implements PostTake {
             fo.write(bytes.toByteArray());
             fo.close();
         } catch (IOException e) {
-            Log.d(TAG, "failed to save bitma in PixelCopyCallback");
+            Log.d(TAG, "failed to save bitmap in PixelCopyCallback." +
+                    "Probably need to get Android permissions first. ");
             e.printStackTrace();
         }
 

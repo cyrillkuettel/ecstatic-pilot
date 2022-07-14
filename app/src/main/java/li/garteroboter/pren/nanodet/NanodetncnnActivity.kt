@@ -21,11 +21,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import com.jcabi.log.Logger.info
 import kotlinx.coroutines.launch
 import li.garteroboter.pren.Constants.*
 import li.garteroboter.pren.GlobalStateViewModel
 import li.garteroboter.pren.databinding.ActivityNanodetncnnBinding
+import li.garteroboter.pren.nanodet.image.ImageCopyRequest
 import li.garteroboter.pren.network.GlobalStateListener
 import li.garteroboter.pren.network.SocketType
 import li.garteroboter.pren.network.WebSocketManager
@@ -66,10 +66,6 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     private val ringtone by lazy {
         RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
             applicationContext, RingtoneManager.TYPE_NOTIFICATION))
-    }
-    private val ringtone2 by lazy {
-        RingtoneManager.getRingtone(applicationContext, RingtoneManager.getActualDefaultRingtoneUri(
-            applicationContext, RingtoneManager.TYPE_ALARM))
     }
 
 
@@ -141,7 +137,16 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
         setupSpinnerOnClick(binding.spinnerModel)
         setupSpinnerCPUGPUOnClick(binding.spinnerCPUGPU)
         binding.mainButtonQrCode.setOnClickListener { navigateToCameraFragment() }
-        binding.mainButtonExit.setOnClickListener { exit() }
+
+        binding.mainButtonPixelCopy.setOnClickListener {
+
+            // get Image from SurfaceView and save.
+            // Important: Requires external storage permission to be requested at runtime!
+            val copyRequest = ImageCopyRequest(cameraView)
+            // copyRequest.setHasPermissionToSave(true) //
+            copyRequest.start()
+
+        }
     }
 
 
@@ -159,8 +164,7 @@ class NanodetncnnActivity : AppCompatActivity(), SurfaceHolder.Callback, PlaySou
     }
 
 
-    /** Restart [NanodetncnnActivity], assuming MainActivity creates [NanodetncnnActivity] in onCreate]
-     * Effect: Flushing ViewModel, depending on the scope of the ViewModel. */
+
     private fun exit() {
         //finish()
          /**

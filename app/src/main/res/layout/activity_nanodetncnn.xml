@@ -38,8 +38,8 @@
             android:entries="@array/cpugpu_array" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/mainButtonExit"
-            android:text="Exit"
+            android:id="@+id/mainButtonPixelCopy"
+            android:text="Copy"
             android:layout_marginRight="20dp"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
