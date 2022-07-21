@@ -38,7 +38,7 @@ At the same time this is happening, status updates are sent to the webserver.
 For the complete documentation of this hslu project, find it here: [Gruppe38_Abschlussdokumentation_100622.pdf](https://github.com/cyrillkuettel/ecstatic-pilot/files/9080036/Gruppe38_Abschlussdokumentation_100622.pdf)
 
 
-## ACKNOWLEDGMENTS
+## Acknowledgment
 This project wouldn't exist without the following open-source repositories.
 
 
