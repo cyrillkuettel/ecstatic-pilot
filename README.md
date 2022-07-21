@@ -38,12 +38,12 @@ At the same time this is happening, status updates are sent to the webserver.
 For the complete documentation of this hslu project, find it here: [Gruppe38_Abschlussdokumentation_100622.pdf](https://github.com/cyrillkuettel/ecstatic-pilot/files/9080036/Gruppe38_Abschlussdokumentation_100622.pdf)
 
 
-## Acknowledgment
-This project wouldn't exist without the following open-source repositories.
+# Acknowledgments
+This project wouldn't exist without libraries and other open-source projects.
 
 
 -   [SimpleBluetoothTerminal](https://github.com/kai-morich/SimpleBluetoothTerminal) to enable communicating with a ESP32 microcontroller over Bluetooth.
 -   [CameraXBasic](https://github.com/android/camera-samples/tree/main/CameraXBasic) Example project which uses the [CameraX](https://developer.android.com/training/camerax) library.
--   [ncnn-android-nanodet](https://github.com/nihui/ncnn-android-nanodet) NanoDet object detection, which depends on [ncnn](https://github.com/Tencent/ncnn). I modified the code to only check for certain objects.
+-   [ncnn-android-nanodet](https://github.com/nihui/ncnn-android-nanodet) NanoDet object detection, which depends on [ncnn](https://github.com/Tencent/ncnn). I modified the code to only check for certain objects. (And ignore all the rest)
 -   [nv-websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) ,which offers a High-quality WebSocket client implementation for Android in Java. 
 -   [NanoDet](https://github.com/RangiLyu/nanodet) Super fast and lightweight anchor-free object detection model. Real-time on mobile devices.
