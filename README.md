@@ -11,8 +11,6 @@ https://user-images.githubusercontent.com/36520284/178166677-ffc58d5f-f04a-48ee-
 - Bluetooth Chat: [SimpleBluetoothTerminal](https://github.com/kai-morich/SimpleBluetoothTerminal)
 - Capure Images without User input
 
-## To test out the app, download and install the [apk](https://cyrill.icu/app-release.apk).
-
 <p align="center">
   <img src="doc/screenshot.png" alt="rover"  width="100%" height="100%"/>
 </p>
